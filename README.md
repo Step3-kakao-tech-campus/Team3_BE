@@ -1,8 +1,34 @@
 # Team3_BE
-3조
-## 카카오 테크 캠퍼스 3단계 진행 보드
 
-</br>
+<p align="left">
+    <img src="docs/LogoTitle-Orange.png" alt="Logo" width="70%"/>
+</p>
+
+볼링 모집 커뮤니티 번개볼링(임시)의 백엔드 서버입니다.
+
+> 카카오 테크 캠퍼스 1기 부산대 3조 프로젝트입니다.
+
+## How to Start
+
+추가 예정
+
+## Features
+
+추가 예정
+
+## Collaborators
+
+카카오 테크 캠퍼스 1기 부산대 3조
+
+|                           조장                           |                          테크 리더                          |                          기획 리더                           |                         리액셔너                          |
+|:------------------------------------------------------:|:-------------------------------------------------------:|:--------------------------------------------------------:|:-----------------------------------------------------:|
+|           [박소현](https://github.com/sososo0)            |           [안혜준](https://github.com/jagaldol)            |           [김기해](https://github.com/xcelxlorx)            |           [김윤재](https://github.com/yunzae)            |
+| <img src="https://github.com/sososo0.png" width="100"> | <img src="https://github.com/jagaldol.png" width="100"> | <img src="https://github.com/xcelxlorx.png" width="100"> | <img src="https://github.com/yunzae.png" width="100"> |
+
+
+<details>
+    <summary><h2>카카오 테크 캠퍼스 3단계 진행 보드</h2></summary>
+    </br>
 
 ## 배포와 관련하여
 
@@ -250,4 +276,4 @@ UI 컴포넌트의 명칭과 이를 구현하는 능력은 필수적인 커뮤�
 
 </div>
 
----
+</details>
