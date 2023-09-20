@@ -103,3 +103,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+## etc
+application-mysql.yml
