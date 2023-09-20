@@ -47,7 +47,8 @@ public class SecurityConfig {
         // 6. 로그인 인증창이 뜨지 않도록 HttpBasicAuthenticationFilter 비활성화 (헤더에 username, password)
         http.httpBasic(AbstractHttpConfigurer::disable);
 
-
+        // 7. 커스텀 필터들 적용 - 시큐리티 필터 커스텀으로 교체 (필터들을 갈아끼우는 내부 클래스)
+        http.apply(new CustomSecurityFilterManager());
 
         return http.build();
     }
