@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -74,6 +75,19 @@ public class SecurityConfig {
                     String responseBody = om.writeValueAsString(e.body());
                     response.getWriter().println(responseBody);
                 })));
+
+        // 10. 인증, 권한 필터 설정
+        http.authorizeHttpRequests(authorize ->
+                authorize
+                        .requestMatchers(new AntPathRequestMatcher("/api/posts/*/applicants", "GET")).hasRole("USER")
+                        .requestMatchers(new AntPathRequestMatcher("/api/posts/**", "GET")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/messages/**", "GET"),
+                                new AntPathRequestMatcher("/api/users/mine")).hasAnyRole("USER", "PENDING")
+                        .requestMatchers(new AntPathRequestMatcher("/api/posts/**"),
+                                new AntPathRequestMatcher("/api/applicants/**"),
+                                new AntPathRequestMatcher( "/api/messages/**")).hasRole("USER")
+                        .anyRequest().permitAll()
+        );
 
         return http.build();
     }
