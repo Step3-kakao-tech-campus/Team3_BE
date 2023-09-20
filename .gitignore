@@ -106,3 +106,4 @@ $RECYCLE.BIN/
 
 ## etc
 application-mysql.yml
+application-private.yml
