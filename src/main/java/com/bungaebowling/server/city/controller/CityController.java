@@ -3,6 +3,7 @@ package com.bungaebowling.server.city.controller;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server.city.City;
 import com.bungaebowling.server.city.country.Country;
+import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.dto.CityResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,26 @@ public class CityController {
         var getCountriesDto = CityResponse.GetCountriesDto.of(countryList);
 
         var response = ApiUtils.success(getCountriesDto);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/{cityId}/countries/{countryId}/districts")
+    public ResponseEntity<?> getDistricts(@PathVariable String cityId, @PathVariable String countryId) {
+        var city = new City(1L, "서울특별시");
+
+        var country = new Country(1L, city, "강남구");
+
+        List<District> districtList = List.of(
+                new District(1L, 21312L, country, "신사동"),
+                new District(2L, 123L, country, "압구정동"),
+                new District(3L, 11L, country, "논현동"),
+                new District(4L, 143L, country, "청담동"),
+                new District(5L, 1231L, country, "삼성동")
+        );
+
+        var getDistrictsDto = CityResponse.GetDistrictsDto.of(districtList);
+
+        var response = ApiUtils.success(getDistrictsDto);
         return ResponseEntity.ok().body(response);
     }
 }

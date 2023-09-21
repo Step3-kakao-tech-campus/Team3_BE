@@ -2,6 +2,7 @@ package com.bungaebowling.server.city.dto;
 
 import com.bungaebowling.server.city.City;
 import com.bungaebowling.server.city.country.Country;
+import com.bungaebowling.server.city.country.district.District;
 
 import java.util.List;
 
@@ -40,6 +41,25 @@ public class CityResponse {
         ) {
             CountryDto(Country country) {
                 this(country.getId(), country.getName());
+            }
+        }
+    }
+
+    public record GetDistrictsDto(
+            List<DistrictDto> countries
+    )  {
+        public static GetDistrictsDto of(List<District> districtList) {
+            return new GetDistrictsDto(districtList.stream()
+                    .map(DistrictDto::new)
+                    .toList());
+        }
+
+        public record DistrictDto(
+                Long id,
+                String name
+        ) {
+            DistrictDto(District district) {
+                this(district.getId(), district.getName());
             }
         }
     }

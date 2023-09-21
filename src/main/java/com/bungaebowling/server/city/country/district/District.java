@@ -28,9 +28,10 @@ public class District {
     private String name;
 
     @Builder
-    public District(Long id, Long statutoryCode, String name) {
+    public District(Long id, Long statutoryCode, Country country, String name) {
         this.id = id;
         this.statutoryCode = statutoryCode;
+        this.country = country;
         this.name = name;
     }
 }
