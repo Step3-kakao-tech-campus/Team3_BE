@@ -6,6 +6,7 @@ import com.bungaebowling.server.post.dto.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -63,4 +64,29 @@ public class PostController {
         ApiUtils.Response<?> response = ApiUtils.success(getPostsDto);
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<?> getPost(@PathVariable Long postId) {
+        PostResponse.GetPostDto getPostDto = new PostResponse.GetPostDto(
+                new PostResponse.GetPostDto.PostDto(
+                        postId,
+                        "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
+                        "김볼링",
+                        null,
+                        "부산광역시 금정구 장전2동",
+                        1,
+                        "오늘 오후 7시에 부산대 락볼링장에서 게임하실 분 구합니다.\n즐겜 할거구여 초보자 환영합니다. 저도 볼링 세 번 밖에 안쳐봤어요 ㅎㅎ\n연락주세요",
+                        "9월 7일 (목) 오후 9:00",
+                        "9월 9일 (토) 오전 9:00",
+                        100,
+                        "2023-09-06 21:00",
+                        "2023-09-06 21:00",
+                        false
+                )
+        );
+
+        ApiUtils.Response<?> response = ApiUtils.success(getPostDto);
+        return ResponseEntity.ok().body(response);
+    }
+
 }
