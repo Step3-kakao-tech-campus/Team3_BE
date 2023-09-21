@@ -19,10 +19,10 @@ import java.util.List;
 public class PostController {
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<?> getPosts() {
         CursorRequest cursorRequest = new CursorRequest(1L, 20);
         List<PostResponse.GetPostsDto.PostDto> postDtos = new ArrayList<>();
-        PostResponse.GetPostsDto.PostDto postDto1 = new PostResponse.GetPostsDto.PostDto(
+        var postDto1 = new PostResponse.GetPostsDto.PostDto(
                 1L,
                 "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
                 "9월 7일 (목) 오후 9:00",
@@ -34,7 +34,7 @@ public class PostController {
                 false
         );
         postDtos.add(postDto1);
-        PostResponse.GetPostsDto.PostDto postDto2 = new PostResponse.GetPostsDto.PostDto(
+        var postDto2 = new PostResponse.GetPostsDto.PostDto(
                 2L,
                 "오늘 당장 나올사람!",
                 "9월 7일 (목) 오후 8:00",
@@ -46,7 +46,7 @@ public class PostController {
                 false
         );
         postDtos.add(postDto2);
-        PostResponse.GetPostsDto.PostDto postDto3 = new PostResponse.GetPostsDto.PostDto(
+        var postDto3 = new PostResponse.GetPostsDto.PostDto(
                 3L,
                 "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
                 "9월 7일 (목) 오후 3:00",
@@ -59,15 +59,15 @@ public class PostController {
         );
         postDtos.add(postDto3);
 
-        PostResponse.GetPostsDto getPostsDto = new PostResponse.GetPostsDto(cursorRequest, postDtos);
+        var getPostsDto = new PostResponse.GetPostsDto(cursorRequest, postDtos);
 
-        ApiUtils.Response<?> response = ApiUtils.success(getPostsDto);
+        var response = ApiUtils.success(getPostsDto);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        PostResponse.GetPostDto getPostDto = new PostResponse.GetPostDto(
+        var getPostDto = new PostResponse.GetPostDto(
                 new PostResponse.GetPostDto.PostDto(
                         postId,
                         "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
@@ -85,7 +85,7 @@ public class PostController {
                 )
         );
 
-        ApiUtils.Response<?> response = ApiUtils.success(getPostDto);
+        var response = ApiUtils.success(getPostDto);
         return ResponseEntity.ok().body(response);
     }
 
