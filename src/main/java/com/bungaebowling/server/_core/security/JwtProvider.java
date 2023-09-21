@@ -3,7 +3,9 @@ package com.bungaebowling.server._core.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.bungaebowling.server._core.errors.exception.client.Exception401;
 import com.bungaebowling.server.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,9 +31,9 @@ public class JwtProvider {
 
         LocalDateTime expired = now.plusSeconds(ACCESS_EXP_SECOND);
         String jwt = JWT.create()
-                .withExpiresAt(Timestamp.valueOf(expired))
-                .withClaim("id", user.getId())
+                .withSubject(user.getId().toString())
                 .withClaim("role", String.valueOf(user.getRole()))
+                .withExpiresAt(Timestamp.valueOf(expired))
                 .sign(Algorithm.HMAC512(SECRET));
         return TOKEN_PREFIX + jwt;
     }
@@ -42,14 +44,19 @@ public class JwtProvider {
 
         LocalDateTime expired = now.plusSeconds(REFRESH_EXP_SECOND);
         String jwt = JWT.create()
+                .withSubject(user.getId().toString())
                 .withExpiresAt(Timestamp.valueOf(expired))
-                .withClaim("id", user.getId())
                 .sign(Algorithm.HMAC512(SECRET));
         return TOKEN_PREFIX + jwt;
     }
 
     public static DecodedJWT verify(String jwt) {
-        return JWT.require(Algorithm.HMAC512(SECRET)).build()
-                .verify(jwt.replace(TOKEN_PREFIX, ""));
+
+        try {
+            return JWT.require(Algorithm.HMAC512(SECRET)).build()
+                    .verify(jwt.replace(TOKEN_PREFIX, ""));
+        } catch (JWTVerificationException e) {
+            throw new Exception401("토큰 검증 실패");
+        }
     }
 }
