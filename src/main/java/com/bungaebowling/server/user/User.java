@@ -1,5 +1,6 @@
 package com.bungaebowling.server.user;
 
+import com.bungaebowling.server.city.country.district.District;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -26,11 +27,8 @@ public class User {
     @Column(length = 100, nullable = false)
     private String password;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private District district;
-
-    @Column(nullable = false)
-    private Long district_id; // District 만들고 District로 바꿔야함
+    @ManyToOne(fetch = FetchType.LAZY)
+    private District district;
 
     @Column(length = 200)
     private String imgUrl;
@@ -44,14 +42,14 @@ public class User {
     private LocalDateTime createdAt;
 
     @Builder
-    public User(Long id, String name, String email, String password, Long district_id, String imgUrl, Role role, LocalDateTime created_at) {
+    public User(Long id, String name, String email, String password, District district, String imgUrl, Role role, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
-        this.district_id = district_id;
+        this.district = district;
         this.imgUrl = imgUrl;
         this.role = role;
-        this.createdAt = created_at;
+        this.createdAt = createdAt;
     }
 }
