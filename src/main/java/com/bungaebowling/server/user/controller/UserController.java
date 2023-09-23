@@ -66,4 +66,17 @@ public class UserController {
         var response = ApiUtils.success(getUserDto);
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/users/{userId}/records")
+    public ResponseEntity<?> getUserRecords(@PathVariable Long userId) {
+        var getRecordDto = new UserResponse.GetRecordDto(
+                20,
+                160,
+                180,
+                110
+        );
+
+        var response = ApiUtils.success(getRecordDto);
+        return ResponseEntity.ok().body(response);
+    }
 }

@@ -29,4 +29,13 @@ public class UserResponse {
     ){
 
     }
+
+    public record GetRecordDto(
+            Integer game,
+            Integer average,
+            Integer maximum,
+            Integer minimum
+    ) {
+
+    }
 }
