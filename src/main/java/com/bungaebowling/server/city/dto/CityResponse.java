@@ -46,7 +46,7 @@ public class CityResponse {
     }
 
     public record GetDistrictsDto(
-            List<DistrictDto> countries
+            List<DistrictDto> districts
     )  {
         public static GetDistrictsDto of(List<District> districtList) {
             return new GetDistrictsDto(districtList.stream()
