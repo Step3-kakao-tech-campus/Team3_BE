@@ -19,4 +19,14 @@ public class UserResponse {
 
         }
     }
+
+    public record GetUserDto(
+            String name,
+            Integer averageScore,
+            Double rating,
+            String address,
+            String profileImage
+    ){
+
+    }
 }

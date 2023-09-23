@@ -7,6 +7,7 @@ import com.bungaebowling.server.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,6 +50,20 @@ public class UserController {
         var getUsersDto = new UserResponse.GetUsersDto(cursorRequest, userDtos);
 
         var response = ApiUtils.success(getUsersDto);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<?> getUser(@PathVariable Long userId) {
+        var getUserDto = new UserResponse.GetUserDto(
+                "김볼링",
+                190,
+                4.8,
+                "부산광역시 진구 부전동",
+                null
+        );
+
+        var response = ApiUtils.success(getUserDto);
         return ResponseEntity.ok().body(response);
     }
 }
