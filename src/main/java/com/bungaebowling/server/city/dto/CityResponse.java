@@ -63,4 +63,23 @@ public class CityResponse {
             }
         }
     }
+
+    public record GetDistrictInfoDto(
+            Long cityId,
+            String cityName,
+            Long countryId,
+            String countryName,
+            String name
+    ) {
+
+        public GetDistrictInfoDto(District district) {
+            this(
+                    district.getCountry().getCity().getId(),
+                    district.getCountry().getCity().getName(),
+                    district.getCountry().getId(),
+                    district.getCountry().getName(),
+                    district.getName()
+            );
+        }
+    }
 }

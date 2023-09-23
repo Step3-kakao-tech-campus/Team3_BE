@@ -1,5 +1,6 @@
 package com.bungaebowling.server.city.service;
 
+import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server.city.City;
 import com.bungaebowling.server.city.country.Country;
 import com.bungaebowling.server.city.country.district.District;
@@ -9,9 +10,11 @@ import com.bungaebowling.server.city.dto.CityResponse;
 import com.bungaebowling.server.city.repository.CityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class CityService {
@@ -38,5 +41,10 @@ public class CityService {
         List<District> districts = districtRepository.findByCountryId(countryId);
 
         return CityResponse.GetDistrictsDto.of(districts);
+    }
+
+    public CityResponse.GetDistrictInfoDto getDistrictInfo(Long districtId) {
+        District district = districtRepository.findByIdJoinAll(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정구역입니다."));
+        return new CityResponse.GetDistrictInfoDto(district);
     }
 }

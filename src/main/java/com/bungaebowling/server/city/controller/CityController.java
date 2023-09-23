@@ -39,4 +39,12 @@ public class CityController {
         var response = ApiUtils.success(getDistrictsDto);
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/districts/{districtId}")
+    public ResponseEntity<?> getDistrictInfo(@PathVariable Long districtId) {
+        var getDistrictInfoDto = cityService.getDistrictInfo(districtId);
+
+        var response = ApiUtils.success(getDistrictInfoDto);
+        return ResponseEntity.ok().body(response);
+    }
 }
