@@ -89,4 +89,23 @@ public class PostController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("/{postId}/scores")
+    public ResponseEntity<?> getPostScores(@PathVariable Long postId) {
+        List<PostResponse.GetScoresDto.ScoreDto> scoreDtos = new ArrayList<>();
+        var getScoreDto1 = new PostResponse.GetScoresDto.ScoreDto(
+                1L,
+                180,
+                "/scoreImages/1.jpg"
+        );
+        scoreDtos.add(getScoreDto1);
+        var getScoreDto2 = new PostResponse.GetScoresDto.ScoreDto(
+                2L,
+                210,
+                null
+        );
+        scoreDtos.add(getScoreDto2);
+
+        var response = ApiUtils.success(scoreDtos);
+        return ResponseEntity.ok().body(response);
+    }
 }

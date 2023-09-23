@@ -24,7 +24,6 @@ public class PostResponse {
         }
     }
 
-
     public record GetPostDto(
             PostDto post
     ) {
@@ -43,6 +42,18 @@ public class PostResponse {
                 String editedAt,
                 Boolean isClose
         ) {
+        }
+    }
+
+    public record GetScoresDto(
+            List<ScoreDto> scores
+    ) {
+        public record ScoreDto(
+                Long id,
+                Integer score,
+                String scoreImage
+        ) {
+
         }
     }
 }
