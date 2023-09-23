@@ -16,9 +16,9 @@ public class PostResponse {
                 String dueTime,
                 String districtName,
                 String startTime,
-                Integer averageScore,
                 String userName,
                 String profileImage,
+                Integer currentNumber,
                 Boolean isClose
         ) {
         }

@@ -28,9 +28,9 @@ public class PostController {
                 "9월 7일 (목) 오후 9:00",
                 "부산광역시 금정구 장전2동",
                 "9월 9일 (토) 오전 9:00",
-                0,
                 "김볼링",
                 null,
+                4,
                 false
         );
         postDtos.add(postDto1);
@@ -40,9 +40,9 @@ public class PostController {
                 "9월 7일 (목) 오후 8:00",
                 "부산광역시 동래구",
                 "9월 7일 (목) 오후 8:30",
-                0,
                 "최볼링",
                 null,
+                2,
                 false
         );
         postDtos.add(postDto2);
@@ -52,9 +52,9 @@ public class PostController {
                 "9월 7일 (목) 오후 3:00",
                 "부산광역시 부산진구 부전동",
                 "9월 8일 (금) 오후 7:00",
-                0,
                 "이볼링",
                 null,
+                1,
                 false
         );
         postDtos.add(postDto3);
