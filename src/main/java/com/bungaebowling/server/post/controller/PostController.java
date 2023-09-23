@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +87,80 @@ public class PostController {
         );
 
         var response = ApiUtils.success(getPostDto);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/users/{userId}/participation-records")
+    public ResponseEntity<?> getUserParticipationRecords(@PathVariable Long userId) {
+        CursorRequest cursorRequest = new CursorRequest(1L, 20);
+        List<PostResponse.GetParticipationRecordsDto.PostDto> postDtos = new ArrayList<>();
+        var postDto1 = new PostResponse.GetParticipationRecordsDto.PostDto(
+                1L,
+                "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
+                "9월 7일 (목) 오후 9:00",
+                "부산광역시 금정구 장전2동",
+                "9월 9일 (토) 오전 9:00",
+                2,
+                false,
+                List.of(),
+                List.of(
+                        new PostResponse.GetParticipationRecordsDto.PostDto.MemberDto(
+                                2L,
+                                "최볼링",
+                                "/images/2.jpg",
+                                true
+                        ),
+                        new PostResponse.GetParticipationRecordsDto.PostDto.MemberDto(
+                                3L,
+                                "이볼링",
+                                "/images/3.jpg",
+                                false
+                        )
+                )
+        );
+        postDtos.add(postDto1);
+
+        var postDto2 = new PostResponse.GetParticipationRecordsDto.PostDto(
+                1L,
+                "오늘 당장 나올 사람!",
+                "9월 7일 (목) 오후 9:00",
+                "부산광역시 금정구 장전2동",
+                "9월 9일 (토) 오전 9:00",
+                2,
+                false,
+                List.of(
+                        new PostResponse.GetParticipationRecordsDto.PostDto.ScoreDto(
+                                1L,
+                                180,
+                                "/score-images/1.jpg"
+                        ),
+                        new PostResponse.GetParticipationRecordsDto.PostDto.ScoreDto(
+                                2L,
+                                210,
+                                null
+                        )
+                ),
+                List.of(
+                        new PostResponse.GetParticipationRecordsDto.PostDto.MemberDto(
+                                2L,
+                                "최볼링",
+                                "/images/2.jpg",
+                                true
+                        ),
+                        new PostResponse.GetParticipationRecordsDto.PostDto.MemberDto(
+                                3L,
+                                "이볼링",
+                                "/images/3.jpg",
+                                false
+                        )
+                )
+        );
+        postDtos.add(postDto2);
+
+        var getPostsDto = new PostResponse.GetParticipationRecordsDto(cursorRequest, postDtos);
+
+        var response = ApiUtils.success(getPostsDto);
+
         return ResponseEntity.ok().body(response);
     }
 

@@ -45,6 +45,40 @@ public class PostResponse {
         }
     }
 
+    public record GetParticipationRecordsDto(
+            CursorRequest nextCursorRequest,
+            List<PostDto> posts
+    ) {
+        public record PostDto(
+                Long id,
+                String title,
+                String dueTime,
+                String districtName,
+                String startTime,
+                Integer currentNumber,
+                Boolean isClose,
+                List<ScoreDto> scores,
+                List<MemberDto> members
+        ) {
+            public record ScoreDto(
+                    Long id,
+                    Integer score,
+                    String scoreImage
+            ) {
+
+            }
+
+            public record MemberDto(
+                    Long id,
+                    String name,
+                    String profileImage,
+                    Boolean isRated
+            ) {
+
+            }
+        }
+    }
+
     public record GetScoresDto(
             List<ScoreDto> scores
     ) {
