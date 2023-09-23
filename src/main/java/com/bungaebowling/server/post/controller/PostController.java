@@ -26,9 +26,9 @@ public class PostController {
         var postDto1 = new PostResponse.GetPostsDto.PostDto(
                 1L,
                 "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                "9월 7일 (목) 오후 9:00",
+                LocalDateTime.now(),
                 "부산광역시 금정구 장전2동",
-                "9월 9일 (토) 오전 9:00",
+                LocalDateTime.now(),
                 "김볼링",
                 null,
                 4,
@@ -38,9 +38,9 @@ public class PostController {
         var postDto2 = new PostResponse.GetPostsDto.PostDto(
                 2L,
                 "오늘 당장 나올사람!",
-                "9월 7일 (목) 오후 8:00",
+                LocalDateTime.now(),
                 "부산광역시 동래구",
-                "9월 7일 (목) 오후 8:30",
+                LocalDateTime.now(),
                 "최볼링",
                 null,
                 2,
@@ -50,9 +50,9 @@ public class PostController {
         var postDto3 = new PostResponse.GetPostsDto.PostDto(
                 3L,
                 "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                "9월 7일 (목) 오후 3:00",
+                LocalDateTime.now(),
                 "부산광역시 부산진구 부전동",
-                "9월 8일 (금) 오후 7:00",
+                LocalDateTime.now(),
                 "이볼링",
                 null,
                 1,
@@ -77,11 +77,11 @@ public class PostController {
                         "부산광역시 금정구 장전2동",
                         1,
                         "오늘 오후 7시에 부산대 락볼링장에서 게임하실 분 구합니다.\n즐겜 할거구여 초보자 환영합니다. 저도 볼링 세 번 밖에 안쳐봤어요 ㅎㅎ\n연락주세요",
-                        "9월 7일 (목) 오후 9:00",
-                        "9월 9일 (토) 오전 9:00",
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
                         100,
-                        "2023-09-06 21:00",
-                        "2023-09-06 21:00",
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
                         false
                 )
         );
@@ -97,9 +97,9 @@ public class PostController {
         var postDto1 = new PostResponse.GetParticipationRecordsDto.PostDto(
                 1L,
                 "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                "9월 7일 (목) 오후 9:00",
+                LocalDateTime.now(),
                 "부산광역시 금정구 장전2동",
-                "9월 9일 (토) 오전 9:00",
+                LocalDateTime.now(),
                 2,
                 false,
                 List.of(),
@@ -123,9 +123,9 @@ public class PostController {
         var postDto2 = new PostResponse.GetParticipationRecordsDto.PostDto(
                 1L,
                 "오늘 당장 나올 사람!",
-                "9월 7일 (목) 오후 9:00",
+                LocalDateTime.now(),
                 "부산광역시 금정구 장전2동",
-                "9월 9일 (토) 오전 9:00",
+                LocalDateTime.now(),
                 2,
                 false,
                 List.of(

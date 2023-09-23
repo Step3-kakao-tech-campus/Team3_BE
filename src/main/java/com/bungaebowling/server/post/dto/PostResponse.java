@@ -2,6 +2,7 @@ package com.bungaebowling.server.post.dto;
 
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class PostResponse {
@@ -13,9 +14,9 @@ public class PostResponse {
         public record PostDto(
                 Long id,
                 String title,
-                String dueTime,
+                LocalDateTime dueTime,
                 String districtName,
-                String startTime,
+                LocalDateTime startTime,
                 String userName,
                 String profileImage,
                 Integer currentNumber,
@@ -35,11 +36,11 @@ public class PostResponse {
                 String districtName,
                 Integer currentNumber,
                 String content,
-                String startTime,
-                String dueTime,
+                LocalDateTime startTime,
+                LocalDateTime dueTime,
                 Integer viewCount,
-                String createdAt,
-                String editedAt,
+                LocalDateTime createdAt,
+                LocalDateTime editedAt,
                 Boolean isClose
         ) {
         }
@@ -52,9 +53,9 @@ public class PostResponse {
         public record PostDto(
                 Long id,
                 String title,
-                String dueTime,
+                LocalDateTime dueTime,
                 String districtName,
-                String startTime,
+                LocalDateTime startTime,
                 Integer currentNumber,
                 Boolean isClose,
                 List<ScoreDto> scores,
