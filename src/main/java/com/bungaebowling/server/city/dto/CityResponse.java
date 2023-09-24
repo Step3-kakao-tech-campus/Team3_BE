@@ -46,7 +46,7 @@ public class CityResponse {
     }
 
     public record GetDistrictsDto(
-            List<DistrictDto> countries
+            List<DistrictDto> districts
     )  {
         public static GetDistrictsDto of(List<District> districtList) {
             return new GetDistrictsDto(districtList.stream()
@@ -61,6 +61,25 @@ public class CityResponse {
             DistrictDto(District district) {
                 this(district.getId(), district.getName());
             }
+        }
+    }
+
+    public record GetDistrictInfoDto(
+            Long cityId,
+            String cityName,
+            Long countryId,
+            String countryName,
+            String name
+    ) {
+
+        public GetDistrictInfoDto(District district) {
+            this(
+                    district.getCountry().getCity().getId(),
+                    district.getCountry().getCity().getName(),
+                    district.getCountry().getId(),
+                    district.getCountry().getName(),
+                    district.getName()
+            );
         }
     }
 }

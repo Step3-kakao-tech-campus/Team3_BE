@@ -2,6 +2,7 @@ package com.bungaebowling.server.post.dto;
 
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class PostResponse {
@@ -13,17 +14,16 @@ public class PostResponse {
         public record PostDto(
                 Long id,
                 String title,
-                String dueTime,
+                LocalDateTime dueTime,
                 String districtName,
-                String startTime,
-                Integer averageScore,
+                LocalDateTime startTime,
                 String userName,
                 String profileImage,
+                Integer currentNumber,
                 Boolean isClose
         ) {
         }
     }
-
 
     public record GetPostDto(
             PostDto post
@@ -36,13 +36,59 @@ public class PostResponse {
                 String districtName,
                 Integer currentNumber,
                 String content,
-                String startTime,
-                String dueTime,
+                LocalDateTime startTime,
+                LocalDateTime dueTime,
                 Integer viewCount,
-                String createdAt,
-                String editedAt,
+                LocalDateTime createdAt,
+                LocalDateTime editedAt,
                 Boolean isClose
         ) {
+        }
+    }
+
+    public record GetParticipationRecordsDto(
+            CursorRequest nextCursorRequest,
+            List<PostDto> posts
+    ) {
+        public record PostDto(
+                Long id,
+                String title,
+                LocalDateTime dueTime,
+                String districtName,
+                LocalDateTime startTime,
+                Integer currentNumber,
+                Boolean isClose,
+                List<ScoreDto> scores,
+                List<MemberDto> members
+        ) {
+            public record ScoreDto(
+                    Long id,
+                    Integer score,
+                    String scoreImage
+            ) {
+
+            }
+
+            public record MemberDto(
+                    Long id,
+                    String name,
+                    String profileImage,
+                    Boolean isRated
+            ) {
+
+            }
+        }
+    }
+
+    public record GetScoresDto(
+            List<ScoreDto> scores
+    ) {
+        public record ScoreDto(
+                Long id,
+                Integer score,
+                String scoreImage
+        ) {
+
         }
     }
 }
