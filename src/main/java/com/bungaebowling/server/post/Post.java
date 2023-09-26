@@ -1,6 +1,8 @@
 package com.bungaebowling.server.post;
 
+import com.bungaebowling.server.Score.Score;
 import com.bungaebowling.server.city.country.Country;
+import com.bungaebowling.server.comment.Comment;
 import com.bungaebowling.server.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -66,8 +68,8 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private final List<Score> scores = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    private final List<Applicant> applicants = new ArrayList<>();
+    //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    //private final List<Applicant> applicants = new ArrayList<>();
 
     @Builder
     public Post(String title, User user, Country country, String content, LocalDateTime startTime, LocalDateTime dueTime, Boolean isClose, int viewCount, LocalDateTime editedAt, LocalDateTime createdAt) {
@@ -87,11 +89,12 @@ public class Post {
         return this.user.getName();
     }
 
-    public int getApplicantNumber(){ // 현재 신청한 사람 수
+    /*
+    public int getApplicantNumber() { // 현재 신청한 사람 수
         return applicants.size();
     }
 
-    public int getCurrentNumber(){ // 현재 모집된 사람 수
+    public int getCurrentNumber() { // 현재 모집된 사람 수
 
         int count = 0;
 
@@ -103,6 +106,7 @@ public class Post {
 
         return count;
     }
+     */
 
     public void addViewCount() { // viewCount 증가
         this.viewCount++;
