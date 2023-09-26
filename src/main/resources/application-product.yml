@@ -21,6 +21,10 @@ spring:
     init:
       mode: never
       encoding: utf-8
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 logging:
   level:
