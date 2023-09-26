@@ -26,7 +26,7 @@ public class UserService {
 
     final private PasswordEncoder passwordEncoder;
 
-    public UserResponse.TokensDto login(UserRequest.loginDto requestDto) {
+    public UserResponse.TokensDto login(UserRequest.LoginDto requestDto) {
         var user = userRepository.findByEmail(requestDto.email()).orElseThrow(() ->
                 new Exception400("이메일 혹은 비밀번호가 일치하지 않습니다."));
 

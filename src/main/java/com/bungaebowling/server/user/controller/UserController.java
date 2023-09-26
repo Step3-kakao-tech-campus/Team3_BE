@@ -30,7 +30,7 @@ public class UserController {
     final private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid UserRequest.loginDto requestDto, Errors errors) {
+    public ResponseEntity<?> login(@RequestBody @Valid UserRequest.LoginDto requestDto, Errors errors) {
         var tokens = userService.login(requestDto);
 
         var responseCookie = createRefreshTokenCookie(tokens.refresh());
