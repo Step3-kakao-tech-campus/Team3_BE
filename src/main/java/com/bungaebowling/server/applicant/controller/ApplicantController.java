@@ -4,6 +4,7 @@ import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
 import com.bungaebowling.server._core.utils.cursor.PageCursor;
+import com.bungaebowling.server.applicant.dto.ApplicantRequest;
 import com.bungaebowling.server.applicant.dto.ApplicantResponse;
 import com.bungaebowling.server.applicant.service.ApplicantService;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,9 @@ public class ApplicantController {
 
     @PutMapping("/{applicantId}")
     public ResponseEntity<?> update(@PathVariable Long postId, @PathVariable Long applicantId,
+                                    ApplicantRequest.UpdateDto requestDto,
                                     @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.update(userDetails.getId(), applicantId);
+        applicantService.update(userDetails.getId(), applicantId, requestDto);
         return ResponseEntity.ok(ApiUtils.success());
     }
 

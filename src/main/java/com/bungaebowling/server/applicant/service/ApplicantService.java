@@ -4,6 +4,7 @@ import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
 import com.bungaebowling.server._core.utils.cursor.PageCursor;
 import com.bungaebowling.server.applicant.Applicant;
+import com.bungaebowling.server.applicant.dto.ApplicantRequest;
 import com.bungaebowling.server.applicant.dto.ApplicantResponse;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
 import com.bungaebowling.server.post.Post;
@@ -44,12 +45,18 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void update(Long userId, Long applicantId){
-
+    public void update(Long userId, Long applicantId, ApplicantRequest.UpdateDto requestDto){
+        Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
+                () -> new Exception404("존재하지 않는 신청입니다.")
+        );
+        applicantRepository.update(applicant.getId(), requestDto.status());
     }
 
     @Transactional
     public void delete(Long userId, Long applicantId){
-
+        Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
+                () -> new Exception404("존재하지 않는 신청입니다.")
+        );
+        applicantRepository.deleteById(applicant.getId());
     }
 }
