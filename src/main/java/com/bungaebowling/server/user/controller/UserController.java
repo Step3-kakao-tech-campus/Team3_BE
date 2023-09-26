@@ -31,8 +31,6 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody @Valid UserRequest.loginDto requestDto, Errors errors) {
         UserResponse.TokensDto tokens = userService.login(requestDto);
 
-
-
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", tokens.refresh())
                 .httpOnly(true) // javascript 접근 방지
                 .secure(true) // https 통신 강제

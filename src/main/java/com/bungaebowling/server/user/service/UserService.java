@@ -7,9 +7,12 @@ import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.dto.UserResponse;
 import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ public class UserService {
 
     final private UserRepository userRepository;
 
+    final private RedisTemplate<String, String> redisTemplate;
 
     final private PasswordEncoder passwordEncoder;
 
@@ -31,6 +35,13 @@ public class UserService {
 
         var access = JwtProvider.createAccess(user);
         var refresh = JwtProvider.createRefresh(user);
+
+        redisTemplate.opsForValue().set(
+                user.getId().toString(),
+                refresh,
+                JwtProvider.REFRESH_EXP_SECOND,
+                TimeUnit.SECONDS
+        );
 
         return new UserResponse.TokensDto(access, refresh);
     }
