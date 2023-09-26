@@ -1,15 +1,17 @@
 package com.bungaebowling.server.user.controller;
 
 
+import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.dto.UserResponse;
+import com.bungaebowling.server.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class UserController {
+
+    final private UserService userService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody @Valid UserRequest.loginDto requestDto, Errors errors) {
+        String access = userService.login(requestDto);
+
+        var response = ApiUtils.success();
+        return ResponseEntity.ok().header(JwtProvider.HEADER, access).body(response);
+    }
 
     @GetMapping("/users")
     public ResponseEntity<?> getUsers() {
