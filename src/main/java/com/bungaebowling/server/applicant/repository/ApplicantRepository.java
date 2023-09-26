@@ -20,5 +20,5 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
 
     @Modifying
     @Query("update Applicant a SET a.status = :status where a.id = :applicantId")
-    void update(Long applicantId, Boolean status);
+    void updateStatus(Long applicantId, Boolean status);
 }

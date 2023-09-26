@@ -49,7 +49,7 @@ public class ApplicantService {
         Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")
         );
-        applicantRepository.update(applicant.getId(), requestDto.status());
+        applicantRepository.updateStatus(applicant.getId(), requestDto.status());
     }
 
     @Transactional

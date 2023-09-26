@@ -34,16 +34,14 @@ public class ApplicantController {
     }
 
     @PutMapping("/{applicantId}")
-    public ResponseEntity<?> update(@PathVariable Long postId, @PathVariable Long applicantId,
-                                    ApplicantRequest.UpdateDto requestDto,
+    public ResponseEntity<?> update(@PathVariable Long applicantId, ApplicantRequest.UpdateDto requestDto,
                                     @AuthenticationPrincipal CustomUserDetails userDetails){
         applicantService.update(userDetails.getId(), applicantId, requestDto);
         return ResponseEntity.ok(ApiUtils.success());
     }
 
     @DeleteMapping("/{applicantId}")
-    public ResponseEntity<?> delete(@PathVariable Long postId, @PathVariable Long applicantId,
-                                    @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<?> delete(@PathVariable Long applicantId, @AuthenticationPrincipal CustomUserDetails userDetails){
         applicantService.delete(userDetails.getId(), applicantId);
         return ResponseEntity.ok(ApiUtils.success());
     }
