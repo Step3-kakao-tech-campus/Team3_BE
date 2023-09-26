@@ -1,6 +1,7 @@
 package com.bungaebowling.server.user.controller;
 
 
+import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,11 +36,25 @@ public class UserController {
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", tokens.refresh())
                 .httpOnly(true) // javascript 접근 방지
                 .secure(true) // https 통신 강제
+                .maxAge(JwtProvider.REFRESH_EXP_SECOND)
                 .build();
 
         var response = ApiUtils.success();
         return ResponseEntity.ok().header(JwtProvider.HEADER, tokens.access())
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.logout(userDetails.getId());
+
+        ResponseCookie responseCookie = ResponseCookie.from("refreshToken", "")
+                .maxAge(0)
+                .build();
+
+        var response = ApiUtils.success();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(response);
     }
 
