@@ -19,31 +19,30 @@ public class ApplicantController {
     private final ApplicantService applicantService;
 
     @GetMapping
-    public ResponseEntity<?> getApplicants(@PathVariable Long postId,
-                                           @AuthenticationPrincipal CustomUserDetails userDetails,
-                                           CursorRequest cursorRequest){
+    public ResponseEntity<?> getApplicants(@PathVariable Long postId, CursorRequest cursorRequest,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails){
         PageCursor<ApplicantResponse.GetApplicantsDto> getApplicantsDto = applicantService.getApplicants(userDetails.getId(), postId, cursorRequest);
         var response = ApiUtils.success(getApplicantsDto);
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
-    public ResponseEntity<?> apply(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.apply();
-        return ResponseEntity.ok().body();
+    public ResponseEntity<?> create(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails){
+        applicantService.create(userDetails.getId(), postId);
+        return ResponseEntity.ok(ApiUtils.success());
     }
 
     @PutMapping("/{applicantId}")
-    public ResponseEntity<?> accept(@PathVariable Long postId, @PathVariable Long applicantId,
+    public ResponseEntity<?> update(@PathVariable Long postId, @PathVariable Long applicantId,
                                     @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.accept();
-        return ResponseEntity.ok().body();
+        applicantService.update(userDetails.getId(), applicantId);
+        return ResponseEntity.ok(ApiUtils.success());
     }
 
     @DeleteMapping("/{applicantId}")
-    public ResponseEntity<?> reject(@PathVariable Long postId, @PathVariable Long applicantId,
+    public ResponseEntity<?> delete(@PathVariable Long postId, @PathVariable Long applicantId,
                                     @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.reject();
-        return ResponseEntity.ok().body();
+        applicantService.delete(userDetails.getId(), applicantId);
+        return ResponseEntity.ok(ApiUtils.success());
     }
 }
