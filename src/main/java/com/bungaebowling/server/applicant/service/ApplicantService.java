@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -27,11 +28,24 @@ public class ApplicantService {
     private final PostRepository postRepository;
 
     public PageCursor<ApplicantResponse.GetApplicantsDto> getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
-        Pageable pageable = PageRequest.of(0, cursorRequest.size());
-        int applicantNumber = applicantRepository.getApplicantNumber(postId);
-        List<Applicant> applicants = applicantRepository.findApplicantByPostId(pageable, userId, postId);
-        Long key = 1L;
-        return new PageCursor<>(cursorRequest.next(key), ApplicantResponse.GetApplicantsDto.mapToGetApplicantsDto(applicantNumber, applicants));
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new Exception404("존재하지 않는 모집글입니다.")
+        );
+        int applicantNumber = applicantRepository.getApplicantNumber(post.getId());
+        List<Applicant> applicants = loadApplicants(userId, cursorRequest, post);
+        Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
+        return new PageCursor<>(cursorRequest.next(lastKey), ApplicantResponse.GetApplicantsDto.mapToGetApplicantsDto(applicantNumber, applicants));
+    }
+
+    private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Post post) {
+        int size = cursorRequest.hasSize() ? cursorRequest.size() : 20; //기본 사이즈 20
+        Pageable pageable = PageRequest.of(0, size);
+
+        if(!cursorRequest.hasKey()){
+            return applicantRepository.findAllByPostIdOrderByIdAsc(pageable, userId, post.getId());
+        }else{
+            return applicantRepository.findAllByPostIdLessThanOrderByIdAsc(pageable, cursorRequest.key(), userId, post.getId());
+        }
     }
 
     @Transactional
