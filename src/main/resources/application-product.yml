@@ -29,3 +29,8 @@ spring:
 logging:
   level:
     com.bungaebowling.server: INFO
+
+bungaebowling:
+  token_exp:
+    access: 600
+    refresh: 2592000

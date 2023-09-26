@@ -39,3 +39,8 @@ logging:
       orm.jdbc:
         extract: TRACE
         bind: TRACE
+
+bungaebowling:
+  token_exp:
+    access: 172800
+    refresh: 2592000

@@ -148,7 +148,7 @@ public class UserController {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true) // javascript 접근 방지
                 .secure(true) // https 통신 강제
-                .maxAge(JwtProvider.REFRESH_EXP_SECOND)
+                .maxAge(JwtProvider.getRefreshExpSecond())
                 .build();
     }
 }

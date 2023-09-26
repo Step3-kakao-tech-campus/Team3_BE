@@ -93,7 +93,7 @@ public class UserService {
         redisTemplate.opsForValue().set(
                 user.getId().toString(),
                 refresh,
-                JwtProvider.REFRESH_EXP_SECOND,
+                JwtProvider.getRefreshExpSecond(),
                 TimeUnit.SECONDS
         );
 
