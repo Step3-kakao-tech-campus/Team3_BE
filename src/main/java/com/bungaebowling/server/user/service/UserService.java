@@ -1,7 +1,9 @@
 package com.bungaebowling.server.user.service;
 
 import com.bungaebowling.server._core.errors.exception.client.Exception400;
+import com.bungaebowling.server._core.errors.exception.server.Exception500;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.dto.UserResponse;
 import com.bungaebowling.server.user.repository.UserRepository;
@@ -32,6 +34,23 @@ public class UserService {
             throw new Exception400("이메일 혹은 비밀번호가 일치하지 않습니다.");
         }
 
+        return issueTokens(user);
+    }
+
+    public void logout(Long id) {
+        redisTemplate.delete(id.toString());
+    }
+
+    public UserResponse.TokensDto reIssueTokens(String refreshToken) {
+        var decodedRefreshToekn = JwtProvider.verify(refreshToken, JwtProvider.TYPE_REFRESH);
+
+        var user = userRepository.findById(Long.valueOf(decodedRefreshToekn.getSubject())).orElseThrow(() ->
+                new Exception500("재발급 과정에서 오류가 발생했습니다."));
+
+        return issueTokens(user);
+    }
+
+    private UserResponse.TokensDto issueTokens(User user) {
         var access = JwtProvider.createAccess(user);
         var refresh = JwtProvider.createRefresh(user);
 
@@ -43,9 +62,5 @@ public class UserService {
         );
 
         return new UserResponse.TokensDto(access, refresh);
-    }
-
-    public void logout(Long id) {
-        redisTemplate.delete(id.toString());
     }
 }

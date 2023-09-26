@@ -31,13 +31,9 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid UserRequest.loginDto requestDto, Errors errors) {
-        UserResponse.TokensDto tokens = userService.login(requestDto);
+        var tokens = userService.login(requestDto);
 
-        ResponseCookie responseCookie = ResponseCookie.from("refreshToken", tokens.refresh())
-                .httpOnly(true) // javascript 접근 방지
-                .secure(true) // https 통신 강제
-                .maxAge(JwtProvider.REFRESH_EXP_SECOND)
-                .build();
+        var responseCookie = createRefreshTokenCookie(tokens.refresh());
 
         var response = ApiUtils.success();
         return ResponseEntity.ok().header(JwtProvider.HEADER, tokens.access())
@@ -55,6 +51,19 @@ public class UserController {
 
         var response = ApiUtils.success();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(response);
+    }
+
+    @PostMapping("/authentication")
+    public ResponseEntity<?> reIssueTokens(@CookieValue("refreshToken") String refreshToken) {
+
+        var tokens = userService.reIssueTokens(refreshToken);
+
+        var responseCookie = createRefreshTokenCookie(tokens.refresh());
+
+        var response = ApiUtils.success();
+        return ResponseEntity.ok().header(JwtProvider.HEADER, tokens.access())
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(response);
     }
 
@@ -117,5 +126,13 @@ public class UserController {
 
         var response = ApiUtils.success(getRecordDto);
         return ResponseEntity.ok().body(response);
+    }
+
+    private static ResponseCookie createRefreshTokenCookie(String refreshToken) {
+        return ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true) // javascript 접근 방지
+                .secure(true) // https 통신 강제
+                .maxAge(JwtProvider.REFRESH_EXP_SECOND)
+                .build();
     }
 }
