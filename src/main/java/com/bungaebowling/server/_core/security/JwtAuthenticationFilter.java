@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         }
 
         try {
-            DecodedJWT decodedJWT = JwtProvider.verify(jwt);
+            DecodedJWT decodedJWT = JwtProvider.verify(jwt, JwtProvider.TYPE_ACCESS);
             Long id = decodedJWT.getClaim("id").asLong();
             Role role = decodedJWT.getClaim("role").as(Role.class);
             User user = User.builder()
