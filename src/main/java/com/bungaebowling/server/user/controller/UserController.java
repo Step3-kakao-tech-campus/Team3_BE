@@ -34,9 +34,15 @@ public class UserController {
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody @Valid UserRequest.JoinDto requestDto, Errors errors) throws URISyntaxException {
+        var responseDto = userService.join(requestDto);
+
+        var responseCookie = createRefreshTokenCookie(responseDto.refresh());
 
         var response = ApiUtils.success(HttpStatus.CREATED);
-        return ResponseEntity.created(new URI("/api/users/3")).body(response);
+        return ResponseEntity.created(new URI("/api/users/" + responseDto.savedId()))
+                .header(JwtProvider.HEADER, responseDto.access())
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/login")

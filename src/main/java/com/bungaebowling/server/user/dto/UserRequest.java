@@ -1,5 +1,7 @@
 package com.bungaebowling.server.user.dto;
 
+import com.bungaebowling.server.city.country.district.District;
+import com.bungaebowling.server.user.User;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -24,5 +26,14 @@ public class UserRequest {
             String password,
             @NotEmpty
             String districtId
-    ) {}
+    ) {
+        public User createUser(District district, String encodedPassword) {
+            return User.builder()
+                    .name(name)
+                    .email(email)
+                    .password(encodedPassword)
+                    .district(district)
+                    .build();
+        }
+    }
 }
