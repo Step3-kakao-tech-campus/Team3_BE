@@ -35,6 +35,9 @@ public class Applicant {
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
 
+    //@OneToOne
+    //private UserRate userRate;
+
     @ColumnDefault("now()")
     private LocalDateTime createdAt;
 
