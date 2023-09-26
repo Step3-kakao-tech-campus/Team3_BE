@@ -52,3 +52,7 @@ VALUES (0, 1, '신사동'),
        (0, 7, '서동'),
        (0, 7, '장전동'),
        (0, 7, '청룡노포동');
+
+-- 비밀번호는 test12!@
+INSERT INTO user_tb (name, email, password, district_id, role)
+VALUES ('김볼링', 'test@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER');
