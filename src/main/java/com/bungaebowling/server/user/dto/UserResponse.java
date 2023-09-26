@@ -38,4 +38,9 @@ public class UserResponse {
     ) {
 
     }
+
+    public record TokensDto(
+            String access,
+            String refresh
+    ) {}
 }

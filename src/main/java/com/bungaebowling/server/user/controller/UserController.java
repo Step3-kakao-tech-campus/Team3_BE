@@ -9,6 +9,9 @@ import com.bungaebowling.server.user.dto.UserResponse;
 import com.bungaebowling.server.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
@@ -25,10 +29,19 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid UserRequest.loginDto requestDto, Errors errors) {
-        String access = userService.login(requestDto);
+        UserResponse.TokensDto tokens = userService.login(requestDto);
+
+
+
+        ResponseCookie responseCookie = ResponseCookie.from("refreshToken", tokens.refresh())
+                .httpOnly(true) // javascript 접근 방지
+                .secure(true) // https 통신 강제
+                .build();
 
         var response = ApiUtils.success();
-        return ResponseEntity.ok().header(JwtProvider.HEADER, access).body(response);
+        return ResponseEntity.ok().header(JwtProvider.HEADER, tokens.access())
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(response);
     }
 
     @GetMapping("/users")

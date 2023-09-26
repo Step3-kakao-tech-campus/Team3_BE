@@ -33,21 +33,21 @@ public class JwtProvider {
         String jwt = JWT.create()
                 .withSubject(user.getId().toString())
                 .withClaim("role", String.valueOf(user.getRole()))
+                .withClaim("type", "access")
                 .withExpiresAt(Timestamp.valueOf(expired))
                 .sign(Algorithm.HMAC512(SECRET));
         return TOKEN_PREFIX + jwt;
     }
 
     public static String createRefresh(User user) {
-        // TODO: 리프레시 토큰에 무슨 데이터를 넣어야할 지 몰라서 임시로 id와 유효기간만 넣어놨습니다.
         LocalDateTime now = LocalDateTime.now();
 
         LocalDateTime expired = now.plusSeconds(REFRESH_EXP_SECOND);
-        String jwt = JWT.create()
+        return JWT.create()
                 .withSubject(user.getId().toString())
+                .withClaim("type", "refresh")
                 .withExpiresAt(Timestamp.valueOf(expired))
                 .sign(Algorithm.HMAC512(SECRET));
-        return TOKEN_PREFIX + jwt;
     }
 
     public static DecodedJWT verify(String jwt) {
