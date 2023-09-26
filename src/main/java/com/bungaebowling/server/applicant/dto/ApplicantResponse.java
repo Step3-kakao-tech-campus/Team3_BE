@@ -9,10 +9,18 @@ import java.util.stream.Collectors;
 public class ApplicantResponse {
 
     public record GetApplicantsDto(
-            CursorRequest nextCursorRequest,
             Integer applicantNumber,
             List<ApplicantDto> applicants
     ) {
+        public static GetApplicantsDto mapToGetApplicantsDto(Integer applicantNumber, List<Applicant> applicants){
+            return new GetApplicantsDto(applicantNumber, applicants.stream().map(applicant -> new ApplicantDto(
+                    applicant.getId(),
+                    applicant.getUser().getName(),
+                    applicant.getUser().getImgUrl(),
+                    1.0 //UserRate 생성된 후 수정)
+            )).collect(Collectors.toList()));
+        }
+
         public record ApplicantDto(
                 Long id,
                 String userName,

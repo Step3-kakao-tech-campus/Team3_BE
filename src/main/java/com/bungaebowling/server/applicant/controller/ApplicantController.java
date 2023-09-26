@@ -3,6 +3,7 @@ package com.bungaebowling.server.applicant.controller;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.cursor.PageCursor;
 import com.bungaebowling.server.applicant.dto.ApplicantResponse;
 import com.bungaebowling.server.applicant.service.ApplicantService;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,10 @@ public class ApplicantController {
     private final ApplicantService applicantService;
 
     @GetMapping
-    public ResponseEntity<?> getApplicants(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> getApplicants(@PathVariable Long postId,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails,
                                            CursorRequest cursorRequest){
-        ApplicantResponse.GetApplicantsDto getApplicantsDto = applicantService.getApplicants(userDetails.getId(), postId, cursorRequest);
+        PageCursor<ApplicantResponse.GetApplicantsDto> getApplicantsDto = applicantService.getApplicants(userDetails.getId(), postId, cursorRequest);
         var response = ApiUtils.success(getApplicantsDto);
         return ResponseEntity.ok().body(response);
     }
