@@ -14,16 +14,13 @@ import java.util.Optional;
 @Repository
 public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
 
-    //@Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId")
-    @Query("SELECT a FROM Applicant a JOIN a.post p WHERE a.userId = :userId AND p.id = :postId")
+    @Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId")
     Optional<Applicant> findByUserIdAndPostId(@Param("userId") Long userId, @Param("postId") Long postId);
 
-    //@Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId ORDER BY a.id DESC")
-    @Query("SELECT a FROM Applicant a JOIN a.post p WHERE a.userId = :userId AND p.id = :postId AND a.status = false ORDER BY a.id DESC")
+    @Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId AND a.status = false ORDER BY a.id DESC")
     List<Applicant> findAllByUserIdAndPostIdOrderByIdDesc(@Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
 
-    //@Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId AND a.id < :key ORDER BY a.id DESC")
-    @Query("SELECT a FROM Applicant a JOIN a.post p WHERE a.userId = :userId AND p.id = :postId AND a.id < :key AND a.status = false ORDER BY a.id DESC")
+    @Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId AND a.id < :key AND a.status = false ORDER BY a.id DESC")
     List<Applicant> findAllByUserIdAndPostIdLessThanOrderByIdDesc(@Param("key") Long key, @Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
 
     @Query("SELECT count(a) FROM Applicant a JOIN a.post p WHERE p.id = :postId AND a.status = true")

@@ -13,8 +13,8 @@ public class ApplicantResponse {
         public static GetApplicantsDto mapToGetApplicantsDto(Integer applicantNumber, List<Applicant> applicants){
             return new GetApplicantsDto(applicantNumber, applicants.stream().map(applicant -> new ApplicantDto(
                     applicant.getId(),
-                    "이름", //applicant.getUser().getName(),
-                    "이미지 url", //applicant.getUser().getImgUrl(),
+                    applicant.getUser().getName(),
+                    applicant.getUser().getImgUrl(),
                     1.0 //UserRate 생성된 후 수정
             )).toList());
         }

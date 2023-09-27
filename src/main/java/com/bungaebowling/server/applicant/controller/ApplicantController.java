@@ -7,6 +7,7 @@ import com.bungaebowling.server._core.utils.cursor.PageCursor;
 import com.bungaebowling.server.applicant.dto.ApplicantRequest;
 import com.bungaebowling.server.applicant.dto.ApplicantResponse;
 import com.bungaebowling.server.applicant.service.ApplicantService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,26 +23,25 @@ public class ApplicantController {
     @GetMapping
     public ResponseEntity<?> getApplicants(@PathVariable Long postId, CursorRequest cursorRequest,
                                            @AuthenticationPrincipal CustomUserDetails userDetails){
-        PageCursor<ApplicantResponse.GetApplicantsDto> getApplicantsDto = applicantService.getApplicants(1L, postId, cursorRequest);
+        PageCursor<ApplicantResponse.GetApplicantsDto> getApplicantsDto = applicantService.getApplicants(userDetails.getId(), postId, cursorRequest);
         var response = ApiUtils.success(getApplicantsDto);
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
     public ResponseEntity<?> create(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.create(null, postId);
+        applicantService.create(userDetails.user(), postId);
         return ResponseEntity.ok(ApiUtils.success());
     }
 
     @PutMapping("/{applicantId}")
-    public ResponseEntity<?> accept(@PathVariable Long applicantId, @RequestBody ApplicantRequest.UpdateDto requestDto,
-                                    @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<?> accept(@PathVariable Long applicantId, @RequestBody @Valid ApplicantRequest.UpdateDto requestDto,){
         applicantService.accept(applicantId, requestDto);
         return ResponseEntity.ok(ApiUtils.success());
     }
 
     @DeleteMapping("/{applicantId}")
-    public ResponseEntity<?> reject(@PathVariable Long applicantId, @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<?> reject(@PathVariable Long applicantId){
         applicantService.reject(applicantId);
         return ResponseEntity.ok(ApiUtils.success());
     }

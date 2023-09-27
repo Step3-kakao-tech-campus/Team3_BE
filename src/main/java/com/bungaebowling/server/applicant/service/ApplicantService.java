@@ -11,6 +11,7 @@ import com.bungaebowling.server.applicant.repository.ApplicantRepository;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.repository.PostRepository;
 import com.bungaebowling.server.user.User;
+import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,19 +56,22 @@ public class ApplicantService {
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new Exception404("존재하지 않는 모집글입니다.")
         );
+        
+        //게시글 작성자 신청 금지
 
         //신청 중복 확인
         applicantRepository.findByUserIdAndPostId(1L, postId).ifPresent(applicant -> {
             throw new Exception400("이미 신청된 사용자입니다.");
         });
 
-        Applicant applicant = Applicant.builder().userId(1L).post(post).build();
-        //Applicant applicant = Applicant.builder().user(user).post(post).build();
+        Applicant applicant = Applicant.builder().user(user).post(post).build();
         applicantRepository.save(applicant);
     }
 
     @Transactional
     public void accept(Long applicantId, ApplicantRequest.UpdateDto requestDto){
+        //게시글 작성자만 수락 가능
+
         Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")
         );
