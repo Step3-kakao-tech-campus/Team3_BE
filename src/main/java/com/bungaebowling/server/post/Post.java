@@ -64,8 +64,8 @@ public class Post {
     //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     //private final List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    private final List<Score> scores = new ArrayList<>();
+    //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    //private final List<Score> scores = new ArrayList<>();
 
     //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     //private final List<Applicant> applicants = new ArrayList<>();

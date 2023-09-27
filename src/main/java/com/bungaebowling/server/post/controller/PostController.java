@@ -197,12 +197,12 @@ public class PostController {
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}) // json 타입만 처리 가능
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid PostRequest.CreatePostDto request
+            @RequestBody @Valid PostRequest.CreatePostDto request
     ) {
         Long postId = postService.create(request.toEntity(userDetails.user()));
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .location(URI.create("/posts/" + postId))
+                .location(URI.create("/api/posts/" + postId))
                 .body(ApiUtils.success(HttpStatus.CREATED));
     }
 

@@ -1,5 +1,6 @@
 package com.bungaebowling.server.post.service;
 
+import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.repository.PostRepository;
 import com.bungaebowling.server.user.User;

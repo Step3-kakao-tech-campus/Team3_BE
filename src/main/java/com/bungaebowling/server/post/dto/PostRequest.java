@@ -3,6 +3,7 @@ package com.bungaebowling.server.post.dto;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.user.User;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 public class PostRequest {
 
     public record CreatePostDto (
-        @NotBlank(message = "모집글 제목은 필수 입력 사항입니다.")
+        @NotEmpty(message = "모집글 제목은 필수 입력 사항입니다.")
         @Size(max = 100, message = "모집글 제목은 최대 100자까지 입니다.")
         String title,
 
@@ -21,7 +22,7 @@ public class PostRequest {
         @NotNull(message = "모집 마감 기한은 필수 입력 사항입니다.")
         LocalDateTime dueTime,
 
-        @NotBlank(message = "모집글 내용은 필수 입력 사항입니다.")
+        @NotEmpty(message = "모집글 내용은 필수 입력 사항입니다.")
         String content,
         Boolean isClose
     ) {
