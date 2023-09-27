@@ -5,23 +5,31 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
 
-    List<Applicant> findAllByPostIdOrderByIdAsc(Long userId, Long postId);
+    //@Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId")
+    @Query("SELECT a FROM Applicant a JOIN a.post p WHERE a.userId = :userId AND p.id = :postId")
+    Optional<Applicant> findByUserIdAndPostId(@Param("userId") Long userId, @Param("postId") Long postId);
 
-    List<Applicant> findAllByPostIdOrderByIdAsc(Pageable pageable, Long userId, Long postId);
+    //@Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId ORDER BY a.id DESC")
+    @Query("SELECT a FROM Applicant a JOIN a.post p WHERE a.userId = :userId AND p.id = :postId AND a.status = false ORDER BY a.id DESC")
+    List<Applicant> findAllByUserIdAndPostIdOrderByIdDesc(@Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
 
-    List<Applicant> findAllByPostIdLessThanOrderByIdAsc(Pageable pageable, Long key, Long userId, Long postId);
+    //@Query("SELECT a FROM Applicant a JOIN a.user u JOIN a.post p WHERE u.id = :userId AND p.id = :postId AND a.id < :key ORDER BY a.id DESC")
+    @Query("SELECT a FROM Applicant a JOIN a.post p WHERE a.userId = :userId AND p.id = :postId AND a.id < :key AND a.status = false ORDER BY a.id DESC")
+    List<Applicant> findAllByUserIdAndPostIdLessThanOrderByIdDesc(@Param("key") Long key, @Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
 
-    @Query("select count(a) from Applicant a join a.post p where p.id = :postId and a.status = true")
-    int getApplicantNumber(Long postId);
+    @Query("SELECT count(a) FROM Applicant a JOIN a.post p WHERE p.id = :postId AND a.status = true")
+    int getApplicantNumber(@Param("postId") Long postId);
 
     @Modifying
-    @Query("update Applicant a SET a.status = :status where a.id = :applicantId")
-    void updateStatus(Long applicantId, Boolean status);
+    @Query("UPDATE Applicant a SET a.status = :status WHERE a.id = :applicantId")
+    void updateStatus(@Param("applicantId") Long applicantId, @Param("status") Boolean status);
 }
