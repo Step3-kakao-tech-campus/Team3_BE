@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class ApplicantController {
     }
 
     @PutMapping("/{applicantId}")
-    public ResponseEntity<?> accept(@PathVariable Long applicantId, @RequestBody @Valid ApplicantRequest.UpdateDto requestDto,){
+    public ResponseEntity<?> accept(@PathVariable Long applicantId, @RequestBody @Valid ApplicantRequest.UpdateDto requestDto, Errors errors){
         applicantService.accept(applicantId, requestDto);
         return ResponseEntity.ok(ApiUtils.success());
     }
