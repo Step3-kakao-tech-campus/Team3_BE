@@ -3,7 +3,7 @@ package com.bungaebowling.server.post.controller;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
-import com.bungaebowling.server.post.dto.PostRequest.*;
+import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.service.PostService;
 import com.bungaebowling.server.user.User;
@@ -195,12 +195,15 @@ public class PostController {
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}) // json 타입만 처리 가능
-    public ResponseEntity<Void> createPost(
+    public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestPart @Valid CreatePostDto request
+            @Valid PostRequest.CreatePostDto request
     ) {
-        PostResponse.CreatePostDto response = postService.create(request.toEntity(userDetails.user()));
-        return ResponseEntity.ok(ApiUtils.success(response, HttpStatus.CREATED));
+        Long postId = postService.create(request.toEntity(userDetails.user()));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(URI.create("/posts/" + postId))
+                .body(ApiUtils.success(HttpStatus.CREATED));
     }
 
 }

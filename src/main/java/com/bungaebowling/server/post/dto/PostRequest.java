@@ -21,7 +21,7 @@ public class PostRequest {
         @NotNull(message = "모집 마감 기한은 필수 입력 사항입니다.")
         LocalDateTime dueTime,
 
-        @NotNull(message = "모집글 내용은 필수 입력 사항입니다.")
+        @NotBlank(message = "모집글 내용은 필수 입력 사항입니다.")
         String content,
         Boolean isClose
     ) {
@@ -48,7 +48,7 @@ public class PostRequest {
             @NotNull(message = "모집 마감 기한은 필수 입력 사항입니다.")
             LocalDateTime dueTime,
 
-            @NotNull(message = "모집글 내용은 필수 입력 사항입니다.")
+            @NotBlank(message = "모집글 내용은 필수 입력 사항입니다.")
             String content,
             Boolean isClose
     ) {
