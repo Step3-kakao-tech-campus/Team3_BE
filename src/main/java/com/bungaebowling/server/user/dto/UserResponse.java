@@ -38,4 +38,15 @@ public class UserResponse {
     ) {
 
     }
+
+    public record JoinDto(
+            Long savedId,
+            String access,
+            String refresh
+    ) {}
+
+    public record TokensDto(
+            String access,
+            String refresh
+    ) {}
 }

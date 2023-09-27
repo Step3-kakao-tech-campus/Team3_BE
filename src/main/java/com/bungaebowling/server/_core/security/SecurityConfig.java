@@ -82,7 +82,8 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/api/posts/*/applicants", "GET")).hasRole("USER")
                         .requestMatchers(new AntPathRequestMatcher("/api/posts/**", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/messages/**", "GET"),
-                                new AntPathRequestMatcher("/api/users/mine")).hasAnyRole("USER", "PENDING")
+                                new AntPathRequestMatcher("/api/users/mine"),
+                                new AntPathRequestMatcher("/api/logout")).hasAnyRole("USER", "PENDING")
                         .requestMatchers(new AntPathRequestMatcher("/api/posts/**"),
                                 new AntPathRequestMatcher("/api/applicants/**"),
                                 new AntPathRequestMatcher( "/api/messages/**")).hasRole("USER")
