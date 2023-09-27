@@ -22,27 +22,27 @@ public class ApplicantController {
     @GetMapping
     public ResponseEntity<?> getApplicants(@PathVariable Long postId, CursorRequest cursorRequest,
                                            @AuthenticationPrincipal CustomUserDetails userDetails){
-        PageCursor<ApplicantResponse.GetApplicantsDto> getApplicantsDto = applicantService.getApplicants(userDetails.getId(), postId, cursorRequest);
+        PageCursor<ApplicantResponse.GetApplicantsDto> getApplicantsDto = applicantService.getApplicants(1L, postId, cursorRequest);
         var response = ApiUtils.success(getApplicantsDto);
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
     public ResponseEntity<?> create(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.create(userDetails.getId(), postId);
+        applicantService.create(null, postId);
         return ResponseEntity.ok(ApiUtils.success());
     }
 
     @PutMapping("/{applicantId}")
-    public ResponseEntity<?> update(@PathVariable Long applicantId, ApplicantRequest.UpdateDto requestDto,
+    public ResponseEntity<?> accept(@PathVariable Long applicantId, @RequestBody ApplicantRequest.UpdateDto requestDto,
                                     @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.update(userDetails.getId(), applicantId, requestDto);
+        applicantService.accept(applicantId, requestDto);
         return ResponseEntity.ok(ApiUtils.success());
     }
 
     @DeleteMapping("/{applicantId}")
-    public ResponseEntity<?> delete(@PathVariable Long applicantId, @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.delete(userDetails.getId(), applicantId);
+    public ResponseEntity<?> reject(@PathVariable Long applicantId, @AuthenticationPrincipal CustomUserDetails userDetails){
+        applicantService.reject(applicantId);
         return ResponseEntity.ok(ApiUtils.success());
     }
 }

@@ -16,20 +16,23 @@ import java.time.LocalDateTime;
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name="applicant_tb", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "post_id"})
-})
+@Table(name="applicant_tb")
+//@Table(name="applicant_tb", uniqueConstraints = {
+//        @UniqueConstraint(columnNames = {"user_id", "post_id"})
+//})
 public class Applicant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ColumnDefault("false")
-    private boolean status;
+    private Boolean status;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private Long userId; //임시
+
+//    @ManyToOne
+//    @JoinColumn(name = "user_id", referencedColumnName = "id")
+//    private User user;
 
     @ManyToOne
     @JoinColumn(name = "post_id", referencedColumnName = "id")
@@ -42,10 +45,10 @@ public class Applicant {
     private LocalDateTime createdAt;
 
     @Builder
-    public Applicant(Long id, boolean status, User user, Post post, LocalDateTime createdAt) {
+    public Applicant(Long id, Boolean status, Long userId, Post post, LocalDateTime createdAt) {
         this.id = id;
         this.status = status;
-        this.user = user;
+        this.userId = userId;
         this.post = post;
         this.createdAt = createdAt;
     }
