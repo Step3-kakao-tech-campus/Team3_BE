@@ -19,7 +19,7 @@ public class City {
     private Long id;
 
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 50, unique = true, nullable = false)
     private String name;
 
     @Builder
