@@ -49,7 +49,7 @@ public class Post {
     private LocalDateTime dueTime;
 
     @Column(name = "is_close")
-    private boolean isClose;
+    private Boolean isClose;
 
     @Column(name = "view_count")
     private int viewCount;
@@ -121,7 +121,7 @@ public class Post {
         this.content = post.getContent();
         this.startTime = post.getDueTime();
         this.dueTime = post.getDueTime();
-        this.isClose = post.isClose();
+        this.isClose = post.isClose;
     }
 
     public String getProfilePath() { // 사용자 Profile 이미지 경로 가져오기

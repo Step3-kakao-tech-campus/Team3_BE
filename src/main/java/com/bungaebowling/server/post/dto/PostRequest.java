@@ -2,7 +2,6 @@ package com.bungaebowling.server.post.dto;
 
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.user.User;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,7 +23,7 @@ public class PostRequest {
 
         @NotNull(message = "모집글 내용은 필수 입력 사항입니다.")
         String content,
-        boolean isClose
+        Boolean isClose
     ) {
         public Post toEntity(User user) {
             return Post.builder()
@@ -51,7 +50,7 @@ public class PostRequest {
 
             @NotNull(message = "모집글 내용은 필수 입력 사항입니다.")
             String content,
-            boolean isClose
+            Boolean isClose
     ) {
         public Post toEntity(User user) {
             return Post.builder()
