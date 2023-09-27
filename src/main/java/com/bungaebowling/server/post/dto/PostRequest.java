@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class PostRequest {
 
-    public record PostCreateRequest (
+    public record CreatePostDto (
         @NotBlank(message = "모집글 제목은 필수 입력 사항입니다.")
         @Size(max = 100, message = "모집글 제목은 최대 100자까지 입니다.")
         String title,
@@ -37,7 +37,7 @@ public class PostRequest {
         }
     }
 
-    public record PostUpdateRequest (
+    public record UpdatePostDto (
             @NotBlank(message = "모집글 제목은 필수 입력 사항입니다.")
             @Size(max = 100, message = "모집글 제목은 최대 100자까지 입니다.")
             String title,
