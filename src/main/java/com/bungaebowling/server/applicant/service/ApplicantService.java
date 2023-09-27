@@ -1,5 +1,6 @@
 package com.bungaebowling.server.applicant.service;
 
+import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
 import com.bungaebowling.server._core.utils.cursor.PageCursor;
@@ -16,13 +17,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class ApplicantService {
+
+    public static final int DEFAULT_SIZE = 20;
 
     private final ApplicantRepository applicantRepository;
     private final PostRepository postRepository;
@@ -38,28 +40,34 @@ public class ApplicantService {
     }
 
     private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Post post) {
-        int size = cursorRequest.hasSize() ? cursorRequest.size() : 20; //기본 사이즈 20
+        int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
 
         if(!cursorRequest.hasKey()){
-            return applicantRepository.findAllByPostIdOrderByIdAsc(pageable, userId, post.getId());
+            return applicantRepository.findAllByUserIdAndPostIdOrderByIdDesc(userId, post.getId(), pageable);
         }else{
-            return applicantRepository.findAllByPostIdLessThanOrderByIdAsc(pageable, cursorRequest.key(), userId, post.getId());
+            return applicantRepository.findAllByUserIdAndPostIdLessThanOrderByIdDesc(cursorRequest.key(), userId, post.getId(), pageable);
         }
     }
 
     @Transactional
-    public void create(Long userId, Long postId){
-        User user = null; //user repository 추가되면 수정 예정
+    public void create(User user, Long postId){
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new Exception404("존재하지 않는 모집글입니다.")
         );
-        Applicant applicant = Applicant.builder().user(user).post(post).build();
+
+        //신청 중복 확인
+        applicantRepository.findByUserIdAndPostId(1L, postId).ifPresent(applicant -> {
+            throw new Exception400("이미 신청된 사용자입니다.");
+        });
+
+        Applicant applicant = Applicant.builder().userId(1L).post(post).build();
+        //Applicant applicant = Applicant.builder().user(user).post(post).build();
         applicantRepository.save(applicant);
     }
 
     @Transactional
-    public void update(Long userId, Long applicantId, ApplicantRequest.UpdateDto requestDto){
+    public void accept(Long applicantId, ApplicantRequest.UpdateDto requestDto){
         Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")
         );
@@ -67,7 +75,7 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void delete(Long userId, Long applicantId){
+    public void reject(Long applicantId){
         Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")
         );
