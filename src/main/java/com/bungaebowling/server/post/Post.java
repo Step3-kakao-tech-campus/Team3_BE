@@ -112,7 +112,7 @@ public class Post {
     }
 
     public Boolean isMine(User user) { // 내가 작성한 글인지 아닌지 확인
-        return this.user.equals(user);
+        return this.user.getId().equals(user.getId());
     }
 
     public void update(Post post) { // 게시글 업데이트할 때 쓸 것

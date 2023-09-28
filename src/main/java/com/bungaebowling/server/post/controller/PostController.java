@@ -206,4 +206,17 @@ public class PostController {
                 .body(ApiUtils.success(HttpStatus.CREATED));
     }
 
+    @PutMapping("/{postId}")
+    public ResponseEntity<?> updatePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId,
+            @RequestBody @Valid PostRequest.UpdatePostDto request
+    ) {
+        postService.update(userDetails.user(), postId, request.toEntity(userDetails.user()));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .location(URI.create("/api/posts/" + postId))
+                .body(ApiUtils.success(HttpStatus.OK));
+    }
+
 }
