@@ -32,9 +32,7 @@ public class ApplicantService {
     private final PostRepository postRepository;
 
     public PageCursor<ApplicantResponse.GetApplicantsDto> getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
-        Post post = postRepository.findById(postId).orElseThrow(
-                () -> new Exception404("존재하지 않는 모집글입니다.")
-        );
+        Post post = getPost(postId);
         int applicantNumber = applicantRepository.countByPostId(post.getId());
         List<Applicant> applicants = loadApplicants(userId, cursorRequest, post);
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
@@ -54,14 +52,9 @@ public class ApplicantService {
 
     @Transactional
     public void create(Long userId, Long postId){
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new Exception404("존재하지 않는 사용자입니다.")
-        );
+        User user = getUser(userId);
+        Post post = getPost(postId);
 
-        Post post = postRepository.findById(postId).orElseThrow(
-                () -> new Exception404("존재하지 않는 모집글입니다.")
-        );
-        
         //TODO: 게시글 작성자 신청 금지
 
         //신청 중복 확인
@@ -77,17 +70,31 @@ public class ApplicantService {
     public void accept(Long applicantId, ApplicantRequest.UpdateDto requestDto){
         //TODO: 게시글 작성자만 수락 가능
 
-        Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
-                () -> new Exception404("존재하지 않는 신청입니다.")
-        );
+        Applicant applicant = getApplicant(applicantId);
         applicant.updateStatus(requestDto.status());
     }
 
     @Transactional
     public void reject(Long applicantId){
-        Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
+        Applicant applicant = getApplicant(applicantId);
+        applicantRepository.deleteById(applicant.getId());
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new Exception404("존재하지 않는 사용자입니다.")
+        );
+    }
+
+    private Post getPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow(
+                () -> new Exception404("존재하지 않는 모집글입니다.")
+        );
+    }
+
+    private Applicant getApplicant(Long applicantId) {
+        return applicantRepository.findById(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")
         );
-        applicantRepository.deleteById(applicant.getId());
     }
 }
