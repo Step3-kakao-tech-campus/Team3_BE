@@ -10,7 +10,7 @@ public class ApplicantResponse {
             Integer applicantNumber,
             List<ApplicantDto> applicants
     ) {
-        public static GetApplicantsDto mapToGetApplicantsDto(Integer applicantNumber, List<Applicant> applicants){
+        public static GetApplicantsDto of(Integer applicantNumber, List<Applicant> applicants){
             return new GetApplicantsDto(applicantNumber, applicants.stream().map(applicant -> new ApplicantDto(
                     applicant.getId(),
                     applicant.getUser().getName(),

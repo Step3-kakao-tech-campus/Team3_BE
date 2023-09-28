@@ -38,7 +38,7 @@ public class ApplicantService {
         int applicantNumber = applicantRepository.getApplicantNumber(post.getId());
         List<Applicant> applicants = loadApplicants(userId, cursorRequest, post);
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
-        return new PageCursor<>(cursorRequest.next(lastKey), ApplicantResponse.GetApplicantsDto.mapToGetApplicantsDto(applicantNumber, applicants));
+        return new PageCursor<>(cursorRequest.next(lastKey), ApplicantResponse.GetApplicantsDto.of(applicantNumber, applicants));
     }
 
     private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Post post) {
