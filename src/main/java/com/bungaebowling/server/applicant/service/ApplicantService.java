@@ -35,7 +35,7 @@ public class ApplicantService {
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new Exception404("존재하지 않는 모집글입니다.")
         );
-        int applicantNumber = applicantRepository.getApplicantNumber(post.getId());
+        int applicantNumber = applicantRepository.countByPostId(post.getId());
         List<Applicant> applicants = loadApplicants(userId, cursorRequest, post);
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
         return new PageCursor<>(cursorRequest.next(lastKey), ApplicantResponse.GetApplicantsDto.of(applicantNumber, applicants));

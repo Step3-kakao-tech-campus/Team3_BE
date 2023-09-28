@@ -24,7 +24,7 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
     List<Applicant> findAllByUserIdAndPostIdLessThanOrderByIdDesc(@Param("key") Long key, @Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
 
     @Query("SELECT count(a) FROM Applicant a JOIN a.post p WHERE p.id = :postId AND a.status = true")
-    int getApplicantNumber(@Param("postId") Long postId);
+    int countByPostId(@Param("postId") Long postId);
 
     @Modifying
     @Query("UPDATE Applicant a SET a.status = :status WHERE a.id = :applicantId")
