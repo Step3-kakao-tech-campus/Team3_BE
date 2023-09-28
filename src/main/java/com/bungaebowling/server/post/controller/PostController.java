@@ -3,18 +3,17 @@ package com.bungaebowling.server.post.controller;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.cursor.PageCursor;
 import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.service.PostService;
-import com.bungaebowling.server.user.User;
 import jakarta.validation.Valid;
-import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -31,14 +30,15 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<?> getPosts(
+            CursorRequest cursorRequest,
             @RequestParam(value = "cityId", required = false) Integer cityId,
             @RequestParam(value = "countryId", required = false) Integer countryId,
             @RequestParam(value = "districtId", required = false) Integer districtId,
             @RequestParam(value = "all", defaultValue = "false") Boolean all
     ) {
-        PostResponse.GetPostsDto response = postService.readPosts(cityId, countryId, districtId, all);
+        PageCursor<PostResponse.GetPostsDto> response = postService.readPosts(cursorRequest,cityId, countryId, districtId, all);
 
-        return ResponseEntity.ok().body(ApiUtils.success(response));
+        return ResponseEntity.ok().body(ApiUtils.success(response.body())); // body만 넘겨줘야 api 명세와 동일한 response 출력
     }
 
     @GetMapping("/{postId}")
@@ -147,26 +147,28 @@ public class PostController {
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}) // json 타입만 처리 가능
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody @Valid PostRequest.CreatePostDto request
+            @RequestBody @Valid PostRequest.CreatePostDto request,
+            Errors errors
     ) {
-        Long postId = postService.create(request.toEntity(userDetails.user()));
+        Long postId = postService.create(userDetails.getId(), request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success(HttpStatus.CREATED));
+                .body(ApiUtils.success());
     }
 
     @PutMapping("/{postId}")
     public ResponseEntity<?> updatePost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
-            @RequestBody @Valid PostRequest.UpdatePostDto request
+            @RequestBody @Valid PostRequest.UpdatePostDto request,
+            Errors errors
     ) {
-        postService.update(userDetails.user(), postId, request.toEntity(userDetails.user()));
+        postService.update(userDetails.getId(), postId, request);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success(HttpStatus.OK));
+                .body(ApiUtils.success());
     }
 
     @DeleteMapping("/{postId}")
@@ -174,9 +176,9 @@ public class PostController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId
     ) {
-        postService.delete(userDetails.user(), postId);
+        postService.delete(userDetails.getId(), postId);
 
-        return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK));
+        return ResponseEntity.ok(ApiUtils.success());
     }
 
 }

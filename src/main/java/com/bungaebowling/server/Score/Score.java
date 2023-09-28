@@ -10,7 +10,7 @@ import org.hibernate.annotations.DynamicInsert;
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "Score_tb")
+@Table(name = "score_tb")
 public class Score {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

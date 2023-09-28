@@ -1,9 +1,9 @@
 package com.bungaebowling.server.post.dto;
 
+import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.user.User;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class PostRequest {
 
     public record CreatePostDto (
-        @NotEmpty(message = "모집글 제목은 필수 입력 사항입니다.")
+        @NotBlank(message = "모집글 제목은 필수 입력 사항입니다.")
         @Size(max = 100, message = "모집글 제목은 최대 100자까지 입니다.")
         String title,
 
@@ -22,18 +22,20 @@ public class PostRequest {
         @NotNull(message = "모집 마감 기한은 필수 입력 사항입니다.")
         LocalDateTime dueTime,
 
-        @NotEmpty(message = "모집글 내용은 필수 입력 사항입니다.")
+        @NotBlank(message = "모집글 내용은 필수 입력 사항입니다.")
         String content,
-        Boolean isClose
+
+        @NotNull(message = "행정 구역은 필수 입력 사항입니다.")
+        Long districtId
     ) {
-        public Post toEntity(User user) {
+        public Post toEntity(User user, District district) {
             return Post.builder()
                     .user(user)
                     .title(title)
                     .startTime(startTime)
                     .dueTime(dueTime)
                     .content(content)
-                    .isClose(isClose)
+                    .district(district)
                     .build();
         }
     }
@@ -53,15 +55,5 @@ public class PostRequest {
             String content,
             Boolean isClose
     ) {
-        public Post toEntity(User user) {
-            return Post.builder()
-                    .user(user)
-                    .title(title)
-                    .startTime(startTime)
-                    .dueTime(dueTime)
-                    .content(content)
-                    .isClose(isClose)
-                    .build();
-        }
     }
 }

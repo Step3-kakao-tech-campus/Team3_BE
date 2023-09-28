@@ -1,18 +1,24 @@
 package com.bungaebowling.server.post.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.errors.exception.client.Exception403;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.cursor.PageCursor;
+import com.bungaebowling.server.city.country.district.District;
+import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.post.Post;
+import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.repository.PostRepository;
 import com.bungaebowling.server.user.User;
+import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -22,14 +28,35 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final DistrictRepository districtRepository;
+
+    public static final int DEFAULT_SIZE = 20;
 
     @Transactional
-    public Long create(Post post) {
-        return savePost(post); // 저장로직 따로 분리
+    public Long create(Long userId, PostRequest.CreatePostDto request) {
+
+        User user = findUserById(userId);
+
+        Long districtId = request.districtId();
+
+        return savePost(user, districtId, request); // 저장로직 따로 분리
+
     }
 
-    private Long savePost(Post post) { // 저장로직 따로 분리
+    private Long savePost(User user, Long districtId, PostRequest.CreatePostDto request) { // 저장로직 따로 분리
+
+        District district = districtRepository.findById(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));
+
+        Post post = request.toEntity(user, district);
+
         return postRepository.save(post).getId();
+
+    }
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다."));
     }
 
     @Transactional
@@ -39,123 +66,86 @@ public class PostService {
 
         post.addViewCount(); // 조회수 1 증가
 
-        PostResponse.GetPostDto.PostDto postDto = convertPostToPostDto(post); // post to postDto
-
-        return new PostResponse.GetPostDto(postDto);
+        return new PostResponse.GetPostDto(post);
 
     }
 
-    private PostResponse.GetPostDto.PostDto convertPostToPostDto(Post post) { // dto 변환 함수
-        return new PostResponse.GetPostDto.PostDto(
-                post.getId(),
-                post.getTitle(),
-                post.getUserName(),
-                post.getProfilePath(),
-                post.getDistrictName(),
-                post.getCurrentNumber(),
-                post.getContent(),
-                post.getStartTime(),
-                post.getDueTime(),
-                post.getViewCount(),
-                post.getCreatedAt(),
-                post.getEditedAt(),
-                post.getIsClose()
-        );
-    }
+    public PageCursor<PostResponse.GetPostsDto> readPosts(CursorRequest cursorRequest, Integer cityId, Integer countryId, Integer districtId, Boolean all) {
 
-    public PostResponse.GetPostsDto readPosts(Integer cityId, Integer countryId, Integer districtId, Boolean all) {
+        List<Post> posts = findPosts(cursorRequest, cityId, countryId, districtId, all);
 
-        CursorRequest cursorRequest = new CursorRequest(1L, 20);
-        List<PostResponse.GetPostsDto.PostDto> postDtos = new ArrayList<>();
+        Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
 
-        List<Post> posts = findPosts(cityId, countryId, districtId, all);
-
-        for(Post post : posts) {
-            postDtos.add(convertPostToPostDtos(post));
-        }
-
-        return new PostResponse.GetPostsDto(cursorRequest, postDtos);
+        return new PageCursor<>(cursorRequest.next(lastKey), PostResponse.GetPostsDto.of(cursorRequest, posts));
 
     }
 
-    private List<Post> findPosts(Integer cityId, Integer countryId, Integer districtId, Boolean all) {
+    private List<Post> findPosts(CursorRequest cursorRequest, Integer cityId, Integer countryId, Integer districtId, Boolean all) {
 
-        List<Post> posts;
+        int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
 
-        if (districtId == null) {
-            if (countryId == null){
-                if(cityId == null) {
-                    posts = isAll(all, null);
-                } else {
-                    posts = isAll(all, cityId);
-                }
-            } else {
-                posts = isAll(all, countryId);
-            }
+        Pageable pageable = PageRequest.of(0, size);
+
+        if(!cursorRequest.hasKey()) {
+
+            if (districtId != null)
+                return all ? postRepository.findAllByDistrictId(districtId) : postRepository.findAllByDistrictIdWithCloseFalse(districtId);
+            if (countryId != null)
+                return all ? postRepository.findAllByCountryId(countryId) : postRepository.findAllByCountryIdWithCloseFalse(countryId);
+            if (cityId != null)
+                return all ? postRepository.findAllByCityId(cityId) : postRepository.findAllByCityIdWithCloseFalse(cityId);
+
+            return all ? postRepository.findAllOrderByIdDesc(pageable) : postRepository.findAllWithCloseFalse();
+
         } else {
-            posts = isAll(all, districtId);
+
+            if (districtId != null)
+                return all ? postRepository.findAllByDistrictId(districtId) : postRepository.findAllByDistrictIdWithCloseFalse(districtId);
+            if (countryId != null)
+                return all ? postRepository.findAllByCountryId(countryId) : postRepository.findAllByCountryIdWithCloseFalse(countryId);
+            if (cityId != null)
+                return all ? postRepository.findAllByCityId(cityId) : postRepository.findAllByCityIdWithCloseFalse(cityId);
+
+            return all ? postRepository.findAllByIdLessThanOrderByIdDesc(cursorRequest.key(), pageable) : postRepository.findAllWithCloseFalse();
+
         }
 
-        return posts;
-
-    }
-
-    private List<Post> isAll(Boolean all, Integer id) { // 전체 조회인지, 모집 중 조회인지
-
-        List<Post> posts;
-
-        if (all) {
-            if(id == null) {
-                posts = postRepository.findAll();
-                return posts;
-            }
-            posts = postRepository.findAllById(id);
-        } else {
-            if(id == null) {
-                posts = postRepository.findAllWithCloseFalse();
-                return posts;
-            }
-            posts = postRepository.findAllByIdWithCloseFalse(id);
-        }
-
-        return posts;
-
-    }
-
-    private PostResponse.GetPostsDto.PostDto convertPostToPostDtos (Post post) { // dto 변환 함수
-        return new PostResponse.GetPostsDto.PostDto(
-                post.getId(),
-                post.getTitle(),
-                post.getDueTime(),
-                post.getDistrictName(),
-                post.getStartTime(),
-                post.getUserName(),
-                post.getProfilePath(),
-                post.getCurrentNumber(),
-                post.getIsClose()
-        );
     }
 
     @Transactional
-    public void update (User user, Long postId, Post newPost) {
+    public void update(Long userId, Long postId, PostRequest.UpdatePostDto request) {
+
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
-        if (!post.isMine(user)) {
+        String newTitle = request.title();
+
+        String newContent = request.content();
+
+        LocalDateTime newStartTime = request.startTime();
+
+        LocalDateTime newDueTime = request.dueTime();
+
+        Boolean newIsClose = request.isClose();
+
+        if (!post.isMine(userId)) {
             throw new Exception403("모집글에 대한 수정 권한이 없습니다.");
         }
 
-        post.update(newPost);
+        post.update(newTitle, newContent, newStartTime, newDueTime, newIsClose);
+
     }
 
     @Transactional
-    public void delete (User user, Long postId) {
+    public void delete(Long userId, Long postId) {
+
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
-        if (!post.isMine(user)) {
+        if (!post.isMine(userId)) {
             throw new Exception403("모집글에 대한 삭제 권한이 없습니다.");
         }
 
         deletePost(post);
+
     }
 
     private void deletePost(Post post) { // 삭제 로직 따로 분리

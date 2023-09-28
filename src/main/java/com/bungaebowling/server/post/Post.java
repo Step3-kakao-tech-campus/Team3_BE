@@ -1,20 +1,19 @@
 package com.bungaebowling.server.post;
 
-import com.bungaebowling.server.Score.Score;
 import com.bungaebowling.server.applicant.Applicant;
-import com.bungaebowling.server.city.country.Country;
+import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -28,7 +27,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(length = 100, nullable = false)
     private String title;
 
     @ManyToOne(fetch = LAZY)
@@ -37,29 +36,33 @@ public class Post {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "district_id")
-    private Country country;
+    private District district;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "start_time")
+    @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "due_time")
+    @Column(name = "due_time", nullable = false)
     private LocalDateTime dueTime;
 
     @Column(name = "is_close")
+    @ColumnDefault(value = "false")
     private Boolean isClose;
 
     @Column(name = "view_count")
+    @ColumnDefault(value = "0")
     private int viewCount;
 
     @Column(name = "edited_at")
     @Temporal(TemporalType.TIMESTAMP)
+    @ColumnDefault(value = "now()")
     private LocalDateTime editedAt;
 
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
+    @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
 
     //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
@@ -72,10 +75,10 @@ public class Post {
     private final List<Applicant> applicants = new ArrayList<>();
 
     @Builder
-    public Post(String title, User user, Country country, String content, LocalDateTime startTime, LocalDateTime dueTime, Boolean isClose, int viewCount, LocalDateTime editedAt, LocalDateTime createdAt) {
+    public Post(String title, User user, District district, String content, LocalDateTime startTime, LocalDateTime dueTime, Boolean isClose, int viewCount, LocalDateTime editedAt, LocalDateTime createdAt) {
         this.title = title;
         this.user = user;
-        this.country = country;
+        this.district = district;
         this.content = content;
         this.startTime = startTime;
         this.dueTime = dueTime;
@@ -90,8 +93,7 @@ public class Post {
     }
 
     public String getDistrictName() {
-        //return this.country.getName();
-        return "부산광역시 금정구 장전2동"; // 임시 결과
+        return this.district.getName();
     }
 
 
@@ -100,9 +102,7 @@ public class Post {
     }
 
     public int getCurrentNumber() { // 현재 모집된 사람 수
-
         int count = 0;
-
 
         for (Applicant applicant : applicants) {
             if (applicant.getStatus()) {
@@ -118,20 +118,20 @@ public class Post {
         this.viewCount++;
     }
 
-    public Boolean isMine(User user) { // 내가 작성한 글인지 아닌지 확인
-        return this.user.getId().equals(user.getId());
+    public Boolean isMine(Long userId) { // 내가 작성한 글인지 아닌지 확인
+        return this.user.getId().equals(userId);
     }
 
-    public void update(Post post) { // 게시글 업데이트할 때 쓸 것
-        this.title = post.getTitle();
-        this.content = post.getContent();
-        this.startTime = post.getDueTime();
-        this.dueTime = post.getDueTime();
-        this.isClose = post.isClose;
+    public void update(String newTitle, String newContent, LocalDateTime newStartTime, LocalDateTime newDueTime, Boolean newIsClose) { // 게시글 업데이트할 때 쓸 것
+        this.title = newTitle;
+        this.content = newContent;
+        this.startTime = newStartTime;
+        this.dueTime = newDueTime;
+        this.isClose = newIsClose;
     }
 
     public String getProfilePath() { // 사용자 Profile 이미지 경로 가져오기
-        return Optional.ofNullable(this.user.getImgUrl()).orElse(null);
+        return this.user.getImgUrl();
     }
 
 }

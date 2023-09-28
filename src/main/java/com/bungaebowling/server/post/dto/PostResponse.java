@@ -1,9 +1,11 @@
 package com.bungaebowling.server.post.dto;
 
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server.post.Post;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PostResponse {
 
@@ -11,6 +13,10 @@ public class PostResponse {
         CursorRequest nextCursorRequest,
         List<PostDto> posts
     ) {
+        public static GetPostsDto of(CursorRequest nextCursorRequest, List<Post> posts) {
+            return new GetPostsDto(nextCursorRequest, posts.stream().map(PostDto::new).collect(Collectors.toList()));
+        }
+
         public record PostDto(
                 Long id,
                 String title,
@@ -22,12 +28,28 @@ public class PostResponse {
                 Integer currentNumber,
                 Boolean isClose
         ) {
+            public PostDto(Post post) {
+                this(
+                        post.getId(),
+                        post.getTitle(),
+                        post.getDueTime(),
+                        post.getDistrictName(),
+                        post.getStartTime(),
+                        post.getUserName(),
+                        post.getProfilePath(),
+                        post.getCurrentNumber(),
+                        post.getIsClose()
+                );
+            }
         }
     }
 
     public record GetPostDto(
             PostDto post
     ) {
+        public GetPostDto(Post post) {
+            this(new PostDto(post));
+        }
         public record PostDto(
                 Long id,
                 String title,
@@ -43,6 +65,23 @@ public class PostResponse {
                 LocalDateTime editedAt,
                 Boolean isClose
         ) {
+            public PostDto(Post post) {
+                this(
+                        post.getId(),
+                        post.getTitle(),
+                        post.getUserName(),
+                        post.getProfilePath(),
+                        post.getDistrictName(),
+                        post.getCurrentNumber(),
+                        post.getContent(),
+                        post.getStartTime(),
+                        post.getDueTime(),
+                        post.getViewCount(),
+                        post.getCreatedAt(),
+                        post.getEditedAt(),
+                        post.getIsClose()
+                );
+            }
         }
     }
 
