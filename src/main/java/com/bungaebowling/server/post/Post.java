@@ -88,24 +88,33 @@ public class Post {
         return this.user.getName();
     }
 
-    /*
+    public String getDistrictName() {
+        //return this.country.getName();
+        return "부산광역시 금정구 장전2동"; // 임시 결과
+    }
+
+
     public int getApplicantNumber() { // 현재 신청한 사람 수
-        return applicants.size();
+        //return applicants.size();
+        return 0; // 임시
     }
 
     public int getCurrentNumber() { // 현재 모집된 사람 수
 
         int count = 0;
 
+        /*
         for (Applicant applicant : applicants) {
             if (applicant.isStatus()) {
                 count++;
             }
-        }
+        }*/
+
+        count++; // 임시
 
         return count;
     }
-     */
+
 
     public void addViewCount() { // viewCount 증가
         this.viewCount++;

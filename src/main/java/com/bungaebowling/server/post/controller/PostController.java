@@ -77,27 +77,12 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        var getPostDto = new PostResponse.GetPostDto(
-                new PostResponse.GetPostDto.PostDto(
-                        postId,
-                        "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                        "김볼링",
-                        null,
-                        "부산광역시 금정구 장전2동",
-                        1,
-                        "오늘 오후 7시에 부산대 락볼링장에서 게임하실 분 구합니다.\n즐겜 할거구여 초보자 환영합니다. 저도 볼링 세 번 밖에 안쳐봤어요 ㅎㅎ\n연락주세요",
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        100,
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        false
-                )
-        );
+    public ResponseEntity<?> getPost(
+            @PathVariable Long postId
+    ) {
+        PostResponse.GetPostDto response = postService.read(postId);
 
-        var response = ApiUtils.success(getPostDto);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @GetMapping("/users/{userId}/participation-records")

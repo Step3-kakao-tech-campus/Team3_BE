@@ -4,6 +4,7 @@ import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.errors.exception.client.Exception403;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server.post.Post;
+import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.repository.PostRepository;
 import com.bungaebowling.server.user.User;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,35 @@ public class PostService {
 
     private Long savePost(Post post) { // 저장로직 따로 분리
         return postRepository.save(post).getId();
+    }
+
+    @Transactional
+    public PostResponse.GetPostDto read(Long postId) {
+        Post post = findById(postId); // post 찾는 코드 빼서 함수화
+
+        post.addViewCount(); // 조회수 1 증가
+
+        PostResponse.GetPostDto.PostDto postDto = convertPostToPostDto(post); // post to postDto
+
+        return new PostResponse.GetPostDto(postDto);
+    }
+
+    private PostResponse.GetPostDto.PostDto convertPostToPostDto(Post post) { // dto 변환 함수
+        return new PostResponse.GetPostDto.PostDto(
+                post.getId(),
+                post.getTitle(),
+                post.getUserName(),
+                post.getProfilePath(),
+                post.getDistrictName(),
+                post.getCurrentNumber(),
+                post.getContent(),
+                post.getStartTime(),
+                post.getDueTime(),
+                post.getViewCount(),
+                post.getCreatedAt(),
+                post.getEditedAt(),
+                post.getIsClose()
+        );
     }
 
     @Transactional
