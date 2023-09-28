@@ -30,6 +30,7 @@ public class UserService {
 
     final private PasswordEncoder passwordEncoder;
 
+    @Transactional
     public UserResponse.JoinDto join(UserRequest.JoinDto requestDto) {
         long districtId;
         try {
