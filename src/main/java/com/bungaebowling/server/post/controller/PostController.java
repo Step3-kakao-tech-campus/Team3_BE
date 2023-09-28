@@ -30,50 +30,17 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<?> getPosts() {
-        CursorRequest cursorRequest = new CursorRequest(1L, 20);
-        List<PostResponse.GetPostsDto.PostDto> postDtos = new ArrayList<>();
-        var postDto1 = new PostResponse.GetPostsDto.PostDto(
-                1L,
-                "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                LocalDateTime.now(),
-                "부산광역시 금정구 장전2동",
-                LocalDateTime.now(),
-                "김볼링",
-                null,
-                4,
-                false
-        );
-        postDtos.add(postDto1);
-        var postDto2 = new PostResponse.GetPostsDto.PostDto(
-                2L,
-                "오늘 당장 나올사람!",
-                LocalDateTime.now(),
-                "부산광역시 동래구",
-                LocalDateTime.now(),
-                "최볼링",
-                null,
-                2,
-                false
-        );
-        postDtos.add(postDto2);
-        var postDto3 = new PostResponse.GetPostsDto.PostDto(
-                3L,
-                "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                LocalDateTime.now(),
-                "부산광역시 부산진구 부전동",
-                LocalDateTime.now(),
-                "이볼링",
-                null,
-                1,
-                false
-        );
-        postDtos.add(postDto3);
+    public ResponseEntity<?> getPosts(
+            @RequestParam(value = "cityId", required = false) Integer cityId,
+            @RequestParam(value = "countryId", required = false) Integer countryId,
+            @RequestParam(value = "districtId", required = false) Integer districtId,
+            @RequestParam(value = "all", defaultValue = "false") Boolean all
+    ) {
+        System.out.println("region: " + cityId + countryId + districtId + all);
+        PostResponse.GetPostsDto response = postService.readPosts(cityId, countryId, districtId, all);
+        System.out.println("response: "+ response);
 
-        var getPostsDto = new PostResponse.GetPostsDto(cursorRequest, postDtos);
-
-        var response = ApiUtils.success(getPostsDto);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @GetMapping("/{postId}")
