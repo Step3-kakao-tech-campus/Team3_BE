@@ -29,7 +29,7 @@ public class PostService {
 
     @Transactional
     public void update (User user, Long postId, Post newPost) {
-        Post post = findById(postId);
+        Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
         if (!post.isMine(user)) {
             throw new Exception403("모집글에 대한 수정 권한이 없습니다.");
@@ -38,7 +38,22 @@ public class PostService {
         post.update(newPost);
     }
 
-    private Post findById(Long postId) {
+    @Transactional
+    public void delete (User user, Long postId) {
+        Post post = findById(postId); // post 찾는 코드 빼서 함수화
+
+        if (!post.isMine(user)) {
+            throw new Exception403("모집글에 대한 삭제 권한이 없습니다.");
+        }
+
+        deletePost(post);
+    }
+
+    private void deletePost(Post post) { // 삭제 로직 따로 분리
+        postRepository.delete(post);
+    }
+
+    private Post findById(Long postId) { // id로 post 찾는 로직 따로 분리
         return postRepository.findById(postId)
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
     }

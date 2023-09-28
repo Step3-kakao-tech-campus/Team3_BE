@@ -219,4 +219,14 @@ public class PostController {
                 .body(ApiUtils.success(HttpStatus.OK));
     }
 
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> deletePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId
+    ) {
+        postService.delete(userDetails.user(), postId);
+
+        return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK));
+    }
+
 }
