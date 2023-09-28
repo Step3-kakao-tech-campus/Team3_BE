@@ -15,7 +15,7 @@ public class ApplicantResponse {
                     applicant.getId(),
                     applicant.getUser().getName(),
                     applicant.getUser().getImgUrl(),
-                    1.0 //UserRate 생성된 후 수정
+                    1.0 //TODO: UserRate 생성된 후 수정
             )).toList());
         }
 
