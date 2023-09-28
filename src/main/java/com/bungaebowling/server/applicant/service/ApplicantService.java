@@ -28,6 +28,7 @@ public class ApplicantService {
     public static final int DEFAULT_SIZE = 20;
 
     private final ApplicantRepository applicantRepository;
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
 
     public PageCursor<ApplicantResponse.GetApplicantsDto> getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
@@ -52,15 +53,19 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void create(User user, Long postId){
+    public void create(Long userId, Long postId){
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new Exception404("존재하지 않는 사용자입니다.")
+        );
+
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new Exception404("존재하지 않는 모집글입니다.")
         );
         
-        //게시글 작성자 신청 금지
+        //TODO: 게시글 작성자 신청 금지
 
         //신청 중복 확인
-        applicantRepository.findByUserIdAndPostId(1L, postId).ifPresent(applicant -> {
+        applicantRepository.findByUserIdAndPostId(userId, postId).ifPresent(applicant -> {
             throw new Exception400("이미 신청된 사용자입니다.");
         });
 
@@ -70,7 +75,7 @@ public class ApplicantService {
 
     @Transactional
     public void accept(Long applicantId, ApplicantRequest.UpdateDto requestDto){
-        //게시글 작성자만 수락 가능
+        //TODO: 게시글 작성자만 수락 가능
 
         Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")

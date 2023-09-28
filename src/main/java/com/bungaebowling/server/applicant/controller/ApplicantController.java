@@ -31,7 +31,7 @@ public class ApplicantController {
 
     @PostMapping
     public ResponseEntity<?> create(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails){
-        applicantService.create(userDetails.user(), postId);
+        applicantService.create(userDetails.getId(), postId);
         return ResponseEntity.ok(ApiUtils.success());
     }
 
