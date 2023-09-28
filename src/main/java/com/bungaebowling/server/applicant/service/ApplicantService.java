@@ -34,19 +34,19 @@ public class ApplicantService {
     public PageCursor<ApplicantResponse.GetApplicantsDto> getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
         Post post = getPost(postId);
         int applicantNumber = applicantRepository.countByPostId(post.getId());
-        List<Applicant> applicants = loadApplicants(userId, cursorRequest, post);
+        List<Applicant> applicants = loadApplicants(userId, cursorRequest, post.getId());
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
         return new PageCursor<>(cursorRequest.next(lastKey), ApplicantResponse.GetApplicantsDto.of(applicantNumber, applicants));
     }
 
-    private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Post post) {
+    private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Long postId) {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
 
         if(!cursorRequest.hasKey()){
-            return applicantRepository.findAllByUserIdAndPostIdOrderByIdDesc(userId, post.getId(), pageable);
+            return applicantRepository.findAllByUserIdAndPostIdOrderByIdDesc(userId, postId, pageable);
         }else{
-            return applicantRepository.findAllByUserIdAndPostIdLessThanOrderByIdDesc(cursorRequest.key(), userId, post.getId(), pageable);
+            return applicantRepository.findAllByUserIdAndPostIdLessThanOrderByIdDesc(cursorRequest.key(), userId, postId, pageable);
         }
     }
 
