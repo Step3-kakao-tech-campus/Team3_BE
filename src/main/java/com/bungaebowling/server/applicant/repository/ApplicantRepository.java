@@ -3,7 +3,6 @@ package com.bungaebowling.server.applicant.repository;
 import com.bungaebowling.server.applicant.Applicant;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,8 +24,4 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
 
     @Query("SELECT count(a) FROM Applicant a JOIN a.post p WHERE p.id = :postId AND a.status = true")
     int countByPostId(@Param("postId") Long postId);
-
-    @Modifying
-    @Query("UPDATE Applicant a SET a.status = :status WHERE a.id = :applicantId")
-    void updateStatus(@Param("applicantId") Long applicantId, @Param("status") Boolean status);
 }

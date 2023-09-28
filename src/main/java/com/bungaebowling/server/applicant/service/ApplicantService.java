@@ -80,7 +80,7 @@ public class ApplicantService {
         Applicant applicant = applicantRepository.findById(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")
         );
-        applicantRepository.updateStatus(applicant.getId(), requestDto.status());
+        applicant.updateStatus(requestDto.status());
     }
 
     @Transactional

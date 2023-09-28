@@ -49,4 +49,8 @@ public class Applicant {
         this.post = post;
         this.createdAt = createdAt;
     }
+
+    public void updateStatus(Boolean status){
+        this.status = status;
+    }
 }
