@@ -36,9 +36,7 @@ public class PostController {
             @RequestParam(value = "districtId", required = false) Integer districtId,
             @RequestParam(value = "all", defaultValue = "false") Boolean all
     ) {
-        System.out.println("region: " + cityId + countryId + districtId + all);
         PostResponse.GetPostsDto response = postService.readPosts(cityId, countryId, districtId, all);
-        System.out.println("response: "+ response);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
