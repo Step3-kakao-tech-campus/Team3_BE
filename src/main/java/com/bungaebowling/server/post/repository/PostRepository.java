@@ -8,9 +8,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
+
+    @Query("SELECT p " +
+            "FROM Post p " +
+            "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
+            "WHERE p.id=:id")
+    Optional<Post> findByIdJoinFetch(@Param("id") Long id);
 
     // 모집글들 조회
     @Query("SELECT p FROM Post p WHERE p.district.id =:districtId ORDER BY p.id DESC")

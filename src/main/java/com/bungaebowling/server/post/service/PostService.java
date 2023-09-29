@@ -60,7 +60,7 @@ public class PostService {
     @Transactional
     public PostResponse.GetPostDto read(Long postId) {
 
-        Post post = findById(postId); // post 찾는 코드 빼서 함수화
+        Post post = postRepository.findByIdJoinFetch(postId).orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다.")); // post 찾는 코드 빼서 함수화
 
         post.addViewCount(); // 조회수 1 증가
 
