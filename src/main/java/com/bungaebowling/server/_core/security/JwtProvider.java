@@ -68,6 +68,17 @@ public class JwtProvider {
                 .sign(Algorithm.HMAC512(secret));
     }
 
+    public static String createEmailVerification(User user) {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime expired = now.plusDays(1); // 하루동안 유효
+        return JWT.create()
+                .withSubject(user.getId().toString())
+                .withClaim("type", TYPE_EMAIL_VERIFICATION)
+                .withExpiresAt(Timestamp.valueOf(expired))
+                .sign(Algorithm.HMAC512(secret));
+    }
+
     public static DecodedJWT verify(String jwt, String type) {
         try {
             DecodedJWT decodedJwt = JWT.require(Algorithm.HMAC512(secret)).build()

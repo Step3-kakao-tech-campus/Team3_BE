@@ -9,8 +9,12 @@ import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.dto.UserResponse;
 import com.bungaebowling.server.user.repository.UserRepository;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,11 @@ public class UserService {
     final private RedisTemplate<String, String> redisTemplate;
 
     final private PasswordEncoder passwordEncoder;
+
+    final private JavaMailSender javaMailSender;
+
+    @Value("${bungaebowling.domain}")
+    private String domain;
 
     @Transactional
     public UserResponse.JoinDto join(UserRequest.JoinDto requestDto) {
@@ -85,6 +94,27 @@ public class UserService {
                 new Exception500("재발급 과정에서 오류가 발생했습니다."));
 
         return issueTokens(user);
+    }
+
+    public void sendVerificationMail(Long userId) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new Exception400("유저를 찾을 수 없습니다."));
+
+        var token = JwtProvider.createEmailVerification(user);
+
+        String subject = "[번개볼링] 이메일 인증을 완료해주세요.";
+        String text = "<a href='" + domain + "/email-verification?token=" + token + "'>링크</a>를 클릭하여 인증을 완료해주세요!";
+
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            helper.setTo(user.getEmail());
+            helper.setSubject(subject);
+            helper.setText(text, true);
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new Exception500("서버 이메일 전송 한도가 초과되었습니다. 내일 다시 시도해주세요.");
+        }
     }
 
     private UserResponse.TokensDto issueTokens(User user) {

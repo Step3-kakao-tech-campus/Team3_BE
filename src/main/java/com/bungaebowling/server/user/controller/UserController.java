@@ -83,6 +83,12 @@ public class UserController {
                 .body(response);
     }
 
+    @PostMapping("/email-verification")
+    public ResponseEntity<?> sendVerification(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.sendVerificationMail(userDetails.getId());
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
     @GetMapping("/users")
     public ResponseEntity<?> getUsers() {
         CursorRequest cursorRequest = new CursorRequest(1L, 20);
