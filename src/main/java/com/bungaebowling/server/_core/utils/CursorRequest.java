@@ -13,7 +13,7 @@ public record CursorRequest(
     public Boolean hasKey() {
         return key != null;
     }
-    public CursorRequest next(Long key) {
-        return new CursorRequest(key, size);
+    public CursorRequest next(Long key, Integer defaultSize) {
+        return hasSize() ? new CursorRequest(key, size) : new CursorRequest(key, defaultSize);
     }
 }

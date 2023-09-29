@@ -75,7 +75,7 @@ public class PostService {
 
         Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
 
-        return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey), posts);
+        return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts);
 
     }
 
