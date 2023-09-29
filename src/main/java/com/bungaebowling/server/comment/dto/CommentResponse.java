@@ -1,6 +1,6 @@
 package com.bungaebowling.server.comment.dto;
 
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;

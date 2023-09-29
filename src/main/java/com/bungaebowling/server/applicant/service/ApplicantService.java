@@ -1,9 +1,9 @@
 package com.bungaebowling.server.applicant.service;
 
 import com.bungaebowling.server._core.errors.exception.client.Exception400;
+import com.bungaebowling.server._core.errors.exception.client.Exception403;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
-import com.bungaebowling.server._core.utils.cursor.PageCursor;
+import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.dto.ApplicantRequest;
 import com.bungaebowling.server.applicant.dto.ApplicantResponse;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -31,12 +32,12 @@ public class ApplicantService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public PageCursor<ApplicantResponse.GetApplicantsDto> getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
+    public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
         Post post = getPost(postId);
         int applicantNumber = applicantRepository.countByPostId(post.getId());
         List<Applicant> applicants = loadApplicants(userId, cursorRequest, post.getId());
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
-        return new PageCursor<>(cursorRequest.next(lastKey), ApplicantResponse.GetApplicantsDto.of(applicantNumber, applicants));
+        return ApplicantResponse.GetApplicantsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), applicantNumber, applicants);
     }
 
     private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Long postId) {
@@ -55,7 +56,8 @@ public class ApplicantService {
         User user = getUser(userId);
         Post post = getPost(postId);
 
-        //TODO: 게시글 작성자 신청 금지
+        if (Objects.equals(post.getUser().getId(), user.getId()))
+            throw new Exception400("본인의 모집글에 신청할 수 없습니다.");
 
         //신청 중복 확인
         applicantRepository.findByUserIdAndPostId(userId, postId).ifPresent(applicant -> {
@@ -67,17 +69,24 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void accept(Long applicantId, ApplicantRequest.UpdateDto requestDto){
-        //TODO: 게시글 작성자만 수락 가능
+    public void accept(Long userId, Long applicantId, ApplicantRequest.UpdateDto requestDto){
+        Applicant applicant = getApplicantWithPost(applicantId);
 
-        Applicant applicant = getApplicant(applicantId);
+        if (!(Objects.equals(userId, applicant.getPost().getUser().getId())))
+            throw new Exception403("작성자만 수락 가능합니다.");
+
         applicant.updateStatus(requestDto.status());
     }
 
     @Transactional
-    public void reject(Long applicantId){
-        Applicant applicant = getApplicant(applicantId);
-        applicantRepository.deleteById(applicant.getId());
+    public void reject(Long userId, Long applicantId){
+        Applicant applicant = getApplicantWithPost(applicantId);
+        var isPostOwner = Objects.equals(userId, applicant.getPost().getUser().getId());
+        var isApplicantOwner = Objects.equals(userId, applicant.getUser().getId());
+        if (!(isApplicantOwner || isPostOwner))
+            throw new Exception403("권한이 없습니다.");
+
+        applicantRepository.delete(applicant);
     }
 
     private User getUser(Long userId) {
@@ -92,8 +101,8 @@ public class ApplicantService {
         );
     }
 
-    private Applicant getApplicant(Long applicantId) {
-        return applicantRepository.findById(applicantId).orElseThrow(
+    private Applicant getApplicantWithPost(Long applicantId) {
+        return applicantRepository.findByIdJoinFetchPost(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")
         );
     }

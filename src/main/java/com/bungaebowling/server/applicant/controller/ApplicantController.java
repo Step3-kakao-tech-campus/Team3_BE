@@ -2,8 +2,7 @@ package com.bungaebowling.server.applicant.controller;
 
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
-import com.bungaebowling.server._core.utils.cursor.PageCursor;
+import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.dto.ApplicantRequest;
 import com.bungaebowling.server.applicant.dto.ApplicantResponse;
 import com.bungaebowling.server.applicant.service.ApplicantService;
@@ -24,7 +23,7 @@ public class ApplicantController {
     @GetMapping
     public ResponseEntity<?> getApplicants(@PathVariable Long postId, CursorRequest cursorRequest,
                                            @AuthenticationPrincipal CustomUserDetails userDetails){
-        PageCursor<ApplicantResponse.GetApplicantsDto> getApplicantsDto = applicantService.getApplicants(userDetails.getId(), postId, cursorRequest);
+        ApplicantResponse.GetApplicantsDto getApplicantsDto = applicantService.getApplicants(userDetails.getId(), postId, cursorRequest);
         var response = ApiUtils.success(getApplicantsDto);
         return ResponseEntity.ok().body(response);
     }
@@ -36,14 +35,19 @@ public class ApplicantController {
     }
 
     @PutMapping("/{applicantId}")
-    public ResponseEntity<?> accept(@PathVariable Long applicantId, @RequestBody @Valid ApplicantRequest.UpdateDto requestDto, Errors errors){
-        applicantService.accept(applicantId, requestDto);
+    public ResponseEntity<?> accept(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                    @PathVariable String postId,
+                                    @PathVariable Long applicantId,
+                                    @RequestBody @Valid ApplicantRequest.UpdateDto requestDto, Errors errors){
+        applicantService.accept(userDetails.getId(), applicantId, requestDto);
         return ResponseEntity.ok(ApiUtils.success());
     }
 
     @DeleteMapping("/{applicantId}")
-    public ResponseEntity<?> reject(@PathVariable Long applicantId){
-        applicantService.reject(applicantId);
+    public ResponseEntity<?> reject(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                    @PathVariable String postId,
+                                    @PathVariable Long applicantId){
+        applicantService.reject(userDetails.getId(), applicantId);
         return ResponseEntity.ok(ApiUtils.success());
     }
 }
