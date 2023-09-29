@@ -68,7 +68,7 @@ public class PostService {
 
     }
 
-    public PostResponse.GetPostsDto readPosts(CursorRequest cursorRequest, Integer cityId, Integer countryId, Integer districtId, Boolean all) {
+    public PostResponse.GetPostsDto readPosts(CursorRequest cursorRequest, Long cityId, Long countryId, Long districtId, Boolean all) {
 
         List<Post> posts = findPosts(cursorRequest, cityId, countryId, districtId, all);
 
@@ -78,7 +78,7 @@ public class PostService {
 
     }
 
-    private List<Post> findPosts(CursorRequest cursorRequest, Integer cityId, Integer countryId, Integer districtId, Boolean all) {
+    private List<Post> findPosts(CursorRequest cursorRequest, Long cityId, Long countryId, Long districtId, Boolean all) {
 
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
 

@@ -30,9 +30,9 @@ public class PostController {
     @GetMapping
     public ResponseEntity<?> getPosts(
             CursorRequest cursorRequest,
-            @RequestParam(value = "cityId", required = false) Integer cityId,
-            @RequestParam(value = "countryId", required = false) Integer countryId,
-            @RequestParam(value = "districtId", required = false) Integer districtId,
+            @RequestParam(value = "cityId", required = false) Long cityId,
+            @RequestParam(value = "countryId", required = false) Long countryId,
+            @RequestParam(value = "districtId", required = false) Long districtId,
             @RequestParam(value = "all", defaultValue = "false") Boolean all
     ) {
         PostResponse.GetPostsDto response = postService.readPosts(cursorRequest,cityId, countryId, districtId, all);
