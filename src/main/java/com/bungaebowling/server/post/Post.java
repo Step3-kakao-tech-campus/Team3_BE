@@ -93,7 +93,9 @@ public class Post {
     }
 
     public String getDistrictName() {
-        return this.district.getName();
+        return this.district.getCountry().getCity().getName() + " " +
+                this.district.getCountry().getName() + " "  +
+                this.district.getName();
     }
 
 
