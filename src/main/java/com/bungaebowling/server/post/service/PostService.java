@@ -3,7 +3,6 @@ package com.bungaebowling.server.post.service;
 import com.bungaebowling.server._core.errors.exception.client.Exception403;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
-import com.bungaebowling.server._core.utils.cursor.PageCursor;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.post.Post;
@@ -70,13 +69,13 @@ public class PostService {
 
     }
 
-    public PageCursor<PostResponse.GetPostsDto> readPosts(CursorRequest cursorRequest, Integer cityId, Integer countryId, Integer districtId, Boolean all) {
+    public PostResponse.GetPostsDto readPosts(CursorRequest cursorRequest, Integer cityId, Integer countryId, Integer districtId, Boolean all) {
 
         List<Post> posts = findPosts(cursorRequest, cityId, countryId, districtId, all);
 
         Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
 
-        return new PageCursor<>(cursorRequest.next(lastKey), PostResponse.GetPostsDto.of(cursorRequest, posts));
+        return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey), posts);
 
     }
 

@@ -3,7 +3,6 @@ package com.bungaebowling.server.post.controller;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.cursor.CursorRequest;
-import com.bungaebowling.server._core.utils.cursor.PageCursor;
 import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.service.PostService;
@@ -36,9 +35,9 @@ public class PostController {
             @RequestParam(value = "districtId", required = false) Integer districtId,
             @RequestParam(value = "all", defaultValue = "false") Boolean all
     ) {
-        PageCursor<PostResponse.GetPostsDto> response = postService.readPosts(cursorRequest,cityId, countryId, districtId, all);
+        PostResponse.GetPostsDto response = postService.readPosts(cursorRequest,cityId, countryId, districtId, all);
 
-        return ResponseEntity.ok().body(ApiUtils.success(response.body())); // body만 넘겨줘야 api 명세와 동일한 response 출력
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @GetMapping("/{postId}")
