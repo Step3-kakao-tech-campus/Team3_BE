@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -116,21 +115,17 @@ public class PostService {
 
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
-        String newTitle = request.title();
-
-        String newContent = request.content();
-
-        LocalDateTime newStartTime = request.startTime();
-
-        LocalDateTime newDueTime = request.dueTime();
-
-        Boolean newIsClose = request.isClose();
-
         if (!post.isMine(userId)) {
             throw new Exception403("모집글에 대한 수정 권한이 없습니다.");
         }
 
-        post.update(newTitle, newContent, newStartTime, newDueTime, newIsClose);
+        post.update(
+                request.title(),
+                request.content(),
+                request.startTime(),
+                request.dueTime(),
+                request.isClose()
+        );
 
     }
 
