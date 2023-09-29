@@ -33,7 +33,7 @@ public class PostController {
             @RequestParam(value = "cityId", required = false) Long cityId,
             @RequestParam(value = "countryId", required = false) Long countryId,
             @RequestParam(value = "districtId", required = false) Long districtId,
-            @RequestParam(value = "all", defaultValue = "false") Boolean all
+            @RequestParam(value = "all", defaultValue = "true") Boolean all
     ) {
         PostResponse.GetPostsDto response = postService.readPosts(cursorRequest,cityId, countryId, districtId, all);
 
