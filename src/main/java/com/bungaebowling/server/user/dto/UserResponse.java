@@ -1,6 +1,6 @@
 package com.bungaebowling.server.user.dto;
 
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
 
 import java.util.List;
 

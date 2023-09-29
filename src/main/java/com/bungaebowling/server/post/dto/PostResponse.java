@@ -1,6 +1,6 @@
 package com.bungaebowling.server.post.dto;
 
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.post.Post;
 
 import java.time.LocalDateTime;

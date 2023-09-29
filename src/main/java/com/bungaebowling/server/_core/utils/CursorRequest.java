@@ -1,4 +1,4 @@
-package com.bungaebowling.server._core.utils.cursor;
+package com.bungaebowling.server._core.utils;
 
 public record CursorRequest(
         Long key,

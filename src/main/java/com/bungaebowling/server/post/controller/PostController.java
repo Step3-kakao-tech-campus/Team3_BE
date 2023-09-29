@@ -2,7 +2,7 @@ package com.bungaebowling.server.post.controller;
 
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.service.PostService;

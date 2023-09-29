@@ -2,7 +2,7 @@ package com.bungaebowling.server.post.service;
 
 import com.bungaebowling.server._core.errors.exception.client.Exception403;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.post.Post;

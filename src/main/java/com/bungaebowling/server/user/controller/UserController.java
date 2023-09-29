@@ -4,7 +4,7 @@ package com.bungaebowling.server.user.controller;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server._core.utils.ApiUtils;
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.dto.UserResponse;
 import com.bungaebowling.server.user.service.UserService;

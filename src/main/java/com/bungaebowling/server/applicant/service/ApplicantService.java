@@ -2,8 +2,7 @@ package com.bungaebowling.server.applicant.service;
 
 import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
-import com.bungaebowling.server._core.utils.cursor.PageCursor;
+import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.dto.ApplicantRequest;
 import com.bungaebowling.server.applicant.dto.ApplicantResponse;
@@ -31,12 +30,12 @@ public class ApplicantService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public PageCursor<ApplicantResponse.GetApplicantsDto> getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
+    public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
         Post post = getPost(postId);
         int applicantNumber = applicantRepository.countByPostId(post.getId());
         List<Applicant> applicants = loadApplicants(userId, cursorRequest, post.getId());
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
-        return new PageCursor<>(cursorRequest.next(lastKey), ApplicantResponse.GetApplicantsDto.of(applicantNumber, applicants));
+        return ApplicantResponse.GetApplicantsDto.of(cursorRequest.next(lastKey), applicantNumber, applicants);
     }
 
     private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Long postId) {
