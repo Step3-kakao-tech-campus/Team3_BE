@@ -108,3 +108,4 @@ $RECYCLE.BIN/
 application-mysql.yml
 application-private.yml
 src/main/resources/keystore.p12
+.mysql_env
