@@ -87,26 +87,22 @@ public class PostService {
         if(!cursorRequest.hasKey()) {
 
             if (districtId != null)
-                return all ? postRepository.findAllByDistrictId(districtId) : postRepository.findAllByDistrictIdWithCloseFalse(districtId);
+                return all ? postRepository.findAllByDistrictIdOrderByIdDesc(districtId) : postRepository.findAllByDistrictIdWithCloseFalseOrderByIdDesc(districtId);
             if (countryId != null)
-                return all ? postRepository.findAllByCountryId(countryId) : postRepository.findAllByCountryIdWithCloseFalse(countryId);
+                return all ? postRepository.findAllByCountryIdOrderByIdDesc(countryId) : postRepository.findAllByCountryIdWithCloseFalseOrderByIdDesc(countryId);
             if (cityId != null)
-                return all ? postRepository.findAllByCityId(cityId) : postRepository.findAllByCityIdWithCloseFalse(cityId);
+                return all ? postRepository.findAllByCityIdOrderByIdDesc(cityId) : postRepository.findAllByCityIdWithCloseFalseOrderByIdDesc(cityId);
 
-            return all ? postRepository.findAllOrderByIdDesc(pageable) : postRepository.findAllWithCloseFalse();
-
-        } else {
-
-            if (districtId != null)
-                return all ? postRepository.findAllByDistrictId(districtId) : postRepository.findAllByDistrictIdWithCloseFalse(districtId);
-            if (countryId != null)
-                return all ? postRepository.findAllByCountryId(countryId) : postRepository.findAllByCountryIdWithCloseFalse(countryId);
-            if (cityId != null)
-                return all ? postRepository.findAllByCityId(cityId) : postRepository.findAllByCityIdWithCloseFalse(cityId);
-
-            return all ? postRepository.findAllByIdLessThanOrderByIdDesc(cursorRequest.key(), pageable) : postRepository.findAllWithCloseFalse();
-
+            return all ? postRepository.findAllOrderByIdDesc(pageable) : postRepository.findAllWithCloseFalseOrderByIdDesc();
         }
+        if (districtId != null)
+            return all ? postRepository.findAllByDistrictIdAndIdLessThanOrderByIdDesc(districtId) : postRepository.findAllByDistrictIdAndIdLessThanWithCloseFalseOrderByIdDesc(districtId);
+        if (countryId != null)
+            return all ? postRepository.findAllByCountryIdAndIdLessThanOrderByIdDesc(countryId) : postRepository.findAllByCountryIdAndIdLessThanWithCloseFalseOrderByIdDesc(countryId);
+        if (cityId != null)
+            return all ? postRepository.findAllByCityIdAndIdLessThanOrderByIdDesc(cityId) : postRepository.findAllByCityIdAndIdLessThanWithCloseFalseOrderByIdDesc(cityId);
+
+        return all ? postRepository.findAllByIdLessThanOrderByIdDesc(cursorRequest.key(), pageable) : postRepository.findAllByIdLessThanWithCloseFalseOrderByIdDesc();
 
     }
 

@@ -13,26 +13,23 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.district.id =:districtId")
-    List<Post> findAllByDistrictId(@Param("districtId") Integer districtId);
+    List<Post> findAllByDistrictIdOrderByIdDesc(@Param("districtId") Integer districtId);
+
+    @Query("SELECT p FROM Post p WHERE p.district.id =:districtId")
+    List<Post> findAllByDistrictIdAndIdLessThanOrderByIdDesc(@Param("districtId") Integer districtId);
 
     @Query("SELECT p FROM Post p WHERE p.district.country.id =:countryId")
-    List<Post> findAllByCountryId(@Param("countryId") Integer countryId);
+    List<Post> findAllByCountryIdOrderByIdDesc(@Param("countryId") Integer countryId);
+
+    @Query("SELECT p FROM Post p WHERE p.district.country.id =:countryId")
+    List<Post> findAllByCountryIdAndIdLessThanOrderByIdDesc(@Param("countryId") Integer countryId);
 
     @Query("SELECT p FROM Post p WHERE p.district.country.city.id =:cityId")
-    List<Post> findAllByCityId(@Param("cityId") Integer cityId);
+    List<Post> findAllByCityIdOrderByIdDesc(@Param("cityId") Integer cityId);
 
-    // 모집글 마감 여부도 추가해서 조회
-    @Query("SELECT p FROM Post p WHERE p.district.id =:districtId AND p.isClose = false")
-    List<Post> findAllByDistrictIdWithCloseFalse(@Param("districtId") Integer districtId);
+    @Query("SELECT p FROM Post p WHERE p.district.country.city.id =:cityId")
+    List<Post> findAllByCityIdAndIdLessThanOrderByIdDesc(@Param("cityId") Integer cityId);
 
-    @Query("SELECT p FROM Post p WHERE p.district.country.id =:countryId AND p.isClose = false")
-    List<Post> findAllByCountryIdWithCloseFalse(@Param("countryId") Integer countryId);
-
-    @Query("SELECT p FROM Post p WHERE p.district.country.city.id =:cityId AND p.isClose = false")
-    List<Post> findAllByCityIdWithCloseFalse(@Param("cityId") Integer cityId);
-
-    @Query("SELECT p FROM Post p WHERE p.isClose = false")
-    List<Post> findAllWithCloseFalse();
 
     @Query("SELECT p FROM Post p ORDER BY p.id DESC")
     List<Post> findAllOrderByIdDesc(Pageable pageable);
@@ -40,4 +37,28 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE p.id < :key ORDER BY p.id DESC")
     List<Post> findAllByIdLessThanOrderByIdDesc(@Param("key") Long key, Pageable pageable);
 
+    // 마감안된 모집글만 조회
+    @Query("SELECT p FROM Post p WHERE p.district.id =:districtId AND p.isClose = FALSE")
+    List<Post> findAllByDistrictIdWithCloseFalseOrderByIdDesc(@Param("districtId") Integer districtId);
+
+    @Query("SELECT p FROM Post p WHERE p.district.id =:districtId AND p.isClose = FALSE")
+    List<Post> findAllByDistrictIdAndIdLessThanWithCloseFalseOrderByIdDesc(@Param("districtId") Integer districtId);
+
+    @Query("SELECT p FROM Post p WHERE p.district.country.id =:countryId AND p.isClose = FALSE")
+    List<Post> findAllByCountryIdWithCloseFalseOrderByIdDesc(@Param("countryId") Integer countryId);
+
+    @Query("SELECT p FROM Post p WHERE p.district.country.id =:countryId AND p.isClose = FALSE")
+    List<Post> findAllByCountryIdAndIdLessThanWithCloseFalseOrderByIdDesc(@Param("countryId") Integer countryId);
+
+    @Query("SELECT p FROM Post p WHERE p.district.country.city.id =:cityId AND p.isClose = FALSE")
+    List<Post> findAllByCityIdWithCloseFalseOrderByIdDesc(@Param("cityId") Integer cityId);
+
+    @Query("SELECT p FROM Post p WHERE p.district.country.city.id =:cityId AND p.isClose = FALSE")
+    List<Post> findAllByCityIdAndIdLessThanWithCloseFalseOrderByIdDesc(@Param("cityId") Integer cityId);
+
+    @Query("SELECT p FROM Post p WHERE p.isClose = FALSE ORDER BY p.id DESC")
+    List<Post> findAllWithCloseFalseOrderByIdDesc();
+
+    @Query("SELECT p FROM Post p WHERE p.isClose = FALSE AND p.id < :key ORDER BY p.id DESC")
+    List<Post> findAllByIdLessThanWithCloseFalseOrderByIdDesc();
 }
