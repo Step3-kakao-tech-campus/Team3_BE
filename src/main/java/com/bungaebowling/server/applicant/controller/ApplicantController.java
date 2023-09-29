@@ -35,14 +35,19 @@ public class ApplicantController {
     }
 
     @PutMapping("/{applicantId}")
-    public ResponseEntity<?> accept(@PathVariable Long applicantId, @RequestBody @Valid ApplicantRequest.UpdateDto requestDto, Errors errors){
-        applicantService.accept(applicantId, requestDto);
+    public ResponseEntity<?> accept(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                    @PathVariable String postId,
+                                    @PathVariable Long applicantId,
+                                    @RequestBody @Valid ApplicantRequest.UpdateDto requestDto, Errors errors){
+        applicantService.accept(userDetails.getId(), applicantId, requestDto);
         return ResponseEntity.ok(ApiUtils.success());
     }
 
     @DeleteMapping("/{applicantId}")
-    public ResponseEntity<?> reject(@PathVariable Long applicantId){
-        applicantService.reject(applicantId);
+    public ResponseEntity<?> reject(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                    @PathVariable String postId,
+                                    @PathVariable Long applicantId){
+        applicantService.reject(userDetails.getId(), applicantId);
         return ResponseEntity.ok(ApiUtils.success());
     }
 }
