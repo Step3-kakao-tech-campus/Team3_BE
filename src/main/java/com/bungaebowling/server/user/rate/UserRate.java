@@ -1,4 +1,4 @@
-package com.bungaebowling.server.userRate;
+package com.bungaebowling.server.user.rate;
 
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.user.User;

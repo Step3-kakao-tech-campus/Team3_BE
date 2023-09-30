@@ -1,4 +1,4 @@
-package com.bungaebowling.server.Score;
+package com.bungaebowling.server.score;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
