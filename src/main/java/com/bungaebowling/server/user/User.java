@@ -1,12 +1,15 @@
 package com.bungaebowling.server.user;
 
 import com.bungaebowling.server.city.country.district.District;
+import com.bungaebowling.server.user.rate.UserRate;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,7 +21,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 20)
+    @Column(length = 20, nullable = false, unique = true)
     private String name;
 
     @Column(length = 100, nullable = false, unique = true)
@@ -41,6 +44,9 @@ public class User {
     @ColumnDefault("now()")
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private final List<UserRate> userRates = new ArrayList<>();
+
     @Builder
     public User(Long id, String name, String email, String password, District district, String imgUrl, Role role, LocalDateTime createdAt) {
         this.id = id;
@@ -51,5 +57,9 @@ public class User {
         this.imgUrl = imgUrl;
         this.role = role;
         this.createdAt = createdAt;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
     }
 }

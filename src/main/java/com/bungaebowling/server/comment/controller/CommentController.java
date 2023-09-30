@@ -1,7 +1,7 @@
 package com.bungaebowling.server.comment.controller;
 
 import com.bungaebowling.server._core.utils.ApiUtils;
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.comment.dto.CommentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,15 +1,21 @@
 package com.bungaebowling.server.post.controller;
 
+import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
+import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
+import com.bungaebowling.server.post.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,75 +25,28 @@ import java.util.List;
 @RequestMapping("/api/posts")
 public class PostController {
 
+    private final PostService postService;
+
     @GetMapping
-    public ResponseEntity<?> getPosts() {
-        CursorRequest cursorRequest = new CursorRequest(1L, 20);
-        List<PostResponse.GetPostsDto.PostDto> postDtos = new ArrayList<>();
-        var postDto1 = new PostResponse.GetPostsDto.PostDto(
-                1L,
-                "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                LocalDateTime.now(),
-                "부산광역시 금정구 장전2동",
-                LocalDateTime.now(),
-                "김볼링",
-                null,
-                4,
-                false
-        );
-        postDtos.add(postDto1);
-        var postDto2 = new PostResponse.GetPostsDto.PostDto(
-                2L,
-                "오늘 당장 나올사람!",
-                LocalDateTime.now(),
-                "부산광역시 동래구",
-                LocalDateTime.now(),
-                "최볼링",
-                null,
-                2,
-                false
-        );
-        postDtos.add(postDto2);
-        var postDto3 = new PostResponse.GetPostsDto.PostDto(
-                3L,
-                "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                LocalDateTime.now(),
-                "부산광역시 부산진구 부전동",
-                LocalDateTime.now(),
-                "이볼링",
-                null,
-                1,
-                false
-        );
-        postDtos.add(postDto3);
+    public ResponseEntity<?> getPosts(
+            CursorRequest cursorRequest,
+            @RequestParam(value = "cityId", required = false) Long cityId,
+            @RequestParam(value = "countryId", required = false) Long countryId,
+            @RequestParam(value = "districtId", required = false) Long districtId,
+            @RequestParam(value = "all", defaultValue = "true") Boolean all
+    ) {
+        PostResponse.GetPostsDto response = postService.readPosts(cursorRequest,cityId, countryId, districtId, all);
 
-        var getPostsDto = new PostResponse.GetPostsDto(cursorRequest, postDtos);
-
-        var response = ApiUtils.success(getPostsDto);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        var getPostDto = new PostResponse.GetPostDto(
-                new PostResponse.GetPostDto.PostDto(
-                        postId,
-                        "오늘 7시에 부산대 락볼링장에서 게임하실분~~",
-                        "김볼링",
-                        null,
-                        "부산광역시 금정구 장전2동",
-                        1,
-                        "오늘 오후 7시에 부산대 락볼링장에서 게임하실 분 구합니다.\n즐겜 할거구여 초보자 환영합니다. 저도 볼링 세 번 밖에 안쳐봤어요 ㅎㅎ\n연락주세요",
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        100,
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        false
-                )
-        );
+    public ResponseEntity<?> getPost(
+            @PathVariable Long postId
+    ) {
+        PostResponse.GetPostDto response = postService.read(postId);
 
-        var response = ApiUtils.success(getPostDto);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @GetMapping("/users/{userId}/participation-records")
@@ -183,4 +142,42 @@ public class PostController {
         var response = ApiUtils.success(scoreDtos);
         return ResponseEntity.ok().body(response);
     }
+
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}) // json 타입만 처리 가능
+    public ResponseEntity<?> createPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody @Valid PostRequest.CreatePostDto request,
+            Errors errors
+    ) {
+        Long postId = postService.create(userDetails.getId(), request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(URI.create("/api/posts/" + postId))
+                .body(ApiUtils.success(HttpStatus.CREATED));
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<?> updatePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId,
+            @RequestBody @Valid PostRequest.UpdatePostDto request,
+            Errors errors
+    ) {
+        postService.update(userDetails.getId(), postId, request);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .location(URI.create("/api/posts/" + postId))
+                .body(ApiUtils.success());
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> deletePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId
+    ) {
+        postService.delete(userDetails.getId(), postId);
+
+        return ResponseEntity.ok(ApiUtils.success());
+    }
+
 }

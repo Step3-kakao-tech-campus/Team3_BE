@@ -13,7 +13,7 @@ import org.hibernate.annotations.DynamicInsert;
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "country_tb")
+@Table(name = "country_tb", uniqueConstraints = {@UniqueConstraint(columnNames = {"city_id", "name"})})
 public class Country {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

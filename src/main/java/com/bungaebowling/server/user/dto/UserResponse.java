@@ -1,6 +1,6 @@
 package com.bungaebowling.server.user.dto;
 
-import com.bungaebowling.server._core.utils.cursor.CursorRequest;
+import com.bungaebowling.server._core.utils.CursorRequest;
 
 import java.util.List;
 
@@ -38,4 +38,15 @@ public class UserResponse {
     ) {
 
     }
+
+    public record JoinDto(
+            Long savedId,
+            String access,
+            String refresh
+    ) {}
+
+    public record TokensDto(
+            String access,
+            String refresh
+    ) {}
 }
