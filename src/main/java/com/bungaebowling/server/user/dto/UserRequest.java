@@ -36,4 +36,9 @@ public class UserRequest {
                     .build();
         }
     }
+
+    public record ConfirmEmailDto(
+            @NotEmpty
+            String token
+    ) {}
 }
