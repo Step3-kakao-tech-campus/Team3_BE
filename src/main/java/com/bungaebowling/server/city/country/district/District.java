@@ -12,13 +12,13 @@ import org.hibernate.annotations.DynamicInsert;
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "district_tb")
+@Table(name = "district_tb", uniqueConstraints = {@UniqueConstraint(columnNames = {"country_id", "name"})})
 public class District {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private Long statutoryCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
