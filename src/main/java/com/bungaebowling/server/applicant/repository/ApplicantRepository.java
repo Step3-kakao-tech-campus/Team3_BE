@@ -23,7 +23,10 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
     List<Applicant> findAllByUserIdAndPostIdLessThanOrderByIdDesc(@Param("key") Long key, @Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
 
     @Query("SELECT count(a) FROM Applicant a WHERE a.post.id = :postId AND a.status = true")
-    int countByPostId(@Param("postId") Long postId);
+    Long countByPostIdAndIsStatusTrue(@Param("postId") Long postId);
+
+    @Query("SELECT count(a) FROM Applicant a WHERE a.post.id = :postId")
+    Long countByPostId(@Param("postId") Long postId);
 
     @Query("SELECT a FROM Applicant a JOIN FETCH a.post p WHERE a.id = :id")
     Optional<Applicant> findByIdJoinFetchPost(@Param("id") Long id);

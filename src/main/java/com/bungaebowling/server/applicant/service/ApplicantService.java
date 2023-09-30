@@ -34,10 +34,16 @@ public class ApplicantService {
 
     public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
         Post post = getPost(postId);
-        int applicantNumber = applicantRepository.countByPostId(post.getId());
+        Long participantNumber = applicantRepository.countByPostId(post.getId());
+        Long currentNumber = applicantRepository.countByPostIdAndIsStatusTrue(post.getId());
         List<Applicant> applicants = loadApplicants(userId, cursorRequest, post.getId());
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
-        return ApplicantResponse.GetApplicantsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), applicantNumber, applicants);
+
+        return ApplicantResponse.GetApplicantsDto.of(
+                cursorRequest.next(lastKey, DEFAULT_SIZE),
+                participantNumber,
+                currentNumber,
+                applicants);
     }
 
     private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Long postId) {
