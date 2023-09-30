@@ -34,6 +34,10 @@ public class ApplicantService {
 
     public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
         Post post = getPost(postId);
+
+        if (!Objects.equals(post.getUser().getId(), userId))
+            throw new Exception403("자신의 모집글이 아닙니다.");
+
         Long participantNumber = applicantRepository.countByPostId(post.getId());
         Long currentNumber = applicantRepository.countByPostIdAndIsStatusTrue(post.getId());
         List<Applicant> applicants = loadApplicants(cursorRequest, post.getId());
