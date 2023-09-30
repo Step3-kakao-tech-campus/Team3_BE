@@ -3,6 +3,7 @@ package com.bungaebowling.server.applicant.dto;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.user.User;
+import com.bungaebowling.server.user.rate.UserRate;
 
 import java.util.List;
 
@@ -48,7 +49,9 @@ public class ApplicantResponse {
                             user.getId(),
                             user.getName(),
                             user.getImgUrl(),
-                            0.0  //TODO: UserRate 생성된 후 수정
+                            user.getUserRates().stream()
+                                    .mapToInt(UserRate::getStarCount)
+                                    .average().orElse(0.0)
                     );
                 }
             }
