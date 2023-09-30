@@ -5,6 +5,7 @@ import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.errors.exception.server.Exception500;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
+import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.dto.UserResponse;
@@ -98,7 +99,7 @@ public class UserService {
 
     public void sendVerificationMail(Long userId) {
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new Exception400("유저를 찾을 수 없습니다."));
+        var user = findUserById(userId);
 
         var token = JwtProvider.createEmailVerification(user);
 
@@ -117,6 +118,15 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void confirmEmail(UserRequest.ConfirmEmailDto requestDto) {
+        var decodedJwt = JwtProvider.verify(requestDto.token(), JwtProvider.TYPE_EMAIL_VERIFICATION);
+
+        var user = findUserById(Long.valueOf(decodedJwt.getSubject()));
+
+        user.updateRole(Role.ROLE_USER);
+    }
+
     private UserResponse.TokensDto issueTokens(User user) {
         var access = JwtProvider.createAccess(user);
         var refresh = JwtProvider.createRefresh(user);
@@ -129,5 +139,10 @@ public class UserService {
         );
 
         return new UserResponse.TokensDto(access, refresh);
+    }
+
+    private User findUserById(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new Exception400("유저를 찾을 수 없습니다."));
+        return user;
     }
 }

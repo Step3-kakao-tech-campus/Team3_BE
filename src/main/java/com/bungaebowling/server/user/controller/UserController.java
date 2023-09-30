@@ -89,6 +89,12 @@ public class UserController {
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 
+    @PostMapping("/email-confirm")
+    public ResponseEntity<?> confirmEmail(@RequestBody UserRequest.ConfirmEmailDto requestDto, Errors errors) {
+        userService.confirmEmail(requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
     @GetMapping("/users")
     public ResponseEntity<?> getUsers() {
         CursorRequest cursorRequest = new CursorRequest(1L, 20);
