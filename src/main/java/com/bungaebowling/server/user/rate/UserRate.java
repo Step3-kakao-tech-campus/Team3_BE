@@ -22,21 +22,23 @@ public class UserRate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int starCount;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "applicant_id", referencedColumnName = "id")
     private Applicant applicant;
+
+
+    @Column(nullable = false)
+    private Integer starCount;
 
     @ColumnDefault("now()")
     private LocalDateTime createdAt;
 
     @Builder
-    public UserRate(Long id, int starCount, User user, Applicant applicant, LocalDateTime createdAt) {
+    public UserRate(Long id, User user, Applicant applicant, Integer starCount, LocalDateTime createdAt) {
         this.id = id;
         this.starCount = starCount;
         this.user = user;
