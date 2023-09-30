@@ -34,20 +34,30 @@ public class ApplicantService {
 
     public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
         Post post = getPost(postId);
-        int applicantNumber = applicantRepository.countByPostId(post.getId());
-        List<Applicant> applicants = loadApplicants(userId, cursorRequest, post.getId());
+
+        if (!Objects.equals(post.getUser().getId(), userId))
+            throw new Exception403("자신의 모집글이 아닙니다.");
+
+        Long participantNumber = applicantRepository.countByPostId(post.getId());
+        Long currentNumber = applicantRepository.countByPostIdAndIsStatusTrue(post.getId());
+        List<Applicant> applicants = loadApplicants(cursorRequest, post.getId());
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
-        return ApplicantResponse.GetApplicantsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), applicantNumber, applicants);
+
+        return ApplicantResponse.GetApplicantsDto.of(
+                cursorRequest.next(lastKey, DEFAULT_SIZE),
+                participantNumber,
+                currentNumber,
+                applicants);
     }
 
-    private List<Applicant> loadApplicants(Long userId, CursorRequest cursorRequest, Long postId) {
+    private List<Applicant> loadApplicants(CursorRequest cursorRequest, Long postId) {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
 
         if(!cursorRequest.hasKey()){
-            return applicantRepository.findAllByUserIdAndPostIdOrderByIdDesc(userId, postId, pageable);
+            return applicantRepository.findAllByPostIdOrderByIdDesc(postId, pageable);
         }else{
-            return applicantRepository.findAllByUserIdAndPostIdLessThanOrderByIdDesc(cursorRequest.key(), userId, postId, pageable);
+            return applicantRepository.findAllByPostIdLessThanOrderByIdDesc(cursorRequest.key(), postId, pageable);
         }
     }
 

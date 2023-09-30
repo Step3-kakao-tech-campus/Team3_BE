@@ -153,7 +153,7 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success());
+                .body(ApiUtils.success(HttpStatus.CREATED));
     }
 
     @PutMapping("/{postId}")
