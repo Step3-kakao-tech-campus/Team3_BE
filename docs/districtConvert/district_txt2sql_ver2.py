@@ -73,9 +73,11 @@ def csv_to_sql(csv_path, sql_path):
         country_list= []
         district_list= []
 
+
         city_sql = "INSERT INTO city_tb (name) \nVALUES \n"
         country_sql = "INSERT INTO country_tb (city_id, name) \nVALUES \n"
         district_sql = "INSERT INTO district_tb (statutory_code, country_id, name) \nVALUES \n"
+
 
         # 데이터 삽입 코드 작성
         for index, row in df.iterrows():
