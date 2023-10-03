@@ -15,10 +15,10 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/posts/{postId}/comments")
 public class CommentController {
 
-    @GetMapping("/{postId}/comments")
+    @GetMapping
     public ResponseEntity<?> getComments() {
         CursorRequest cursorRequest = new CursorRequest(1L, 20);
         List<CommentResponse.GetCommentsDto.CommentDto> commentsDtos = new ArrayList<>();
