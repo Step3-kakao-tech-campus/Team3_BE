@@ -24,7 +24,18 @@ public class CommentService {
     public Long create(Long userId, Long postId, CommentRequest.CreateDto requestDto) {
         var user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저의 접근입니다."));
         var post = postRepository.findById(postId).orElseThrow(() -> new Exception404("존재하지 않는 모집글입니다."));
-        var comment = requestDto.toEntity(user, post);
+        var comment = requestDto.createComment(user, post);
+
+        return commentRepository.save(comment).getId();
+    }
+
+    @Transactional
+    public Long createReply(Long userId, Long postId, Long parentId, CommentRequest.CreateDto requestDto) {
+        var user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저의 접근입니다."));
+        var post = postRepository.findById(postId).orElseThrow(() -> new Exception404("존재하지 않는 모집글입니다."));
+        var parent = commentRepository.findById(parentId).orElseThrow(() -> new Exception404("존재하지 않는 부모 댓글입니다."));
+
+        var comment = requestDto.createReply(user, post, parent);
 
         return commentRepository.save(comment).getId();
     }

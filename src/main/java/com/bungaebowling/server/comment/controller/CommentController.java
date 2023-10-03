@@ -97,4 +97,16 @@ public class CommentController {
         return ResponseEntity.created(new URI("/api/posts/" + postId + "/comments/" + savedId))
                 .body(ApiUtils.success(201));
     }
+
+    @PostMapping("/{commentId}/reply")
+    public ResponseEntity<?> createReply(@PathVariable Long postId,
+                                         @PathVariable Long commentId,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails,
+                                         @RequestBody @Valid CommentRequest.CreateDto requestDto,
+                                         Errors errors) throws URISyntaxException {
+
+        var savedId = commentService.createReply(userDetails.getId(), postId, commentId, requestDto);
+        return ResponseEntity.created(new URI("/api/posts/" + postId + "/comments/" + savedId))
+                .body(ApiUtils.success(201));
+    }
 }
