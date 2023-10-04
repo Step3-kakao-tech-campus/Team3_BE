@@ -2,9 +2,12 @@ package com.bungaebowling.server.comment.dto;
 
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.comment.Comment;
+import com.bungaebowling.server.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class CommentResponse {
@@ -36,9 +39,9 @@ public class CommentResponse {
             public CommentDto(Comment comment, List<Comment> childComments) {
                 this(
                         comment.getId(),
-                        comment.getUser().getId(),
-                        comment.getUser().getName(),
-                        comment.getUser().getImgUrl(),
+                        Optional.ofNullable(comment.getUser()).map(User::getId).orElse(null),
+                        Optional.ofNullable(comment.getUser()).map(User::getName).orElse(null),
+                        Optional.ofNullable(comment.getUser()).map(User::getImgUrl).orElse(null),
                         comment.getContent(),
                         comment.getCreatedAt(),
                         comment.getEditedAt(),
@@ -58,9 +61,9 @@ public class CommentResponse {
                 public ChildCommentDto(Comment childComment) {
                     this(
                             childComment.getId(),
-                            childComment.getUser().getId(),
-                            childComment.getUser().getName(),
-                            childComment.getUser().getImgUrl(),
+                            Optional.ofNullable(childComment.getUser()).map(User::getId).orElse(null),
+                            Optional.ofNullable(childComment.getUser()).map(User::getName).orElse(null),
+                            Optional.ofNullable(childComment.getUser()).map(User::getImgUrl).orElse(null),
                             childComment.getContent(),
                             childComment.getCreatedAt(),
                             childComment.getEditedAt()

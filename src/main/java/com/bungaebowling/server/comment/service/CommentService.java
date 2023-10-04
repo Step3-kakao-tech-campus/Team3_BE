@@ -99,6 +99,6 @@ public class CommentService {
             throw new Exception403("본인의 댓글만 삭제 가능합니다.");
         }
 
-        commentRepository.delete(comment);
+        comment.delete();
     }
 }

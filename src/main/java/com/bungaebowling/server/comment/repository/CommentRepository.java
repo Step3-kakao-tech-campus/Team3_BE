@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query("SELECT c " +
-            "FROM Comment c JOIN FETCH c.user u " +
+            "FROM Comment c LEFT JOIN FETCH c.user u " +
             "WHERE c.post.id = :postId AND c.parent = null " +
             "ORDER BY c.id")
     List<Comment> findAllByPostIdAndIsParentNullOrderById(@Param("postId") Long postId, Pageable pageable);
@@ -27,7 +27,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByParentId(@Param("parentId") Long parentId);
 
     @Query("SELECT c " +
-            "FROM Comment c JOIN FETCH c.user u " +
+            "FROM Comment c LEFT JOIN FETCH c.user u " +
             "WHERE c.post.id = :postId AND c.parent = null AND c.id > :key " +
             "ORDER BY c.id")
     List<Comment> findAllByPostIdAndIsParentNullAndIdGreaterThanOrderById(@Param("postId") Long postId, @Param("key") Long key, Pageable pageable);

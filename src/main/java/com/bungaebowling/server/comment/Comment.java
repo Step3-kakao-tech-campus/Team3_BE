@@ -63,4 +63,9 @@ public class Comment {
         this.content = content;
         this.editedAt = LocalDateTime.now();
     }
+
+    public void delete() {
+        this.content = "삭제된 댓글입니다.";
+        this.user = null;
+    }
 }
