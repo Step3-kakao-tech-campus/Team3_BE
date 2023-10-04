@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,13 +37,22 @@ public class CommentService {
     public CommentResponse.GetCommentsDto getComments(CursorRequest cursorRequest, Long postId) {
         List<Comment> comments = findComments(cursorRequest, postId);
 
-        Long lastKey = comments.isEmpty() ? CursorRequest.NONE_KEY : comments.get(comments.size() - 1).getId();
-
         var childComments = comments.stream()
                 .map(comment -> commentRepository.findAllByParentId(comment.getId()))
                 .toList();
 
-        return CommentResponse.GetCommentsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), comments, childComments);
+        List<Comment> filteredComments = new ArrayList<>();
+        List<List<Comment>> filteredChildComments = new ArrayList<>();
+
+        for (int i = 0; i < comments.size(); i++) {
+            if (comments.get(i).getUser() != null && !childComments.get(i).isEmpty()) {
+                filteredComments.add(comments.get(i));
+                filteredChildComments.add(childComments.get(i));
+            }
+        }
+        Long lastKey = comments.isEmpty() ? CursorRequest.NONE_KEY : comments.get(comments.size() - 1).getId();
+
+        return CommentResponse.GetCommentsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), filteredComments, filteredChildComments);
     }
 
     private List<Comment> findComments(CursorRequest cursorRequest, Long postId) {
