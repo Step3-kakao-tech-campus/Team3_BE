@@ -1,13 +1,21 @@
 package com.bungaebowling.server.comment.service;
 
+
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.utils.CursorRequest;
+import com.bungaebowling.server.comment.Comment;
 import com.bungaebowling.server.comment.dto.CommentRequest;
+import com.bungaebowling.server.comment.dto.CommentResponse;
 import com.bungaebowling.server.comment.repository.CommentRepository;
 import com.bungaebowling.server.post.repository.PostRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -19,6 +27,31 @@ public class CommentService {
     final private PostRepository postRepository;
 
     final private CommentRepository commentRepository;
+
+    public static final int DEFAULT_SIZE = 20;
+
+    public CommentResponse.GetCommentsDto getComments(CursorRequest cursorRequest, Long postId) {
+        List<Comment> comments = findComments(cursorRequest, postId);
+
+        Long lastKey = comments.isEmpty() ? CursorRequest.NONE_KEY : comments.get(comments.size() - 1).getId();
+
+        var childComments = comments.stream()
+                .map(comment -> commentRepository.findAllByParentId(comment.getId()))
+                .toList();
+
+        return CommentResponse.GetCommentsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), comments, childComments);
+    }
+
+    private List<Comment> findComments(CursorRequest cursorRequest, Long postId) {
+        int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
+
+        Pageable pageable = PageRequest.of(0, size);
+
+        if (!cursorRequest.hasKey()) {
+            return commentRepository.findAllByPostIdAndIsParentNullOrderById(postId, pageable);
+        }
+        return commentRepository.findAllByPostIdAndIsParentNullAndIdGreaterThanOrderById(postId, cursorRequest.key(), pageable);
+    }
 
     @Transactional
     public Long create(Long userId, Long postId, CommentRequest.CreateDto requestDto) {
