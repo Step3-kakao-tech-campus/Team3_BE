@@ -86,4 +86,16 @@ public class CommentService {
 
         comment.updateContent(requestDto.content());
     }
+
+    @Transactional
+    public void delete(Long commentId, Long userId) {
+        var user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저의 접근입니다."));
+        var comment = commentRepository.findById(commentId).orElseThrow(() -> new Exception404("존재하지 않는 댓글입니다."));
+
+        if (!Objects.equals(comment.getUser().getId(), user.getId())) {
+            throw new Exception403("본인의 댓글만 삭제 가능합니다.");
+        }
+
+        commentRepository.delete(comment);
+    }
 }
