@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -30,4 +31,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "WHERE c.post.id = :postId AND c.parent = null AND c.id > :key " +
             "ORDER BY c.id")
     List<Comment> findAllByPostIdAndIsParentNullAndIdGreaterThanOrderById(@Param("postId") Long postId, @Param("key") Long key, Pageable pageable);
+
+    @Query("SELECT c FROM Comment c WHERE c.id = :id AND c.post.id = :postId AND c.parent = null")
+    Optional<Comment> findByIdAndPostIdAndParentNull(@Param("id") Long id, @Param("postId") Long postId);
 }
