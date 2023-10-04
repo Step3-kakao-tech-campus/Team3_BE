@@ -44,9 +44,6 @@ public class User {
     @ColumnDefault("now()")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private final List<UserRate> userRates = new ArrayList<>();
-
     @Builder
     public User(Long id, String name, String email, String password, District district, String imgUrl, Role role, LocalDateTime createdAt) {
         this.id = id;
