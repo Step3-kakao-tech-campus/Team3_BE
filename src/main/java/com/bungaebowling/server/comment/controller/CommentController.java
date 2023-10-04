@@ -55,4 +55,15 @@ public class CommentController {
         return ResponseEntity.created(new URI("/api/posts/" + postId + "/comments/" + savedId))
                 .body(ApiUtils.success(201));
     }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<?> edit(@PathVariable Long postId,
+                                  @PathVariable Long commentId,
+                                  @AuthenticationPrincipal CustomUserDetails userDetails,
+                                  @RequestBody @Valid CommentRequest.EditDto requestDto,
+                                  Errors errors) {
+        commentService.edit(commentId, userDetails.getId(), requestDto);
+
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
 }

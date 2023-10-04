@@ -1,6 +1,7 @@
 package com.bungaebowling.server.comment.service;
 
 
+import com.bungaebowling.server._core.errors.exception.client.Exception403;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.comment.Comment;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -71,5 +73,17 @@ public class CommentService {
         var comment = requestDto.createReply(user, post, parent);
 
         return commentRepository.save(comment).getId();
+    }
+
+    @Transactional
+    public void edit(Long commentId, Long userId, CommentRequest.EditDto requestDto) {
+        var user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저의 접근입니다."));
+        var comment = commentRepository.findById(commentId).orElseThrow(() -> new Exception404("존재하지 않는 댓글입니다."));
+
+        if (!Objects.equals(comment.getUser().getId(), user.getId())) {
+            throw new Exception403("본인의 댓글만 수정 가능합니다.");
+        }
+
+        comment.updateContent(requestDto.content());
     }
 }

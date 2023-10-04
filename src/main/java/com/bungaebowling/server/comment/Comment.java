@@ -58,4 +58,9 @@ public class Comment {
         this.editedAt = editedAt;
         this.createdAt = createdAt;
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+        this.editedAt = LocalDateTime.now();
+    }
 }

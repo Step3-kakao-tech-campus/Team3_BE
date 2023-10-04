@@ -28,4 +28,9 @@ public class CommentRequest {
                     .build();
         }
     }
+
+    public record EditDto(
+            @NotBlank(message = "내용은 필수 입력 값 입니다.")
+            String content
+    ){ }
 }
