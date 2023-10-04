@@ -28,7 +28,7 @@ public class CommentController {
 
     @GetMapping
     public ResponseEntity<?> getComments(@PathVariable Long postId, CursorRequest cursorRequest) {
-        CommentResponse.GetCommentsDto responseDto = commentService.getComments(cursorRequest, postId);
+        var responseDto = commentService.getComments(cursorRequest, postId);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDto));
     }
@@ -39,9 +39,8 @@ public class CommentController {
                                     @RequestBody @Valid CommentRequest.CreateDto requestDto,
                                     Errors errors) throws URISyntaxException {
 
-        var savedId = commentService.create(userDetails.getId(), postId, requestDto);
-        return ResponseEntity.created(new URI("/api/posts/" + postId + "/comments/" + savedId))
-                .body(ApiUtils.success(201));
+        var responseDto = commentService.create(userDetails.getId(), postId, requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success(responseDto));
     }
 
     @PostMapping("/{commentId}/reply")
@@ -51,9 +50,8 @@ public class CommentController {
                                          @RequestBody @Valid CommentRequest.CreateDto requestDto,
                                          Errors errors) throws URISyntaxException {
 
-        var savedId = commentService.createReply(userDetails.getId(), postId, commentId, requestDto);
-        return ResponseEntity.created(new URI("/api/posts/" + postId + "/comments/" + savedId))
-                .body(ApiUtils.success(201));
+        var responseDto = commentService.createReply(userDetails.getId(), postId, commentId, requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success(responseDto));
     }
 
     @PutMapping("/{commentId}")

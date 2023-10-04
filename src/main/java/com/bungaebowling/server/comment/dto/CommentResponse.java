@@ -70,4 +70,6 @@ public class CommentResponse {
         }
 
     }
+
+    public record CreateDto(Long id) { }
 }
