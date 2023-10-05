@@ -1,81 +1,76 @@
 package com.bungaebowling.server.comment.controller;
 
+import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.CursorRequest;
+import com.bungaebowling.server.comment.dto.CommentRequest;
 import com.bungaebowling.server.comment.dto.CommentResponse;
+import com.bungaebowling.server.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/posts/{postId}/comments")
 public class CommentController {
 
-    @GetMapping("/{postId}/comments")
-    public ResponseEntity<?> getComments() {
-        CursorRequest cursorRequest = new CursorRequest(1L, 20);
-        List<CommentResponse.GetCommentsDto.CommentDto> commentsDtos = new ArrayList<>();
-        var commentDto1 = new CommentResponse.GetCommentsDto.CommentDto(
-                1L,
-                1L,
-                "볼링조아",
-                null,
-                "저 참여하고 싶습니다.",
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                List.of(
-                        new CommentResponse.GetCommentsDto.CommentDto.ChildCommentDto(
-                                2L,
-                                2L,
-                                "김볼링",
-                                null,
-                                "몇명이신가요?",
-                                LocalDateTime.now(),
-                                LocalDateTime.now()
-                        ),
-                        new CommentResponse.GetCommentsDto.CommentDto.ChildCommentDto(
-                                3L,
-                                1L,
-                                "볼링조아",
-                                null,
-                                "2인 참여 가능할까요?",
-                                LocalDateTime.now(),
-                                LocalDateTime.now()
-                        ),
-                        new CommentResponse.GetCommentsDto.CommentDto.ChildCommentDto(
-                                4L,
-                                3L,
-                                "거터처리반",
-                                null,
-                                "동반 1인입니다!",
-                                LocalDateTime.now(),
-                                LocalDateTime.now()
-                        )
-                )
-        );
-        commentsDtos.add(commentDto1);
-        var commentDto2 = new CommentResponse.GetCommentsDto.CommentDto(
-                4L,
-                3L,
-                "거터처리반",
-                null,
-                "동반 1인입니다!",
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                List.of()
-        );
-        commentsDtos.add(commentDto2);
+    final private CommentService commentService;
 
-        var getCommentsDto = new CommentResponse.GetCommentsDto(cursorRequest, commentsDtos);
+    @GetMapping
+    public ResponseEntity<?> getComments(@PathVariable Long postId, CursorRequest cursorRequest) {
+        var responseDto = commentService.getComments(cursorRequest, postId);
 
-        var response = ApiUtils.success(getCommentsDto);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(ApiUtils.success(responseDto));
+    }
+
+    @PostMapping
+    public ResponseEntity<?> create(@PathVariable Long postId,
+                                    @AuthenticationPrincipal CustomUserDetails userDetails,
+                                    @RequestBody @Valid CommentRequest.CreateDto requestDto,
+                                    Errors errors) throws URISyntaxException {
+
+        var responseDto = commentService.create(userDetails.getId(), postId, requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success(responseDto));
+    }
+
+    @PostMapping("/{commentId}/reply")
+    public ResponseEntity<?> createReply(@PathVariable Long postId,
+                                         @PathVariable Long commentId,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails,
+                                         @RequestBody @Valid CommentRequest.CreateDto requestDto,
+                                         Errors errors) throws URISyntaxException {
+
+        var responseDto = commentService.createReply(userDetails.getId(), postId, commentId, requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success(responseDto));
+    }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<?> edit(@PathVariable Long postId,
+                                  @PathVariable Long commentId,
+                                  @AuthenticationPrincipal CustomUserDetails userDetails,
+                                  @RequestBody @Valid CommentRequest.EditDto requestDto,
+                                  Errors errors) {
+        commentService.edit(commentId, userDetails.getId(), requestDto);
+
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<?> delete(@PathVariable Long postId,
+                                    @PathVariable Long commentId,
+                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
+        commentService.delete(commentId, userDetails.getId());
+
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 }

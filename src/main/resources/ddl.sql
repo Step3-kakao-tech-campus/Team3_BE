@@ -31,7 +31,7 @@ CREATE TABLE comment_tb
     post_id    BIGINT NOT NULL,
     user_id    BIGINT,
     parent_id  BIGINT,
-    contentT   TEXT,
+    content    TEXT,
     edited_at  TIMESTAMP DEFAULT now(),
     created_at TIMESTAMP DEFAULT now()
 );
