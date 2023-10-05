@@ -5,6 +5,8 @@ services:
     container_name: mysql
     ports:
       - 3307:3306
+    environment:
+      - TZ=Asia/Seoul
     env_file: .mysql_env
     volumes:
       - /opt/mysql:/var/lib/mysql
