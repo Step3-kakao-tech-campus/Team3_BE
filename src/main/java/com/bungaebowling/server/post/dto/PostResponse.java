@@ -118,16 +118,4 @@ public class PostResponse {
             }
         }
     }
-
-    public record GetScoresDto(
-            List<ScoreDto> scores
-    ) {
-        public record ScoreDto(
-                Long id,
-                Integer score,
-                String scoreImage
-        ) {
-
-        }
-    }
 }
