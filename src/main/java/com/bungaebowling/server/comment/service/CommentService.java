@@ -45,7 +45,8 @@ public class CommentService {
         List<List<Comment>> filteredChildComments = new ArrayList<>();
 
         for (int i = 0; i < comments.size(); i++) {
-            if (comments.get(i).getUser() != null && !childComments.get(i).isEmpty()) {
+            // 삭제된 메시지가 아니거나, 자식 댓글이 빈게 아닌 경우 출력
+            if (comments.get(i).getUser() != null || !childComments.get(i).isEmpty()) {
                 filteredComments.add(comments.get(i));
                 filteredChildComments.add(childComments.get(i));
             }
