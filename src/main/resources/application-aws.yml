@@ -1,0 +1,11 @@
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAQTFYZXNDXY6ESFEC
+      secretKey: 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
+    s3:
+      bucket: bungaebowling-img-s3
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
