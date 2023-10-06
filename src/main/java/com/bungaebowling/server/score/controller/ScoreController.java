@@ -7,6 +7,7 @@ import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.score.Score;
 import com.bungaebowling.server.score.dto.ScoreResponse;
+import com.bungaebowling.server.score.service.ScoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,24 +21,12 @@ import java.util.List;
 @RequestMapping("/api/posts")
 public class ScoreController {
 
-    @GetMapping("/{postId}/scores")
-    public ResponseEntity<?> getPostScores(@PathVariable Long postId) {
-        List<ScoreResponse.GetScoresDto.ScoreDto> scoreDtos = new ArrayList<>();
-        var getScoreDto1 = new ScoreResponse.GetScoresDto.ScoreDto(
-                1L,
-                180,
-                "/scoreImages/1.jpg"
-        );
-        scoreDtos.add(getScoreDto1);
-        var getScoreDto2 = new ScoreResponse.GetScoresDto.ScoreDto(
-                2L,
-                210,
-                null
-        );
-        scoreDtos.add(getScoreDto2);
+    private final ScoreService scoreService;
 
-        var response = ApiUtils.success(scoreDtos);
-        return ResponseEntity.ok().body(response);
+    @GetMapping("/{postId}/scores")
+    public ResponseEntity<?> getScores(@PathVariable Long postId) {
+        ScoreResponse.GetScoresDto response = scoreService.readScores(postId);
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     // multipart/form-data를 처리하고 json을 반환
