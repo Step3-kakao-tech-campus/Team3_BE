@@ -3,21 +3,42 @@ package com.bungaebowling.server.score.controller;
 import com.amazonaws.util.CollectionUtils;
 import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.security.CustomUserDetails;
+import com.bungaebowling.server._core.utils.ApiUtils;
+import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.score.Score;
+import com.bungaebowling.server.score.dto.ScoreResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/posts")
 public class ScoreController {
+
+    @GetMapping("/{postId}/scores")
+    public ResponseEntity<?> getPostScores(@PathVariable Long postId) {
+        List<ScoreResponse.GetScoresDto.ScoreDto> scoreDtos = new ArrayList<>();
+        var getScoreDto1 = new ScoreResponse.GetScoresDto.ScoreDto(
+                1L,
+                180,
+                "/scoreImages/1.jpg"
+        );
+        scoreDtos.add(getScoreDto1);
+        var getScoreDto2 = new ScoreResponse.GetScoresDto.ScoreDto(
+                2L,
+                210,
+                null
+        );
+        scoreDtos.add(getScoreDto2);
+
+        var response = ApiUtils.success(scoreDtos);
+        return ResponseEntity.ok().body(response);
+    }
 
     // multipart/form-data를 처리하고 json을 반환
     @RequestMapping(value = "/{postId}/scores", produces = "application/json", consumes = "multipart/form-data")
