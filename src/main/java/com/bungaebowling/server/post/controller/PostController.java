@@ -143,6 +143,7 @@ public class PostController {
         return ResponseEntity.ok().body(response);
     }
 
+    // ToDo : 모집글 등록 response에 모집글 id 반환하기
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}) // json 타입만 처리 가능
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
