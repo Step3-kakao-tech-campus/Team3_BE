@@ -38,7 +38,7 @@ public class MessageService {
 
     @Transactional
     public MessageResponse.GetMessagesDto getMessagesByOpponentId(CursorRequest cursorRequest, Long userId, Long opponentId) {
-        if (userId.equals(opponentId)){throw new Exception400("자신에게는 쪽지를 보낼 수 없습니다.");}
+        if (userId.equals(opponentId)){throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");}
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
         User opponentUser = userRepository.findById(opponentId).orElseThrow(()->new Exception400("존재하지 않는 유저입니다."));
@@ -50,7 +50,7 @@ public class MessageService {
 
     @Transactional
     public void sendMessage(MessageRequest.SendMessageDto requestDto, Long userId, Long opponentId) {
-        if (userId.equals(opponentId)){throw new Exception400("자신과 쪽지 대화를 할 수 없습니다.");}
+        if (userId.equals(opponentId)){throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");}
         User user = userRepository.findById(userId).orElseThrow(()->new Exception400("존재하지 않는 유저입니다."));
         User opponentUser = userRepository.findById(opponentId).orElseThrow(()->new Exception400("존재하지 않는 유저입니다."));
         Message userMessage = requestDto.toEntity(user,opponentUser,false,true);
