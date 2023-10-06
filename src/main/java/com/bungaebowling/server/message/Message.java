@@ -52,7 +52,7 @@ public class Message {
         this.content = content;
         this.createdAt = createdAt;
     }
-    public void isRead(Boolean isRead){
-        this.isRead = isRead;
+    public void read(){
+        this.isRead = true;
     }
 }
