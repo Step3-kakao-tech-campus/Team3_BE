@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +35,10 @@ public class ScoreController {
     public ResponseEntity<?> createScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
-            @RequestParam(name = "scores") List<Integer> score,
-            @RequestParam(name = "images") List<Score> images
+            @RequestParam(name = "scores") List<Integer> scores,
+            @RequestParam(name = "images") List<MultipartFile> images
     ) {
-        if (CollectionUtils.isNullOrEmpty(score)) { // null 체크도 해즘
+        if (CollectionUtils.isNullOrEmpty(scores)) { // null 체크도 해즘
             throw new Exception400("점수를 입력해주세요.");
         }
 
@@ -45,6 +46,9 @@ public class ScoreController {
             throw new Exception400("점수 사진을 등록해주세요.");
         }
 
+        scoreService.create(userDetails.getId(), postId, scores, images);
+
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
 
