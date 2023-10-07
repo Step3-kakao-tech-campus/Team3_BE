@@ -1,6 +1,9 @@
 package com.bungaebowling.server.user;
 
+import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.city.country.district.District;
+import com.bungaebowling.server.post.Post;
+import com.bungaebowling.server.score.Score;
 import com.bungaebowling.server.user.rate.UserRate;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,6 +13,7 @@ import org.hibernate.annotations.DynamicInsert;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -58,5 +62,17 @@ public class User {
 
     public void updateRole(Role role) {
         this.role = role;
+    }
+
+    public void updateProfile(String name, District district, String imgUrl){
+        this.name = Objects.nonNull(name) ? name : this.name;
+        this.district = Objects.nonNull(district) ? district : this.district;
+        this.imgUrl = Objects.nonNull(imgUrl) ? imgUrl : this.imgUrl;
+    }
+
+    public String getDistrictName() {
+        return this.district.getCountry().getCity().getName() + " " +
+                this.district.getCountry().getName() + " "  +
+                this.district.getName();
     }
 }

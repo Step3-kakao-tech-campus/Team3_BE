@@ -113,4 +113,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
             "WHERE p.isClose = FALSE AND p.id < :key ORDER BY p.id DESC")
     List<Post> findAllByIdLessThanWithCloseFalseOrderByIdDesc(@Param("key") Long key, Pageable pageable);
+
+    List<Post> findAllByUserIdAndIsCloseTrue(Long userId);
 }

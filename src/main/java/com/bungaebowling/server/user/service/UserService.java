@@ -4,22 +4,37 @@ import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.errors.exception.server.Exception500;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server._core.utils.CursorRequest;
+import com.bungaebowling.server.applicant.Applicant;
+import com.bungaebowling.server.applicant.repository.ApplicantRepository;
+import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
+import com.bungaebowling.server.post.repository.PostRepository;
+import com.bungaebowling.server.score.Score;
+import com.bungaebowling.server.score.repository.ScoreRepository;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.dto.UserResponse;
+import com.bungaebowling.server.user.rate.UserRate;
+import com.bungaebowling.server.user.rate.repository.UserRateRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Transactional(readOnly = true)
@@ -27,9 +42,14 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class UserService {
 
-    final private UserRepository userRepository;
+    public static final int DEFAULT_SIZE = 20;
 
+    final private UserRepository userRepository;
     final private DistrictRepository districtRepository;
+    final private UserRateRepository userRateRepository;
+    final private ScoreRepository scoreRepository;
+    final private ApplicantRepository applicantRepository;
+    final private PostRepository postRepository;
 
     final private RedisTemplate<String, String> redisTemplate;
 
@@ -97,6 +117,20 @@ public class UserService {
         return issueTokens(user);
     }
 
+    private UserResponse.TokensDto issueTokens(User user) {
+        var access = JwtProvider.createAccess(user);
+        var refresh = JwtProvider.createRefresh(user);
+
+        redisTemplate.opsForValue().set(
+                user.getId().toString(),
+                refresh,
+                JwtProvider.getRefreshExpSecond(),
+                TimeUnit.SECONDS
+        );
+
+        return new UserResponse.TokensDto(access, refresh);
+    }
+
     public void sendVerificationMail(Long userId) {
 
         var user = findUserById(userId);
@@ -127,22 +161,89 @@ public class UserService {
         user.updateRole(Role.ROLE_USER);
     }
 
-    private UserResponse.TokensDto issueTokens(User user) {
-        var access = JwtProvider.createAccess(user);
-        var refresh = JwtProvider.createRefresh(user);
+    public UserResponse.GetUsersDto getUsers(CursorRequest cursorRequest, String name){
+        List<User> users = loadUsers(cursorRequest, name);
+        List<Double> ratings = users.stream()
+                .map(user -> userRateRepository.findAllByUserId(user.getId()).stream()
+                    .mapToInt(UserRate::getStarCount)
+                    .average().orElse(0.0))
+                .toList();
+        Long lastKey = users.isEmpty() ? CursorRequest.NONE_KEY : users.get(users.size() - 1).getId();
+        return UserResponse.GetUsersDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), users, ratings);
+    }
 
-        redisTemplate.opsForValue().set(
-                user.getId().toString(),
-                refresh,
-                JwtProvider.getRefreshExpSecond(),
-                TimeUnit.SECONDS
-        );
+    private List<User> loadUsers(CursorRequest cursorRequest, String name) {
+        int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
+        Pageable pageable = PageRequest.of(0, size);
+        if(!cursorRequest.hasKey()){
+            return userRepository.findAllByNameContainingOrderByIdDesc(name, pageable);
+        }else{
+            return userRepository.findAllByNameContainingAndIdLessThanOrderByIdDesc(name, cursorRequest.key(), pageable);
+        }
+    }
 
-        return new UserResponse.TokensDto(access, refresh);
+    public UserResponse.GetUserDto getUser(Long userId){
+        User user = findUserById(userId);
+        double rating = getRating(userId);
+        int average = calculateAverage(user);
+        return new UserResponse.GetUserDto(user, rating, average);
+    }
+
+    public UserResponse.GetMyProfileDto getMyProfile(Long userId){
+        User user = findUserById(userId);
+        double rating = getRating(userId);
+        int average = calculateAverage(user);
+        return new UserResponse.GetMyProfileDto(user, rating, average);
+    }
+
+    @Transactional
+    public void updateMyProfile(MultipartFile profileImage, UserRequest.UpdateMyProfileDto request, Long userId){
+        User user = findUserById(userId);
+
+        District district = request.districtId() == null ? null :
+                districtRepository.findById(request.districtId()).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));
+
+        String originalFilename = profileImage.getOriginalFilename(); //TODO: 파일 이름 변환 필요
+        user.updateProfile(request.name(), district, originalFilename);
+    }
+
+    public UserResponse.GetRecordDto getRecords(Long userId){
+        User user = findUserById(userId);
+        int game = countGames(user);
+        int average = calculateAverage(user);
+        int maximum = findMaxScore(user);
+        int minimum = findMinScore(user);
+        return new UserResponse.GetRecordDto(game, average, maximum, minimum);
     }
 
     private User findUserById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new Exception400("유저를 찾을 수 없습니다."));
-        return user;
+        return userRepository.findById(userId).orElseThrow(() -> new Exception400("유저를 찾을 수 없습니다."));
+    }
+
+    private int countGames(User user) {
+        return applicantRepository.findAllByUserIdAndPostIsCloseTrueAndStatusTrue(user.getId()).size()
+                + postRepository.findAllByUserIdAndIsCloseTrue(user.getId()).size();
+    }
+
+    private int calculateAverage(User user) {
+        return (int) scoreRepository.findAllByUserId(user.getId()).stream()
+                .mapToInt(Score::getScore)
+                .average().orElse(0.0);
+    }
+
+    private int findMaxScore(User user) {
+        return scoreRepository.findMaxScoreByUserId(user.getId()) != null ?
+                scoreRepository.findMaxScoreByUserId(user.getId()) : 0;
+    }
+
+    private int findMinScore(User user) {
+        return scoreRepository.findMinScoreByUserId(user.getId()) != null ?
+                scoreRepository.findMinScoreByUserId(user.getId()) : 0;
+    }
+
+    private double getRating(Long userId) {
+        return userRateRepository.findAllByUserId(userId).stream()
+                .mapToInt(UserRate::getStarCount)
+                .average().orElse(0.0);
     }
 }
