@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -80,10 +81,13 @@ public class ApplicantService {
         if (Objects.equals(post.getUser().getId(), user.getId()))
             throw new Exception400("본인의 모집글에 신청할 수 없습니다.");
 
-        //신청 중복 확인
         applicantRepository.findByUserIdAndPostId(userId, postId).ifPresent(applicant -> {
             throw new Exception400("이미 신청된 사용자입니다.");
         });
+
+        if(post.getIsClose() || LocalDateTime.now().isAfter(post.getDueTime())){
+            throw new Exception400("이미 마감된 모집글입니다.");
+        }
 
         Applicant applicant = Applicant.builder().user(user).post(post).build();
         applicantRepository.save(applicant);
@@ -104,6 +108,7 @@ public class ApplicantService {
         Applicant applicant = getApplicantWithPost(applicantId);
         var isPostOwner = Objects.equals(userId, applicant.getPost().getUser().getId());
         var isApplicantOwner = Objects.equals(userId, applicant.getUser().getId());
+
         if (!(isApplicantOwner || isPostOwner))
             throw new Exception403("권한이 없습니다.");
 
