@@ -1,6 +1,7 @@
 package com.bungaebowling.server.score.controller;
 
 import com.bungaebowling.server._core.errors.exception.client.Exception400;
+import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server.score.dto.ScoreResponse;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -44,6 +46,19 @@ public class ScoreController {
         }
 
         scoreService.create(userDetails.getId(), postId, scores, images);
+
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+    @PutMapping(value = "/{postId}/scores/{scoreId}", produces = "application/json", consumes = "multipart/form-data")
+    public ResponseEntity<?> updateScore(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId,
+            @PathVariable Long scoreId,
+            @RequestParam(name = "score") Integer score,
+            @RequestParam(name = "image") MultipartFile image
+    ) {
+        scoreService.update(userDetails.getId(), postId, score, image);
 
         return ResponseEntity.ok().body(ApiUtils.success());
     }

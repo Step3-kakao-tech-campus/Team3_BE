@@ -32,15 +32,23 @@ public class AwsS3Service {
     @Value("${spring.servlet.multipart.max-request-size}")
     private Long totalFilesMaxSize;
 
-    // 단일 파일용
-    public String uploadFile(String category, MultipartFile multipartFile) {
+    // 점수 단일 파일용
+    public String uploadScoreFile(String userName, Long postId, String category, MultipartFile multipartFile) {
+        String fileName = CommonUtils.buildScoreFileName(userName, postId, category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+        uploadFileToS3(fileName, multipartFile);
+
+        return amazonS3Client.getUrl(bucketName, fileName).toString();
+    }
+
+    // 단일 파일용 - 알아서 잘 custom해서 사용하면 됨
+    public String uploadFile(String userName, String category, MultipartFile multipartFile) {
         String fileName = CommonUtils.buildFileName(category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
         uploadFileToS3(fileName, multipartFile);
 
         return amazonS3Client.getUrl(bucketName, fileName).toString();
     }
 
-    // 다중 파일용
+    // 점수 - 다중 파일용
     public List<String> uploadMultiFile(String userName, Long postId, String category, List<MultipartFile> multipartFiles) {
         List<String> imageUrls = new ArrayList<>();
         Long totalSize = 0L;
@@ -60,7 +68,7 @@ public class AwsS3Service {
                 throw new Exception404("최대 총 100MB의 파일을 첨부 할 수 있습니다");
             }
 
-            String fileName = CommonUtils.buildMultiFileName(userName, postId, category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+            String fileName = CommonUtils.buildScoreFileName(userName, postId, category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
             uploadFileToS3(fileName, multipartFile);
         }
 

@@ -41,6 +41,11 @@ public class Score {
     @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
 
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    @ColumnDefault(value = "now()")
+    private LocalDateTime updatedAt;
+
     @Builder
     public Score(User user, Post post, Integer score, String resultImageUrl, LocalDateTime createdAt) {
         this.user = user;
@@ -48,5 +53,13 @@ public class Score {
         this.score = score;
         this.resultImageUrl = resultImageUrl;
         this.createdAt = createdAt;
+    }
+
+    public void update(User user, Post post, Integer score, String resultImageUrl, LocalDateTime updatedAt){
+        this.user = user;
+        this.post = post;
+        this.score = score;
+        this.resultImageUrl = resultImageUrl;
+        this.updatedAt = updatedAt;
     }
 }

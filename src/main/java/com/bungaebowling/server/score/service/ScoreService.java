@@ -1,5 +1,6 @@
 package com.bungaebowling.server.score.service;
 
+import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.AwsS3Service;
 import com.bungaebowling.server.post.Post;
@@ -15,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -41,6 +44,8 @@ public class ScoreService {
     public Long create(Long userId, Long postId, List<Integer> scores, List<MultipartFile> images) {
         return saveScores(userId, postId, scores, images);
     }
+
+
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
@@ -72,5 +77,23 @@ public class ScoreService {
         }
 
         return postId; // 점수가 저장된 postId를 반환
+    }
+
+    @Transactional
+    public void update(Long userId, Long postId, Integer score, MultipartFile image) {
+        User user = findUserById(userId);
+        Post post = findPostById(postId);
+
+        Integer scoreCheck = Optional.ofNullable(score)
+                .orElseThrow(() -> new Exception400("점수를 입력해주세요."));
+
+        MultipartFile imageCheck = Optional.ofNullable(image)
+                .orElseThrow(() -> new Exception400("점수 사진을 등록해주세요."));
+
+        String imageurl = awsS3Service.uploadScoreFile(user.getName(), postId,"score", imageCheck);
+
+        LocalDateTime updateTime = LocalDateTime.now();
+
+        update(user, post, score, imageurl, updateTime);
     }
 }
