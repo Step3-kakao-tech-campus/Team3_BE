@@ -201,10 +201,12 @@ public class UserService {
         User user = findUserById(userId);
 
         District district = request.districtId() == null ? null :
-                districtRepository.findById(request.districtId()).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));
+                districtRepository.findById(request.districtId()).orElseThrow(
+                        () -> new Exception404("존재하지 않는 행정 구역입니다.")
+                );
 
-        String originalFilename = profileImage.getOriginalFilename(); //TODO: 파일 이름 변환 필요
-        user.updateProfile(request.name(), district, originalFilename);
+        String imageUrl = null; //TODO: S3 upload
+        user.updateProfile(request.name(), district, imageUrl);
     }
 
     public UserResponse.GetRecordDto getRecords(Long userId){
