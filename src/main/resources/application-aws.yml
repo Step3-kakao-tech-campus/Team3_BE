@@ -1,8 +1,8 @@
 cloud:
   aws:
     credentials:
-      accessKey: AKIAQTFYZXNDXY6ESFEC
-      secretKey: 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
+      access-key: AKIAQTFYZXNDTNJPWJP6
+      secret-key: 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
     s3:
       bucket: bungaebowling-img-s3
     region:
