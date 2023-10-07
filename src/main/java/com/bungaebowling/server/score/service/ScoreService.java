@@ -84,8 +84,13 @@ public class ScoreService {
 
     @Transactional
     public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
-        User user = findUserById(userId);
         Post post = findPostById(postId);
+
+        if(!post.isMine(userId)) {
+            throw new Exception403("점수 정보에 대한 수정 권한이 없습니다.");
+        }
+
+        User user = findUserById(userId);
         Score score = findScoreById(scoreId);
 
         Integer scoreNumCheck = Optional.ofNullable(scoreNum)
