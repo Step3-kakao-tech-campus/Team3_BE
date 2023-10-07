@@ -1,10 +1,12 @@
 package com.bungaebowling.server._core.utils;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.errors.exception.server.Exception500;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -88,7 +90,16 @@ public class AwsS3Service {
                     new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
                             .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch(IOException e) {
-            throw new Exception404("파일 업로드에 실패하였습니다.");
+            throw new Exception500("파일 업로드에 실패하였습니다.");
+        }
+    }
+
+    // s3파일 삭제하기
+    public void deleteFile(String fileName) {
+        try {
+            amazonS3Client.deleteObject(bucketName, fileName);
+        } catch(AmazonS3Exception e) {
+            throw new Exception500("파일 삭제에 실패하였습니다.");
         }
     }
 
