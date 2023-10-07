@@ -60,16 +60,18 @@ public class ScoreService {
     public Long saveScores(Long userId, Long postId, List<Integer> scoreNums, List<MultipartFile> images) {
         User user = findUserById(userId);
         Post post = findPostById(postId);
-        List<String> imageURls = awsS3Service.uploadMultiFile(user.getName(), postId,"score", images);
+        LocalDateTime createTime = LocalDateTime.now();
+        List<String> imageURls = awsS3Service.uploadMultiFile(user.getName(), postId,"score", createTime,images);
 
         if(!CollectionUtils.isEmpty(imageURls)) {
             for (int i = 0; i < imageURls.size(); i++) {
 
                 Score score = Score.builder()
-                        .score(scoreNums.get(i))
+                        .scoreNum(scoreNums.get(i))
                         .resultImageUrl(imageURls.get(i))
                         .post(post)
                         .user(user)
+                        .createdAt(createTime)
                         .build();
 
                 scoreRepository.save(score);
@@ -80,20 +82,25 @@ public class ScoreService {
     }
 
     @Transactional
-    public void update(Long userId, Long postId, Integer scoreNum, MultipartFile image) {
+    public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
         User user = findUserById(userId);
         Post post = findPostById(postId);
+        Score score = findScoreById(scoreId);
 
-        Integer scoreCheck = Optional.ofNullable(scoreNum)
+        Integer scoreNumCheck = Optional.ofNullable(scoreNum)
                 .orElseThrow(() -> new Exception400("점수를 입력해주세요."));
 
         MultipartFile imageCheck = Optional.ofNullable(image)
                 .orElseThrow(() -> new Exception400("점수 사진을 등록해주세요."));
 
-        String imageurl = awsS3Service.uploadScoreFile(user.getName(), postId,"score", imageCheck);
-
         LocalDateTime updateTime = LocalDateTime.now();
+        String imageurl = awsS3Service.uploadScoreFile(user.getName(), postId,"score", updateTime,imageCheck);
 
-        update(user, post, scoreNum, imageurl, updateTime);
+        score.update(user, post, scoreNumCheck, imageurl, updateTime);
+    }
+
+    private Score findScoreById(Long scoreId) {
+        return scoreRepository.findById(scoreId)
+                .orElseThrow(() -> new Exception404("점수 정보를 찾을 수 없습니다."));
     }
 }

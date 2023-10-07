@@ -58,7 +58,7 @@ public class ScoreController {
             @RequestParam(name = "score") Integer scoreNum,
             @RequestParam(name = "image") MultipartFile image
     ) {
-        scoreService.update(userDetails.getId(), postId, scoreNum, image);
+        scoreService.update(userDetails.getId(), postId, scoreId, scoreNum, image);
 
         return ResponseEntity.ok().body(ApiUtils.success());
     }

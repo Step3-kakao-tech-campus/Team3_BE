@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,8 +34,8 @@ public class AwsS3Service {
     private Long totalFilesMaxSize;
 
     // 점수 단일 파일용
-    public String uploadScoreFile(String userName, Long postId, String category, MultipartFile multipartFile) {
-        String fileName = CommonUtils.buildScoreFileName(userName, postId, category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+    public String uploadScoreFile(String userName, Long postId, String category, LocalDateTime time, MultipartFile multipartFile) {
+        String fileName = CommonUtils.buildScoreFileName(userName, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
         uploadFileToS3(fileName, multipartFile);
 
         return amazonS3Client.getUrl(bucketName, fileName).toString();
@@ -49,7 +50,7 @@ public class AwsS3Service {
     }
 
     // 점수 - 다중 파일용
-    public List<String> uploadMultiFile(String userName, Long postId, String category, List<MultipartFile> multipartFiles) {
+    public List<String> uploadMultiFile(String userName, Long postId, String category, LocalDateTime time, List<MultipartFile> multipartFiles) {
         List<String> imageUrls = new ArrayList<>();
         Long totalSize = 0L;
 
@@ -68,7 +69,7 @@ public class AwsS3Service {
                 throw new Exception404("최대 총 100MB의 파일을 첨부 할 수 있습니다");
             }
 
-            String fileName = CommonUtils.buildScoreFileName(userName, postId, category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+            String fileName = CommonUtils.buildScoreFileName(userName, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
             uploadFileToS3(fileName, multipartFile);
         }
 
