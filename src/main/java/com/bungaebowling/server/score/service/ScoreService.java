@@ -1,6 +1,7 @@
 package com.bungaebowling.server.score.service;
 
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.utils.AwsS3Service;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.repository.PostRepository;
 import com.bungaebowling.server.score.Score;
@@ -11,6 +12,7 @@ import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -19,6 +21,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ScoreService {
+
+    private final AwsS3Service awsS3Service;
+
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
@@ -34,9 +39,7 @@ public class ScoreService {
 
     @Transactional
     public Long create(Long userId, Long postId, List<Integer> scores, List<MultipartFile> images) {
-        User user = findUserById(userId);
-        Post post = findPostById(postId);
-        return saveScore(user, post, scores, images);
+        return saveScores(userId, postId, scores, images);
     }
 
     private User findUserById(Long userId) {
@@ -49,7 +52,25 @@ public class ScoreService {
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
     }
 
-    public Long saveScore(User user, Post post, List<Integer> scores, List<MultipartFile> images) {
+    public Long saveScores(Long userId, Long postId, List<Integer> scores, List<MultipartFile> images) {
+        User user = findUserById(userId);
+        Post post = findPostById(postId);
+        List<String> imageURls = awsS3Service.uploadMultiFile(user.getName(), postId,"score", images);
 
+        if(!CollectionUtils.isEmpty(imageURls)) {
+            for (int i = 0; i < imageURls.size(); i++) {
+
+                Score score = Score.builder()
+                        .score(scores.get(i))
+                        .resultImageUrl(imageURls.get(i))
+                        .post(post)
+                        .user(user)
+                        .build();
+
+                scoreRepository.save(score);
+            }
+        }
+
+        return postId; // 점수가 저장된 postId를 반환
     }
 }
