@@ -130,11 +130,11 @@ public class ScoreService {
 
         Score score = findScoreById(scoreId);
 
-        awsS3Service.deleteFile(score.getResultImageUrl());
         deleteScore(score);
     }
 
     private void deleteScore(Score score) {
+        awsS3Service.deleteFile(score.getResultImageUrl());
         scoreRepository.delete(score);
     }
 
