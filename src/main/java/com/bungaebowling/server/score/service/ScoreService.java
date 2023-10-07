@@ -128,11 +128,13 @@ public class ScoreService {
             throw new Exception403("점수 정보에 대한 삭제 권한이 없습니다.");
         }
 
-        deletePost(post);
+        Score score = findScoreById(scoreId);
+
+        deleteScore(score);
     }
 
-    private void deletePost(Post post) {
-        postRepository.delete(post);
+    private void deleteScore(Score score) {
+        scoreRepository.delete(score);
     }
 
 }
