@@ -43,7 +43,21 @@ public class ScoreService {
 
     @Transactional
     public Long create(Long userId, Long postId, List<Integer> scoreNums, List<MultipartFile> images) {
-        return saveScores(userId, postId, scoreNums, images);
+        Post post = findPostById(postId);
+
+        if(!post.getIsClose()) {
+            throw new Exception400("아직 점수를 등록할 수 없습니다.");
+        }
+
+        if(CollectionUtils.isEmpty(scoreNums)) { // null 체크도 해즘
+            throw new Exception400("점수를 입력해주세요.");
+        }
+
+        if(CollectionUtils.isEmpty(images)) { // null 체크도 해즘
+            throw new Exception400("점수 사진을 등록해주세요.");
+        }
+
+        return saveScores(userId, post, scoreNums, images);
     }
 
     private User findUserById(Long userId) {
@@ -56,11 +70,10 @@ public class ScoreService {
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
     }
 
-    public Long saveScores(Long userId, Long postId, List<Integer> scoreNums, List<MultipartFile> images) {
+    public Long saveScores(Long userId, Post post, List<Integer> scoreNums, List<MultipartFile> images) {
         User user = findUserById(userId);
-        Post post = findPostById(postId);
         LocalDateTime createTime = LocalDateTime.now();
-        List<String> imageURls = awsS3Service.uploadMultiFile(user.getName(), postId,"score", createTime,images);
+        List<String> imageURls = awsS3Service.uploadMultiFile(user.getName(), post.getId(),"score", createTime,images);
 
         if(!CollectionUtils.isEmpty(imageURls)) {
             for (int i = 0; i < imageURls.size(); i++) {

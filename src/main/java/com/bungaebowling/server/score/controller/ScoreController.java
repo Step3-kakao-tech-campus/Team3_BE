@@ -28,7 +28,6 @@ public class ScoreController {
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
-    // Todo: 아직 마감되지 않았을 때 예외 처리해주기
     // multipart/form-data를 처리하고 json을 반환
     @PostMapping(value = "/{postId}/scores", produces = "application/json", consumes = "multipart/form-data")
     public ResponseEntity<?> createScore(
@@ -37,13 +36,6 @@ public class ScoreController {
             @RequestParam(name = "scores") List<Integer> scoreNums,
             @RequestParam(name = "images") List<MultipartFile> images
     ) {
-        if(CollectionUtils.isEmpty(scoreNums)) { // null 체크도 해즘
-            throw new Exception400("점수를 입력해주세요.");
-        }
-
-        if (CollectionUtils.isEmpty(images)) { // null 체크도 해즘
-            throw new Exception400("점수 사진을 등록해주세요.");
-        }
         scoreService.create(userDetails.getId(), postId, scoreNums, images);
 
         return ResponseEntity.ok().body(ApiUtils.success());
