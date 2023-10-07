@@ -11,6 +11,8 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     List<Score> findAllByUserId(Long userId);
 
+    List<Score> findAllByUserIdAndPostId(Long userId, Long postId);
+
     @Query("SELECT MAX(s.score) FROM Score s WHERE s.user.id = :userId")
     Integer findMaxScoreByUserId(@Param("userId") Long userId);
 

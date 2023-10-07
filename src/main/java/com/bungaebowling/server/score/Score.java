@@ -1,5 +1,6 @@
 package com.bungaebowling.server.score;
 
+import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -23,4 +24,8 @@ public class Score {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 }

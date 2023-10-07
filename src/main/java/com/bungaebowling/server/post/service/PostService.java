@@ -3,23 +3,34 @@ package com.bungaebowling.server.post.service;
 import com.bungaebowling.server._core.errors.exception.client.Exception403;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.CursorRequest;
+import com.bungaebowling.server.applicant.Applicant;
+import com.bungaebowling.server.applicant.repository.ApplicantRepository;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.repository.PostRepository;
+import com.bungaebowling.server.score.Score;
+import com.bungaebowling.server.score.repository.ScoreRepository;
 import com.bungaebowling.server.user.User;
+import com.bungaebowling.server.user.rate.UserRate;
+import com.bungaebowling.server.user.rate.repository.UserRateRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -28,6 +39,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final DistrictRepository districtRepository;
+    private final ScoreRepository scoreRepository;
+    private final ApplicantRepository applicantRepository;
+    private final UserRateRepository userRateRepository;
 
     public static final int DEFAULT_SIZE = 20;
 
@@ -136,6 +150,56 @@ public class PostService {
 
         deletePost(post);
 
+    }
+
+    public PostResponse.GetParticipationRecordsDto getParticipationRecords(CursorRequest cursorRequest, Long userId,
+                                                                           String condition, String status, Long cityId, String start, String end){
+        List<Post> posts = loadPosts(cursorRequest, userId, condition, status, cityId, start, end);
+
+        Map<Long, List<Score>> scoreMap = getScoreMap(userId, posts);
+        Map<Long, List<User>> memberMap = getMemberMap(userId, posts);
+        Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts);
+
+        Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
+        return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap);
+    }
+
+    private List<Post> loadPosts(CursorRequest cursorRequest, Long userId, String condition, String status, Long cityId, String start, String end) {
+        return postRepository.findAll();
+    }
+
+    private Map<Long, List<Score>> getScoreMap(Long userId, List<Post> posts) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> scoreRepository.findAllByUserIdAndPostId(userId, post.getId())
+        ));
+    }
+
+    private Map<Long, List<User>> getMemberMap(Long userId, List<Post> posts) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> {
+                    List<User> users = new ArrayList<>(
+                            applicantRepository.findAllByPostIdAndStatusTrue(post.getId()).stream()
+                            .map(Applicant::getUser)
+                            .filter(user -> !user.getId().equals(userId))
+                            .toList()
+                    );
+                    if(!post.getUser().getId().equals(userId)){
+                        User postAuthor = userRepository.findById(post.getUser().getId()).orElseThrow(() -> new Exception404("존재하지 않는 사용자입니다."));
+                        users.add(postAuthor);
+                    }
+                    return users;
+                }
+        ));
+    }
+
+    private Map<Long, List<UserRate>> getRateMap(Long userId, List<Post> posts) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> applicantRepository.findByUserIdAndPostIdAndStatusTrue(userId, post.getId())
+                        .map(applicant -> userRateRepository.findAllByApplicantId(applicant.getId())).orElse(Collections.emptyList())
+        ));
     }
 
     private void deletePost(Post post) { // 삭제 로직 따로 분리

@@ -3,7 +3,6 @@ package com.bungaebowling.server.applicant.dto;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.user.User;
-import com.bungaebowling.server.user.rate.UserRate;
 
 import java.util.List;
 import java.util.stream.IntStream;
