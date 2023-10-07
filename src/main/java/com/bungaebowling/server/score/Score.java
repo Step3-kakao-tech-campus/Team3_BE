@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDateTime;
 
@@ -30,8 +31,9 @@ public class Score {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    // Todo: 유효성 검사 추가해주기
     @Column(nullable = false)
+    @Range(min = 0, max = 300, message = "점수는 0~300까지의 수만 입력 가능합니다.")
+    @ColumnDefault(value = "0")
     private Integer scoreNum;
 
     @Column(name = "result_image_url", nullable = false)

@@ -90,7 +90,7 @@ public class ScoreService {
             }
         }
 
-        return postId; // 점수가 저장된 postId를 반환
+        return post.getId(); // 점수가 저장된 postId를 반환
     }
 
     @Transactional
