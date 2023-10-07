@@ -1,7 +1,6 @@
 package com.bungaebowling.server.score.controller;
 
 import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server.score.dto.ScoreResponse;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,6 +24,7 @@ public class ScoreController {
     @GetMapping("/{postId}/scores")
     public ResponseEntity<?> getScores(@PathVariable Long postId) {
         ScoreResponse.GetScoresDto response = scoreService.readScores(postId);
+
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
@@ -44,7 +43,6 @@ public class ScoreController {
         if (CollectionUtils.isEmpty(images)) { // null 체크도 해즘
             throw new Exception400("점수 사진을 등록해주세요.");
         }
-
         scoreService.create(userDetails.getId(), postId, scoreNums, images);
 
         return ResponseEntity.ok().body(ApiUtils.success());
@@ -73,6 +71,5 @@ public class ScoreController {
 
         return ResponseEntity.ok(ApiUtils.success());
     }
-
 
 }

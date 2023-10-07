@@ -46,8 +46,6 @@ public class ScoreService {
         return saveScores(userId, postId, scoreNums, images);
     }
 
-
-
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다."));
@@ -92,14 +90,13 @@ public class ScoreService {
 
         User user = findUserById(userId);
         Score score = findScoreById(scoreId);
+        LocalDateTime updateTime = LocalDateTime.now();
 
         Integer scoreNumCheck = Optional.ofNullable(scoreNum)
                 .orElseThrow(() -> new Exception400("점수를 입력해주세요."));
-
         MultipartFile imageCheck = Optional.ofNullable(image)
                 .orElseThrow(() -> new Exception400("점수 사진을 등록해주세요."));
 
-        LocalDateTime updateTime = LocalDateTime.now();
         String imageurl = awsS3Service.uploadScoreFile(user.getName(), postId,"score", updateTime,imageCheck);
 
         score.update(user, post, scoreNumCheck, imageurl, updateTime);
