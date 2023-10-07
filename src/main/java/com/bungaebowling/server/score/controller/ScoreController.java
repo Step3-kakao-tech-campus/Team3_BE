@@ -1,6 +1,5 @@
 package com.bungaebowling.server.score.controller;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server.score.dto.ScoreResponse;
@@ -8,7 +7,6 @@ import com.bungaebowling.server.score.service.ScoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
