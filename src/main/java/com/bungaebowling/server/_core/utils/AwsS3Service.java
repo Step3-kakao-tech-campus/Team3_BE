@@ -59,8 +59,8 @@ public class AwsS3Service {
                 throw new Exception404("업로드 할 수 있는 최대 파일 개수는 10개 입니다.");
             }
 
-            if(multipartFile.getSize() > fileMaxSize) {
-                throw new Exception404("최대 10MB까지의 파일을 첨부 할 수 있습니다.");
+            if (multipartFile.getSize() > fileMaxSize) {
+                throw new Exception404("최대 10MB의 파일을 첨부 할 수 있습니다");
             }
 
             totalSize += multipartFile.getSize();
@@ -89,4 +89,5 @@ public class AwsS3Service {
             throw new Exception404("파일 업로드에 실패하였습니다.");
         }
     }
+
 }
