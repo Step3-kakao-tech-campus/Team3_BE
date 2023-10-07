@@ -50,4 +50,11 @@ public class ApplicantController {
         applicantService.reject(userDetails.getId(), applicantId);
         return ResponseEntity.ok(ApiUtils.success());
     }
+
+    @GetMapping("/check-status")
+    public ResponseEntity<?> checkStatus(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                         @PathVariable Long postId){
+        var response = applicantService.checkStatus(userDetails.getId(), postId);
+        return ResponseEntity.ok(ApiUtils.success(response));
+    }
 }

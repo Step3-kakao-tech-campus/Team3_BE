@@ -115,6 +115,13 @@ public class ApplicantService {
         applicantRepository.delete(applicant);
     }
 
+    public ApplicantResponse.CheckStatusDto checkStatus(Long userId, Long postId){
+        Applicant applicant = applicantRepository.findByUserIdAndPostId(userId, postId).orElseThrow(
+                () -> new Exception404("존재하지 않는 신청입니다.")
+        );
+        return new ApplicantResponse.CheckStatusDto(applicant.getStatus());
+    }
+
     private User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new Exception404("존재하지 않는 사용자입니다.")

@@ -58,4 +58,8 @@ public class ApplicantResponse {
 
         }
     }
+
+    public record CheckStatusDto(
+            Boolean isApplied
+    ) {}
 }
