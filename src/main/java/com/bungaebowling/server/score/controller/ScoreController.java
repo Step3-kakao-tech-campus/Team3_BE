@@ -34,10 +34,10 @@ public class ScoreController {
     public ResponseEntity<?> createScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
-            @RequestParam(name = "scores") List<Integer> scores,
+            @RequestParam(name = "scores") List<Integer> scoreNums,
             @RequestParam(name = "images") List<MultipartFile> images
     ) {
-        if(CollectionUtils.isEmpty(scores)) { // null 체크도 해즘
+        if(CollectionUtils.isEmpty(scoreNums)) { // null 체크도 해즘
             throw new Exception400("점수를 입력해주세요.");
         }
 
@@ -45,7 +45,7 @@ public class ScoreController {
             throw new Exception400("점수 사진을 등록해주세요.");
         }
 
-        scoreService.create(userDetails.getId(), postId, scores, images);
+        scoreService.create(userDetails.getId(), postId, scoreNums, images);
 
         return ResponseEntity.ok().body(ApiUtils.success());
     }
@@ -55,10 +55,10 @@ public class ScoreController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
             @PathVariable Long scoreId,
-            @RequestParam(name = "score") Integer score,
+            @RequestParam(name = "score") Integer scoreNum,
             @RequestParam(name = "image") MultipartFile image
     ) {
-        scoreService.update(userDetails.getId(), postId, score, image);
+        scoreService.update(userDetails.getId(), postId, scoreNum, image);
 
         return ResponseEntity.ok().body(ApiUtils.success());
     }

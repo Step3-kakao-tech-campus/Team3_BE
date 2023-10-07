@@ -14,13 +14,13 @@ public class ScoreResponse {
         }
         public record ScoreDto(
                 Long id,
-                Integer score,
+                Integer scoreNum,
                 String scoreImage
         ) {
             public ScoreDto(Score score) {
                 this(
                         score.getId(),
-                        score.getScore(),
+                        score.getScoreNum(),
                         score.getResultImageUrl()
                 );
             }

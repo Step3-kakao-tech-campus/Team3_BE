@@ -31,7 +31,7 @@ public class Score {
     private Post post;
 
     @Column(nullable = false)
-    private Integer score;
+    private Integer scoreNum;
 
     @Column(name = "result_image_url", nullable = false)
     private String resultImageUrl;
@@ -47,18 +47,18 @@ public class Score {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Score(User user, Post post, Integer score, String resultImageUrl, LocalDateTime createdAt) {
+    public Score(User user, Post post, Integer scoreNum, String resultImageUrl, LocalDateTime createdAt) {
         this.user = user;
         this.post = post;
-        this.score = score;
+        this.scoreNum = scoreNum;
         this.resultImageUrl = resultImageUrl;
         this.createdAt = createdAt;
     }
 
-    public void update(User user, Post post, Integer score, String resultImageUrl, LocalDateTime updatedAt){
+    public void update(User user, Post post, Integer scoreNum, String resultImageUrl, LocalDateTime updatedAt){
         this.user = user;
         this.post = post;
-        this.score = score;
+        this.scoreNum = scoreNum;
         this.resultImageUrl = resultImageUrl;
         this.updatedAt = updatedAt;
     }

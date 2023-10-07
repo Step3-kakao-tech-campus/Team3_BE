@@ -41,8 +41,8 @@ public class ScoreService {
     }
 
     @Transactional
-    public Long create(Long userId, Long postId, List<Integer> scores, List<MultipartFile> images) {
-        return saveScores(userId, postId, scores, images);
+    public Long create(Long userId, Long postId, List<Integer> scoreNums, List<MultipartFile> images) {
+        return saveScores(userId, postId, scoreNums, images);
     }
 
 
@@ -57,7 +57,7 @@ public class ScoreService {
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
     }
 
-    public Long saveScores(Long userId, Long postId, List<Integer> scores, List<MultipartFile> images) {
+    public Long saveScores(Long userId, Long postId, List<Integer> scoreNums, List<MultipartFile> images) {
         User user = findUserById(userId);
         Post post = findPostById(postId);
         List<String> imageURls = awsS3Service.uploadMultiFile(user.getName(), postId,"score", images);
@@ -66,7 +66,7 @@ public class ScoreService {
             for (int i = 0; i < imageURls.size(); i++) {
 
                 Score score = Score.builder()
-                        .score(scores.get(i))
+                        .score(scoreNums.get(i))
                         .resultImageUrl(imageURls.get(i))
                         .post(post)
                         .user(user)
@@ -80,11 +80,11 @@ public class ScoreService {
     }
 
     @Transactional
-    public void update(Long userId, Long postId, Integer score, MultipartFile image) {
+    public void update(Long userId, Long postId, Integer scoreNum, MultipartFile image) {
         User user = findUserById(userId);
         Post post = findPostById(postId);
 
-        Integer scoreCheck = Optional.ofNullable(score)
+        Integer scoreCheck = Optional.ofNullable(scoreNum)
                 .orElseThrow(() -> new Exception400("점수를 입력해주세요."));
 
         MultipartFile imageCheck = Optional.ofNullable(image)
@@ -94,6 +94,6 @@ public class ScoreService {
 
         LocalDateTime updateTime = LocalDateTime.now();
 
-        update(user, post, score, imageurl, updateTime);
+        update(user, post, scoreNum, imageurl, updateTime);
     }
 }
