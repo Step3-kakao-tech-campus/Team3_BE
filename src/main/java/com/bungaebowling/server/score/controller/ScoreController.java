@@ -28,6 +28,7 @@ public class ScoreController {
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
+    // Todo: 아직 마감되지 않았을 때 예외 처리해주기
     // multipart/form-data를 처리하고 json을 반환
     @PostMapping(value = "/{postId}/scores", produces = "application/json", consumes = "multipart/form-data")
     public ResponseEntity<?> createScore(

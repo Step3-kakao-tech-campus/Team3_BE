@@ -30,6 +30,7 @@ public class Score {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    // Todo: 유효성 검사 추가해주기
     @Column(nullable = false)
     private Integer scoreNum;
 

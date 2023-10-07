@@ -70,6 +70,8 @@ public class AwsS3Service {
             }
 
             String fileName = CommonUtils.buildScoreFileName(userName, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+            imageUrls.add(fileName);
+
             uploadFileToS3(fileName, multipartFile);
         }
 
