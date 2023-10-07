@@ -1,6 +1,7 @@
 package com.bungaebowling.server.score.service;
 
 import com.bungaebowling.server._core.errors.exception.client.Exception400;
+import com.bungaebowling.server._core.errors.exception.client.Exception403;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.AwsS3Service;
 import com.bungaebowling.server.post.Post;
@@ -103,4 +104,20 @@ public class ScoreService {
         return scoreRepository.findById(scoreId)
                 .orElseThrow(() -> new Exception404("점수 정보를 찾을 수 없습니다."));
     }
+
+    @Transactional
+    public void delete(Long userId, Long postId, Long scoreId) {
+        Post post = findPostById(postId);
+
+        if(!post.isMine(userId)) {
+            throw new Exception403("점수 정보에 대한 삭제 권한이 없습니다.");
+        }
+
+        deletePost(post);
+    }
+
+    private void deletePost(Post post) {
+        postRepository.delete(post);
+    }
+
 }
