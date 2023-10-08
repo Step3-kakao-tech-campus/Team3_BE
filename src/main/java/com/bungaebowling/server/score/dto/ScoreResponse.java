@@ -21,7 +21,7 @@ public class ScoreResponse {
                 this(
                         score.getId(),
                         score.getScoreNum(),
-                        score.getResultImageUrl()
+                        score.getAccessImageUrl()
                 );
             }
         }
