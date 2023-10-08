@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.errors.exception.server.Exception500;
 import lombok.RequiredArgsConstructor;
@@ -38,17 +39,21 @@ public class AwsS3Service {
     // 점수 단일 파일용
     public String uploadScoreFile(String userName, Long postId, String category, LocalDateTime time, MultipartFile multipartFile) {
         String fileName = CommonUtils.buildScoreFileName(userName, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
-        uploadFileToS3(fileName, multipartFile);
+        String safeFileName = fileWhiteList(fileName);
 
-        return amazonS3Client.getUrl(bucketName, fileName).toString();
+        uploadFileToS3(safeFileName, multipartFile);
+
+        return amazonS3Client.getUrl(bucketName, safeFileName).toString();
     }
 
     // 단일 파일용 - 알아서 잘 custom해서 사용하면 됨
     public String uploadFile(String userName, String category, MultipartFile multipartFile) {
         String fileName = CommonUtils.buildFileName(category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
-        uploadFileToS3(fileName, multipartFile);
+        String safeFileName = fileWhiteList(fileName);
 
-        return amazonS3Client.getUrl(bucketName, fileName).toString();
+        uploadFileToS3(safeFileName, multipartFile);
+
+        return amazonS3Client.getUrl(bucketName, safeFileName).toString();
     }
 
     // 점수 - 다중 파일용
@@ -72,9 +77,10 @@ public class AwsS3Service {
             }
 
             String fileName = CommonUtils.buildScoreFileName(userName, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
-            imageUrls.add(fileName);
+            String safeFileName = fileWhiteList(fileName);
 
-            uploadFileToS3(fileName, multipartFile);
+            imageUrls.add(safeFileName);
+            uploadFileToS3(safeFileName, multipartFile);
         }
 
         return imageUrls;
@@ -103,4 +109,23 @@ public class AwsS3Service {
         }
     }
 
+    // 파일 확장자 검사
+    private String fileWhiteList(String fileName) {
+        // 대소문자 구별안하게
+        String caseInSensitiveFileName = fileName.toLowerCase();
+        if(caseInSensitiveFileName == null) {
+            throw new Exception400("잘못된 파일 업로드 요청입니다.");
+        }
+
+        if(
+                caseInSensitiveFileName.endsWith(".png") ||
+                caseInSensitiveFileName.endsWith(".gif") ||
+                caseInSensitiveFileName.endsWith(".jpeg") ||
+                caseInSensitiveFileName.endsWith(".jpg")
+        ) {
+            return caseInSensitiveFileName;
+        } else {
+            throw new Exception400("허용되지 않는 파일 확장자입니다.");
+        }
+    }
 }
