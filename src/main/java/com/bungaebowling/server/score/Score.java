@@ -36,7 +36,7 @@ public class Score {
     @ColumnDefault(value = "0")
     private Integer scoreNum;
 
-    @Column(name = "result_image_url", nullable = false)
+    @Column(name = "result_image_url")
     private String resultImageUrl;
 
     @Column(name = "created_at")
@@ -45,6 +45,7 @@ public class Score {
     private LocalDateTime createdAt;
 
     // 브라우저 상의 이미지 접근 경로
+    @Column(name = "result_image_url")
     private String accessImageUrl;
 
     @Builder

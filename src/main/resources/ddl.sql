@@ -53,6 +53,7 @@ CREATE TABLE score_tb
     post_id          BIGINT NOT NULL,
     score            INT    NOT NULL,
     result_image_url VARCHAR(100),
+    access_image_url VARCHAR(200),
     created_at       TIMESTAMP DEFAULT now()
 );
 
