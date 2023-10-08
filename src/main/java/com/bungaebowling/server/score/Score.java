@@ -44,20 +44,25 @@ public class Score {
     @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
 
+    // 브라우저 상의 이미지 접근 경로
+    private String accessImageUrl;
+
     @Builder
-    public Score(User user, Post post, Integer scoreNum, String resultImageUrl, LocalDateTime createdAt) {
+    public Score(User user, Post post, Integer scoreNum, String resultImageUrl, LocalDateTime createdAt, String accessImageUrl) {
         this.user = user;
         this.post = post;
         this.scoreNum = scoreNum;
         this.resultImageUrl = resultImageUrl;
         this.createdAt = createdAt;
+        this.accessImageUrl = accessImageUrl;
     }
 
-    public void update(User user, Post post, Integer scoreNum, String resultImageUrl, LocalDateTime updatedAt){
+    public void update(User user, Post post, Integer scoreNum, String resultImageUrl, LocalDateTime updatedAt, String accessImageUrl){
         this.user = user;
         this.post = post;
         this.scoreNum = scoreNum;
         this.resultImageUrl = resultImageUrl;
         this.createdAt = updatedAt;
+        this.accessImageUrl = accessImageUrl;
     }
 }

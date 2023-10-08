@@ -86,6 +86,11 @@ public class AwsS3Service {
         return imageUrls;
     }
 
+    // 이미지 접속 url 반환
+    public String getImageAccessUrl(String fileName) {
+        return amazonS3Client.getUrl(bucketName, fileName).toString();
+    }
+
     // s3에 파일을 올리는 로직
     private void uploadFileToS3(String fileName, MultipartFile multipartFile) {
         ObjectMetadata objectMetadata = new ObjectMetadata();

@@ -77,14 +77,13 @@ public class ScoreService {
 
         if(!CollectionUtils.isEmpty(imageURls)) {
             for (int i = 0; i < imageURls.size(); i++) {
-
-                System.out.println("save: "+ imageURls.get(i));
                 Score score = Score.builder()
                         .scoreNum(scoreNums.get(i))
                         .resultImageUrl(imageURls.get(i))
                         .post(post)
                         .user(user)
                         .createdAt(createTime)
+                        .accessImageUrl(awsS3Service.getImageAccessUrl(imageURls.get(i)))
                         .build();
 
                 scoreRepository.save(score);
@@ -114,9 +113,9 @@ public class ScoreService {
 
         awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
         String imageurl = awsS3Service.uploadScoreFile(user.getName(), postId,"score", updateTime,imageCheck);
+        String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
-        System.out.println("imgUrl: " + imageurl);
-        score.update(user, post, scoreNumCheck, imageurl, updateTime);
+        score.update(user, post, scoreNumCheck, imageurl, updateTime, accessImageUrl);
     }
 
     private Score findScoreById(Long scoreId) {
@@ -138,7 +137,6 @@ public class ScoreService {
     }
 
     private void deleteScore(Score score) {
-        System.out.println("deleteurl: "+score.getResultImageUrl());
         awsS3Service.deleteFile(score.getResultImageUrl());
         scoreRepository.delete(score);
     }
