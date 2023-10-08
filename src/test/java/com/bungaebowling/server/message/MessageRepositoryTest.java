@@ -5,7 +5,6 @@ import com.bungaebowling.server.message.repository.MessageRepository;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
@@ -27,13 +26,11 @@ import java.util.List;
 class MessageRepositoryTest {
 
 
-    private MessageRepository messageRepository;
-
-    private EntityManager em;
-
-    private UserRepository userRepository;
-    private DistrictRepository districtRepository;
-    private ObjectMapper om;
+    private final MessageRepository messageRepository;
+    private final EntityManager em;
+    private final UserRepository userRepository;
+    private final DistrictRepository districtRepository;
+    private final ObjectMapper om;
 
 
     public MessageRepositoryTest(@Autowired MessageRepository messageRepository,
