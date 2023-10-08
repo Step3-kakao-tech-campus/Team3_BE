@@ -33,7 +33,7 @@ public class PostService {
     public static final int DEFAULT_SIZE = 20;
 
     @Transactional
-    public Long create(Long userId, PostRequest.CreatePostDto request) {
+    public PostResponse.GetPostPostDto create(Long userId, PostRequest.CreatePostDto request) {
 
         User user = findUserById(userId);
 
@@ -43,14 +43,14 @@ public class PostService {
 
     }
 
-    // ToDo : 모집글 등록 response에 모집글 id 반환하기
-    private Long savePost(User user, Long districtId, PostRequest.CreatePostDto request) { // 저장로직 따로 분리
+    private PostResponse.GetPostPostDto savePost(User user, Long districtId, PostRequest.CreatePostDto request) { // 저장로직 따로 분리
 
         District district = districtRepository.findById(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));
 
         Post post = request.toEntity(user, district);
+        Long postId = postRepository.save(post).getId();
 
-        return postRepository.save(post).getId();
+        return new PostResponse.GetPostPostDto(postId);
 
     }
 
