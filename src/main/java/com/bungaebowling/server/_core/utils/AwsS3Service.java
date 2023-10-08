@@ -62,10 +62,6 @@ public class AwsS3Service {
         Long totalSize = 0L;
 
         for (MultipartFile multipartFile : multipartFiles) {
-            if(imageUrls.size() > 10) {
-                throw new Exception404("업로드 할 수 있는 최대 파일 개수는 10개 입니다.");
-            }
-
             if (multipartFile.getSize() > fileMaxSize) {
                 throw new Exception404("최대 10MB의 파일을 첨부 할 수 있습니다");
             }
@@ -74,6 +70,12 @@ public class AwsS3Service {
 
             if (totalSize > totalFilesMaxSize) {
                 throw new Exception404("최대 총 100MB의 파일을 첨부 할 수 있습니다");
+            }
+        }
+
+        for (MultipartFile multipartFile : multipartFiles) {
+            if(imageUrls.size() > 10) {
+                throw new Exception404("업로드 할 수 있는 최대 파일 개수는 10개 입니다.");
             }
 
             String fileName = CommonUtils.buildScoreFileName(userId, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));

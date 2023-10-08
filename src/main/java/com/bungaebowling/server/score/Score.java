@@ -33,7 +33,6 @@ public class Score {
 
     @Column(nullable = false)
     @Range(min = 0, max = 300, message = "점수는 0~300까지의 수만 입력 가능합니다.")
-    @ColumnDefault(value = "0")
     private Integer scoreNum;
 
     @Column(name = "result_image_url")
