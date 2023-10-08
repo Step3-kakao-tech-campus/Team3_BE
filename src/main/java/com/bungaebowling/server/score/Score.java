@@ -45,7 +45,7 @@ public class Score {
     private LocalDateTime createdAt;
 
     // 브라우저 상의 이미지 접근 경로
-    @Column(name = "result_image_url")
+    @Column(name = "access_image_url")
     private String accessImageUrl;
 
     @Builder
