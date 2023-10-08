@@ -39,26 +39,22 @@ public class Post {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "start_time", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "due_time", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime dueTime;
 
-    @Column(name = "is_close")
     @ColumnDefault(value = "false")
     private Boolean isClose;
 
-    @Column(name = "view_count")
     @ColumnDefault(value = "0")
     private int viewCount;
 
-    @Column(name = "edited_at")
     @Temporal(TemporalType.TIMESTAMP)
     @ColumnDefault(value = "now()")
     private LocalDateTime editedAt;
 
-    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
@@ -89,7 +85,6 @@ public class Post {
                 this.district.getCountry().getName() + " "  +
                 this.district.getName();
     }
-
 
     public int getApplicantNumber() { // 현재 신청한 사람 수
         return applicants.size();
