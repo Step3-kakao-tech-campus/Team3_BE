@@ -53,6 +53,7 @@ public class PostResponse {
         public record PostDto(
                 Long id,
                 String title,
+                Long userId,
                 String userName,
                 String profileImage,
                 String districtName,
@@ -69,6 +70,7 @@ public class PostResponse {
                 this(
                         post.getId(),
                         post.getTitle(),
+                        post.getUser().getId(),
                         post.getUserName(),
                         post.getProfilePath(),
                         post.getDistrictName(),
