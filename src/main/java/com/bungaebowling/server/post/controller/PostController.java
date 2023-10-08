@@ -158,4 +158,16 @@ public class PostController {
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 
+    @PatchMapping("/{postId}")
+    public ResponseEntity<?> patchPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId,
+            @RequestBody PostRequest.UpdatePostIsCloseDto request,
+            Errors errors
+    ) {
+        postService.updateIsClose(userDetails.getId(), postId, request);
+
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
 }

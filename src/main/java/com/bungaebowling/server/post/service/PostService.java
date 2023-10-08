@@ -152,4 +152,15 @@ public class PostService {
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
     }
 
+    @Transactional
+    public void updateIsClose(Long userId, Long postId, PostRequest.UpdatePostIsCloseDto request) {
+        Post post = findById(postId);
+
+        if (!post.isMine(userId)) {
+            throw new Exception403("모집글에 대한 마감 권한이 없습니다.");
+        }
+
+        post.updateIsClose(request.isClose());
+    }
+
 }

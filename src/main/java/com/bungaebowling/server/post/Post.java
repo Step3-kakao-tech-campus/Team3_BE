@@ -121,4 +121,8 @@ public class Post {
         return this.user.getImgUrl();
     }
 
+    public void updateIsClose(boolean isClose) {
+        this.isClose = isClose;
+    }
+
 }
