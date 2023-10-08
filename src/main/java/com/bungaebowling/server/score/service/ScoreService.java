@@ -110,6 +110,7 @@ public class ScoreService {
         MultipartFile imageCheck = Optional.ofNullable(image)
                 .orElseThrow(() -> new Exception400("점수 사진을 등록해주세요."));
 
+        awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
         String imageurl = awsS3Service.uploadScoreFile(user.getName(), postId,"score", updateTime,imageCheck);
 
         score.update(user, post, scoreNumCheck, imageurl, updateTime);
