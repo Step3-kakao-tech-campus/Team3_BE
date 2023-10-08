@@ -8,7 +8,6 @@ import com.bungaebowling.server.message.dto.MessageResponse;
 import com.bungaebowling.server.message.repository.MessageRepository;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +42,7 @@ public class MessageService {
         if (userId.equals(opponentId)){throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");}
         User opponentUser = userRepository.findById(opponentId).orElseThrow(()->new Exception404("존재하지 않는 유저입니다."));
         // 벌크 업데이트 쿼리 - 작업 후 영속성 초기화 실행
-        messageRepository.updateIsReadByUserIdAndOpponentUserId(userId,opponentId);
+        messageRepository.updateIsReadTrueByUserIdAndOpponentUserId(userId,opponentId);
 
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);

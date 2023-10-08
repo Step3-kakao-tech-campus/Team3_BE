@@ -262,7 +262,7 @@ class MessageRepositoryTest {
                 .count();
         //when
         System.out.println("====================start===================");
-        messageRepository.updateIsReadByUserIdAndOpponentUserId(testuser.getId(), opponentUser.getId());
+        messageRepository.updateIsReadTrueByUserIdAndOpponentUserId(testuser.getId(), opponentUser.getId());
         List<Message> updatedMessages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged());
         long after = updatedMessages.stream()
                 .filter(message -> !message.getIsRead())
@@ -284,7 +284,7 @@ class MessageRepositoryTest {
         User opponentUser = userRepository.findByName("테스트유저2").get();
         //when
         System.out.println("====================start===================");
-        messageRepository.updateIsReadByUserIdAndOpponentUserId(testuser.getId(), opponentUser.getId());
+        messageRepository.updateIsReadTrueByUserIdAndOpponentUserId(testuser.getId(), opponentUser.getId());
         List<Message> messages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged());
         long isReadCount = messages.stream()
                 .filter(message -> !message.getIsRead())
