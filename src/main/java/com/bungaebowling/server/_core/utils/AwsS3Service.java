@@ -37,8 +37,8 @@ public class AwsS3Service {
     private Long totalFilesMaxSize;
 
     // 점수 단일 파일용
-    public String uploadScoreFile(String userName, Long postId, String category, LocalDateTime time, MultipartFile multipartFile) {
-        String fileName = CommonUtils.buildScoreFileName(userName, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+    public String uploadScoreFile(Long userId, Long postId, String category, LocalDateTime time, MultipartFile multipartFile) {
+        String fileName = CommonUtils.buildScoreFileName(userId, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
         String safeFileName = fileWhiteList(fileName);
 
         uploadFileToS3(safeFileName, multipartFile);
@@ -47,7 +47,7 @@ public class AwsS3Service {
     }
 
     // 단일 파일용 - 알아서 잘 custom해서 사용하면 됨
-    public String uploadFile(String userName, String category, MultipartFile multipartFile) {
+    public String uploadFile(Long userId, String category, MultipartFile multipartFile) {
         String fileName = CommonUtils.buildFileName(category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
         String safeFileName = fileWhiteList(fileName);
 
@@ -57,7 +57,7 @@ public class AwsS3Service {
     }
 
     // 점수 - 다중 파일용
-    public List<String> uploadMultiFile(String userName, Long postId, String category, LocalDateTime time, List<MultipartFile> multipartFiles) {
+    public List<String> uploadMultiFile(Long userId, Long postId, String category, LocalDateTime time, List<MultipartFile> multipartFiles) {
         List<String> imageUrls = new ArrayList<>();
         Long totalSize = 0L;
 
@@ -76,7 +76,7 @@ public class AwsS3Service {
                 throw new Exception404("최대 총 100MB의 파일을 첨부 할 수 있습니다");
             }
 
-            String fileName = CommonUtils.buildScoreFileName(userName, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+            String fileName = CommonUtils.buildScoreFileName(userId, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
             String safeFileName = fileWhiteList(fileName);
 
             imageUrls.add(safeFileName);

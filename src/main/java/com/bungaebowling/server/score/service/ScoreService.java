@@ -65,7 +65,7 @@ public class ScoreService {
     public Long saveScores(Long userId, Post post, List<Integer> scoreNums, List<MultipartFile> images) {
         User user = findUserById(userId);
         LocalDateTime createTime = LocalDateTime.now();
-        List<String> imageURls = awsS3Service.uploadMultiFile(user.getName(), post.getId(),"score", createTime,images);
+        List<String> imageURls = awsS3Service.uploadMultiFile(user.getId(), post.getId(),"score", createTime,images);
 
         if(!CollectionUtils.isEmpty(imageURls)) {
             for (int i = 0; i < imageURls.size(); i++) {
@@ -109,7 +109,7 @@ public class ScoreService {
                 .orElseThrow(() -> new Exception400("점수 사진을 등록해주세요."));
 
         awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
-        String imageurl = awsS3Service.uploadScoreFile(user.getName(), postId,"score", updateTime,imageCheck);
+        String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId,"score", updateTime,imageCheck);
         String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
         score.update(user, post, scoreNumCheck, imageurl, updateTime, accessImageUrl);
