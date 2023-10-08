@@ -49,14 +49,6 @@ public class ScoreService {
             throw new Exception400("아직 점수를 등록할 수 없습니다.");
         }
 
-        if(CollectionUtils.isEmpty(scoreNums)) { // null 체크도 해즘
-            throw new Exception400("점수를 입력해주세요.");
-        }
-
-        if(CollectionUtils.isEmpty(images)) { // null 체크도 해즘
-            throw new Exception400("점수 사진을 등록해주세요.");
-        }
-
         return saveScores(userId, post, scoreNums, images);
     }
 
@@ -77,16 +69,23 @@ public class ScoreService {
 
         if(!CollectionUtils.isEmpty(imageURls)) {
             for (int i = 0; i < imageURls.size(); i++) {
-                Score score = Score.builder()
-                        .scoreNum(scoreNums.get(i))
-                        .resultImageUrl(imageURls.get(i))
-                        .post(post)
-                        .user(user)
-                        .createdAt(createTime)
-                        .accessImageUrl(awsS3Service.getImageAccessUrl(imageURls.get(i)))
-                        .build();
 
-                scoreRepository.save(score);
+                if(scoreNums.get(i) == null) {
+                    throw new Exception400("점수를 입력해주세요.");
+                } else if(images.get(i) == null) {
+                    throw new Exception400("점수 사진을 등록해주세요.");
+                } else {
+                    Score score = Score.builder()
+                            .scoreNum(scoreNums.get(i))
+                            .resultImageUrl(imageURls.get(i))
+                            .post(post)
+                            .user(user)
+                            .createdAt(createTime)
+                            .accessImageUrl(awsS3Service.getImageAccessUrl(imageURls.get(i)))
+                            .build();
+
+                    scoreRepository.save(score);
+                }
             }
         }
 
