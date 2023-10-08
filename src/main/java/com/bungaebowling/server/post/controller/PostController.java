@@ -132,9 +132,7 @@ public class PostController {
     ) {
         Long postId = postService.create(userDetails.getId(), request);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success(HttpStatus.CREATED));
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
     @PutMapping("/{postId}")
@@ -146,9 +144,7 @@ public class PostController {
     ) {
         postService.update(userDetails.getId(), postId, request);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success());
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
     @DeleteMapping("/{postId}")
@@ -158,7 +154,7 @@ public class PostController {
     ) {
         postService.delete(userDetails.getId(), postId);
 
-        return ResponseEntity.ok(ApiUtils.success());
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
 }
