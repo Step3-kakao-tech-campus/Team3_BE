@@ -57,9 +57,7 @@ public class Score {
         this.accessImageUrl = accessImageUrl;
     }
 
-    public void update(User user, Post post, Integer scoreNum, String resultImageUrl, LocalDateTime updatedAt, String accessImageUrl){
-        this.user = user;
-        this.post = post;
+    public void update(Integer scoreNum, String resultImageUrl, LocalDateTime updatedAt, String accessImageUrl){
         this.scoreNum = scoreNum;
         this.resultImageUrl = resultImageUrl;
         this.createdAt = updatedAt;

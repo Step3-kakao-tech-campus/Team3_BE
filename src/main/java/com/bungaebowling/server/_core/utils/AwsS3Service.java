@@ -6,7 +6,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.errors.exception.server.Exception500;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,23 +60,23 @@ public class AwsS3Service {
         List<String> imageUrls = new ArrayList<>();
         Long totalSize = 0L;
 
+        if (multipartFiles.size() > 10) {
+            throw new Exception400("파일은 최대 10개까지 올릴 수 있습니다.");
+        }
+
         for (MultipartFile multipartFile : multipartFiles) {
             if (multipartFile.getSize() > fileMaxSize) {
-                throw new Exception404("최대 10MB의 파일을 첨부 할 수 있습니다");
+                throw new Exception400("최대 10MB의 파일을 첨부 할 수 있습니다");
             }
 
             totalSize += multipartFile.getSize();
 
             if (totalSize > totalFilesMaxSize) {
-                throw new Exception404("최대 총 100MB의 파일을 첨부 할 수 있습니다");
+                throw new Exception400("최대 총 100MB의 파일을 첨부 할 수 있습니다");
             }
         }
 
         for (MultipartFile multipartFile : multipartFiles) {
-            if(imageUrls.size() > 10) {
-                throw new Exception404("업로드 할 수 있는 최대 파일 개수는 10개 입니다.");
-            }
-
             String fileName = CommonUtils.buildScoreFileName(userId, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
             String safeFileName = fileWhiteList(fileName);
 

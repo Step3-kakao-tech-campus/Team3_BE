@@ -113,7 +113,7 @@ public class ScoreService {
         String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId,"score", updateTime,imageCheck);
         String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
-        score.update(user, post, scoreNumCheck, imageurl, updateTime, accessImageUrl);
+        score.update(scoreNumCheck, imageurl, updateTime, accessImageUrl);
     }
 
     private Score findScoreById(Long scoreId) {
