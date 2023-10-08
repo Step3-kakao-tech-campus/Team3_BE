@@ -2,8 +2,6 @@ package com.bungaebowling.server.post;
 
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.city.country.district.District;
-import com.bungaebowling.server.comment.Comment;
-import com.bungaebowling.server.score.Score;
 import com.bungaebowling.server.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -64,12 +62,6 @@ public class Post {
     @Temporal(TemporalType.TIMESTAMP)
     @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    private final List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    private final List<Score> scores = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private final List<Applicant> applicants = new ArrayList<>();
