@@ -18,7 +18,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "JOIN FETCH m.opponentUser oppUser " +
             "WHERE m.id " +
             "IN (SELECT MAX(m2.id) FROM Message m2 WHERE m2.user.id = :userId GROUP BY m2.opponentUser.id) " +
-            "And (m.id < :key OR :key IS NULL)"+
+            "And (:key IS NULL OR m.id < :key)"+
             "ORDER BY m.id DESC")
     List<Message> findLatestMessagesPerOpponentByUserId(@Param("userId") Long userId,@Param("key") Long key, Pageable pageable);
 
