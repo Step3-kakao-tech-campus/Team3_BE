@@ -11,6 +11,8 @@ import com.bungaebowling.server.applicant.repository.ApplicantRepository;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.repository.PostRepository;
 import com.bungaebowling.server.user.User;
+import com.bungaebowling.server.user.rate.UserRate;
+import com.bungaebowling.server.user.rate.repository.UserRateRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,8 @@ public class ApplicantService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
+    private final UserRateRepository userRateRepository;
+
     public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
         Post post = getPost(postId);
 
@@ -43,11 +47,18 @@ public class ApplicantService {
         List<Applicant> applicants = loadApplicants(cursorRequest, post.getId());
         Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
 
+        var ratings = applicants.stream().map(applicant -> {
+                    return userRateRepository.findAllByUserId(applicant.getUser().getId()).stream()
+                            .mapToInt(UserRate::getStarCount)
+                            .average().orElse(0.0);
+                }).toList();
+
         return ApplicantResponse.GetApplicantsDto.of(
                 cursorRequest.next(lastKey, DEFAULT_SIZE),
                 participantNumber,
                 currentNumber,
-                applicants);
+                applicants,
+                ratings);
     }
 
     private List<Applicant> loadApplicants(CursorRequest cursorRequest, Long postId) {

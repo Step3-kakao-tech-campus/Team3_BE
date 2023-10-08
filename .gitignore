@@ -107,5 +107,6 @@ $RECYCLE.BIN/
 ## etc
 application-mysql.yml
 application-private.yml
+application-aws.yml
 src/main/resources/keystore.p12
 .mysql_env
