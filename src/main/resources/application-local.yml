@@ -26,6 +26,10 @@ spring:
   sql:
     init:
       encoding: utf-8
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 logging:
   level:
@@ -35,3 +39,8 @@ logging:
       orm.jdbc:
         extract: TRACE
         bind: TRACE
+
+bungaebowling:
+  token_exp:
+    access: 172800
+    refresh: 2592000

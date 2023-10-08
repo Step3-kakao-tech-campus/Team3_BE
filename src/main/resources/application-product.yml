@@ -21,7 +21,16 @@ spring:
     init:
       mode: never
       encoding: utf-8
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 logging:
   level:
     com.bungaebowling.server: INFO
+
+bungaebowling:
+  token_exp:
+    access: 600
+    refresh: 2592000
