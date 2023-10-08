@@ -42,6 +42,7 @@ public class PostService {
 
     }
 
+    // ToDo : 모집글 등록 response에 모집글 id 반환하기
     private Long savePost(User user, Long districtId, PostRequest.CreatePostDto request) { // 저장로직 따로 분리
 
         District district = districtRepository.findById(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));

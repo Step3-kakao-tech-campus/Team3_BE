@@ -63,12 +63,6 @@ public class Post {
     @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
 
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    //private final List<Comment> comments = new ArrayList<>();
-
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    //private final List<Score> scores = new ArrayList<>();
-
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private final List<Applicant> applicants = new ArrayList<>();
 
@@ -104,6 +98,7 @@ public class Post {
     public int getCurrentNumber() { // 현재 모집된 사람 수
         int count = 0;
 
+        // ToDo : stream으로
         for (Applicant applicant : applicants) {
             if (applicant.getStatus()) {
                 count++;
