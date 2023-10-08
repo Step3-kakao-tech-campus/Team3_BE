@@ -33,11 +33,12 @@ class MessageRepositoryTest {
     private final ObjectMapper om;
 
 
-    public MessageRepositoryTest(@Autowired MessageRepository messageRepository,
-                                 @Autowired EntityManager em,
-                                 @Autowired UserRepository userRepository,
-                                 @Autowired DistrictRepository districtRepository,
-                                 @Autowired ObjectMapper om
+    @Autowired
+    public MessageRepositoryTest(MessageRepository messageRepository,
+                                 EntityManager em,
+                                 UserRepository userRepository,
+                                 DistrictRepository districtRepository,
+                                 ObjectMapper om
                                  ){
         this.messageRepository = messageRepository;
         this.em = em;
@@ -52,7 +53,7 @@ class MessageRepositoryTest {
         District district = districtRepository.findById(1l).get();
         User testuser1 = User.builder()
                 .name("테스트유저1")
-                .email("test1@test.com")
+                .email("test_1@test.com")
                 .district(district)
                 .imgUrl("testimage1")
                 .role(Role.ROLE_USER)
