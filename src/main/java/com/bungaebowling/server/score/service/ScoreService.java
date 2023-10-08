@@ -78,6 +78,7 @@ public class ScoreService {
         if(!CollectionUtils.isEmpty(imageURls)) {
             for (int i = 0; i < imageURls.size(); i++) {
 
+                System.out.println("save: "+ imageURls.get(i));
                 Score score = Score.builder()
                         .scoreNum(scoreNums.get(i))
                         .resultImageUrl(imageURls.get(i))
@@ -93,6 +94,7 @@ public class ScoreService {
         return post.getId(); // 점수가 저장된 postId를 반환
     }
 
+    // ToDo: 수정했을 때 파일 이름 반환 잘 할 수 있도록 수정하기
     @Transactional
     public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
@@ -113,6 +115,7 @@ public class ScoreService {
         awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
         String imageurl = awsS3Service.uploadScoreFile(user.getName(), postId,"score", updateTime,imageCheck);
 
+        System.out.println("imgUrl: " + imageurl);
         score.update(user, post, scoreNumCheck, imageurl, updateTime);
     }
 
@@ -135,6 +138,7 @@ public class ScoreService {
     }
 
     private void deleteScore(Score score) {
+        System.out.println("deleteurl: "+score.getResultImageUrl());
         awsS3Service.deleteFile(score.getResultImageUrl());
         scoreRepository.delete(score);
     }

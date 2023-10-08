@@ -43,7 +43,7 @@ public class AwsS3Service {
 
         uploadFileToS3(safeFileName, multipartFile);
 
-        return amazonS3Client.getUrl(bucketName, safeFileName).toString();
+        return safeFileName;
     }
 
     // 단일 파일용 - 알아서 잘 custom해서 사용하면 됨
@@ -53,7 +53,7 @@ public class AwsS3Service {
 
         uploadFileToS3(safeFileName, multipartFile);
 
-        return amazonS3Client.getUrl(bucketName, safeFileName).toString();
+        return safeFileName;
     }
 
     // 점수 - 다중 파일용
