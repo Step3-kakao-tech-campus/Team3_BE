@@ -66,6 +66,7 @@ public class MessageService {
 
     @Transactional
     public void deleteMessagesByOpponentId(Long userId, Long opponentId) {
+        if (userId.equals(opponentId)){throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");}
         userRepository.findById(userId).orElseThrow(()->new Exception404("존재하지 않는 유저입니다."));
         messageRepository.deleteAllByUserIdAndOpponentUserId(userId,opponentId);
     }
