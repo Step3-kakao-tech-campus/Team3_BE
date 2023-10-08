@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -116,12 +117,15 @@ public class PostService {
             throw new Exception403("모집글에 대한 수정 권한이 없습니다.");
         }
 
+        LocalDateTime editedAt = LocalDateTime.now();
+
         post.update(
                 request.title(),
                 request.content(),
                 request.startTime(),
                 request.dueTime(),
-                request.isClose()
+                request.isClose(),
+                editedAt
         );
 
     }

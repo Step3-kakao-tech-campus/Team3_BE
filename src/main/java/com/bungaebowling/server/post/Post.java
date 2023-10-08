@@ -108,12 +108,13 @@ public class Post {
         return this.user.getId().equals(userId);
     }
 
-    public void update(String newTitle, String newContent, LocalDateTime newStartTime, LocalDateTime newDueTime, Boolean newIsClose) { // 게시글 업데이트할 때 쓸 것
+    public void update(String newTitle, String newContent, LocalDateTime newStartTime, LocalDateTime newDueTime, Boolean newIsClose, LocalDateTime editedAt) { // 게시글 업데이트할 때 쓸 것
         this.title = newTitle;
         this.content = newContent;
         this.startTime = newStartTime;
         this.dueTime = newDueTime;
         this.isClose = newIsClose;
+        this.editedAt = editedAt;
     }
 
     public String getProfilePath() { // 사용자 Profile 이미지 경로 가져오기
