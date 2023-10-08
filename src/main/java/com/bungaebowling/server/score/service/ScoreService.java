@@ -72,8 +72,6 @@ public class ScoreService {
 
                 if(scoreNums.get(i) == null) {
                     throw new Exception400("점수를 입력해주세요.");
-                } else if(images.get(i) == null) {
-                    throw new Exception400("점수 사진을 등록해주세요.");
                 } else {
                     Score score = Score.builder()
                             .scoreNum(scoreNums.get(i))
