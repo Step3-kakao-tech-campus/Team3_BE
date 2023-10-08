@@ -2,6 +2,7 @@ package com.bungaebowling.server.message.repository;
 import com.bungaebowling.server.message.Message;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -43,9 +44,12 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByUserIdAndOpponentUserIdOrderByIdDesc(@Param("userId") Long userId, @Param("opponentId") Long opponentId, @Param("key") Long key, Pageable pageable);
 
 
+
     void deleteAllByUserIdAndOpponentUserId(Long userId, Long opponentId);
 
+
     List<Message> findAllByUserId(Long userId);
-
-
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Message m SET m.isRead = true WHERE m.user.id = :userId AND m.opponentUser.id = :opponentId AND m.isRead = false")
+    void updateIsReadByUserIdAndOpponentUserId(Long userId, Long opponentId);
 }
