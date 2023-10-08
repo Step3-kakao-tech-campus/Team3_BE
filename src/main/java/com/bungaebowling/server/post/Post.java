@@ -95,17 +95,8 @@ public class Post {
         return applicants.size();
     }
 
-    public int getCurrentNumber() { // 현재 모집된 사람 수
-        int count = 0;
-
-        // ToDo : stream으로
-        for (Applicant applicant : applicants) {
-            if (applicant.getStatus()) {
-                count++;
-            }
-        }
-
-        return count;
+    public Long getCurrentNumber() { // 현재 모집된 사람 수
+        return applicants.stream().filter(Applicant::getStatus).count();
     }
 
 

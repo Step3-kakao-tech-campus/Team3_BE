@@ -25,7 +25,7 @@ public class PostResponse {
                 LocalDateTime startTime,
                 String userName,
                 String profileImage,
-                Integer currentNumber,
+                Long currentNumber,
                 Boolean isClose
         ) {
             public PostDto(Post post) {
@@ -56,7 +56,7 @@ public class PostResponse {
                 String userName,
                 String profileImage,
                 String districtName,
-                Integer currentNumber,
+                Long currentNumber,
                 String content,
                 LocalDateTime startTime,
                 LocalDateTime dueTime,
