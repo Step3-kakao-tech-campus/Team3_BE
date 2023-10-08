@@ -63,6 +63,7 @@ public class UserController {
 
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", "")
                 .maxAge(0)
+		.sameSite("None")
                 .build();
 
         var response = ApiUtils.success();
@@ -160,6 +161,7 @@ public class UserController {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true) // javascript 접근 방지
                 .secure(true) // https 통신 강제
+		.sameSite("None")
                 .maxAge(JwtProvider.getRefreshExpSecond())
                 .build();
     }

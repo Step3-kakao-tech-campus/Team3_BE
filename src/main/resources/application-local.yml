@@ -30,6 +30,12 @@ spring:
     redis:
       host: localhost
       port: 6379
+  jackson:
+    time-zone: Asia/Seoul
+  servlet:
+    multipart:
+      max-file-size: 10485760 # 10MB
+      max-request-size: 104857600 # 100MB
 
 logging:
   level:

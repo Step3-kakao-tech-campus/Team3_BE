@@ -31,7 +31,7 @@ CREATE TABLE comment_tb
     post_id    BIGINT NOT NULL,
     user_id    BIGINT,
     parent_id  BIGINT,
-    contentT   TEXT,
+    content    TEXT,
     edited_at  TIMESTAMP DEFAULT now(),
     created_at TIMESTAMP DEFAULT now()
 );
@@ -51,8 +51,9 @@ CREATE TABLE score_tb
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id          BIGINT NOT NULL,
     post_id          BIGINT NOT NULL,
-    score            INT    NOT NULL,
+    score_num            INT    NOT NULL,
     result_image_url VARCHAR(100),
+    access_image_url VARCHAR(200),
     created_at       TIMESTAMP DEFAULT now()
 );
 
