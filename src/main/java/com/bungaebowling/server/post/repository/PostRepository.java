@@ -73,45 +73,45 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p " +
             "FROM Post p " +
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
-            "WHERE p.district.id =:districtId AND p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP ORDER BY p.id DESC")
+            "WHERE p.district.id =:districtId AND p.isClose = FALSE OR p.dueTime > CURRENT_TIMESTAMP ORDER BY p.id DESC")
     List<Post> findAllByDistrictIdWithCloseFalseOrderByIdDesc(@Param("districtId") Long districtId, Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Post p " +
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
-            "WHERE p.district.id =:districtId AND p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
+            "WHERE p.district.id =:districtId AND p.isClose = FALSE OR p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
     List<Post> findAllByDistrictIdAndIdLessThanWithCloseFalseOrderByIdDesc(@Param("districtId") Long districtId, @Param("key") Long key, Pageable pageable);
 
-    @Query("SELECT p FROM Post p WHERE p.district.country.id =:countryId AND p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP ORDER BY p.id DESC")
+    @Query("SELECT p FROM Post p WHERE p.district.country.id =:countryId OR p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP ORDER BY p.id DESC")
     List<Post> findAllByCountryIdWithCloseFalseOrderByIdDesc(@Param("countryId") Long countryId, Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Post p " +
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
-            "WHERE p.district.country.id =:countryId AND p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
+            "WHERE p.district.country.id =:countryId AND p.isClose = FALSE OR p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
     List<Post> findAllByCountryIdAndIdLessThanWithCloseFalseOrderByIdDesc(@Param("countryId") Long countryId, @Param("key") Long key, Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Post p " +
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
-            "WHERE p.district.country.city.id =:cityId AND p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP ORDER BY p.id DESC")
+            "WHERE p.district.country.city.id =:cityId AND p.isClose = FALSE OR p.dueTime > CURRENT_TIMESTAMP ORDER BY p.id DESC")
     List<Post> findAllByCityIdWithCloseFalseOrderByIdDesc(@Param("cityId") Long cityId, Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Post p " +
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
-            "WHERE p.district.country.city.id =:cityId AND p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
+            "WHERE p.district.country.city.id =:cityId AND p.isClose = FALSE OR p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
     List<Post> findAllByCityIdAndIdLessThanWithCloseFalseOrderByIdDesc(@Param("cityId") Long cityId, @Param("key") Long key, Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Post p " +
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
-            "WHERE p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP ORDER BY p.id DESC")
+            "WHERE p.isClose = FALSE OR p.dueTime > CURRENT_TIMESTAMP ORDER BY p.id DESC")
     List<Post> findAllWithCloseFalseOrderByIdDesc(Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Post p " +
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
-            "WHERE p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
+            "WHERE p.isClose = FALSE OR p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
     List<Post> findAllByIdLessThanWithCloseFalseOrderByIdDesc(@Param("key") Long key, Pageable pageable);
 }
