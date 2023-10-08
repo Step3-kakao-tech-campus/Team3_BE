@@ -39,7 +39,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query("SELECT m " +
             "FROM Message m " +
             "WHERE (m.user.id = :userId AND m.opponentUser.id = :opponentId) " +
-            "AND (m.id < :key OR :key IS NULL) " +
+            "AND (:key IS NULL OR m.id < :key) " +
             "ORDER BY m.id DESC")
     List<Message> findAllByUserIdAndOpponentUserIdOrderByIdDesc(@Param("userId") Long userId, @Param("opponentId") Long opponentId, @Param("key") Long key, Pageable pageable);
 
