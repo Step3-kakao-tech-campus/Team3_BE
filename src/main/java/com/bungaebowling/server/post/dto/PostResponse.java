@@ -25,7 +25,7 @@ public class PostResponse {
                 LocalDateTime startTime,
                 String userName,
                 String profileImage,
-                Integer currentNumber,
+                Long currentNumber,
                 Boolean isClose
         ) {
             public PostDto(Post post) {
@@ -53,10 +53,11 @@ public class PostResponse {
         public record PostDto(
                 Long id,
                 String title,
+                Long userId,
                 String userName,
                 String profileImage,
                 String districtName,
-                Integer currentNumber,
+                Long currentNumber,
                 String content,
                 LocalDateTime startTime,
                 LocalDateTime dueTime,
@@ -69,6 +70,7 @@ public class PostResponse {
                 this(
                         post.getId(),
                         post.getTitle(),
+                        post.getUser().getId(),
                         post.getUserName(),
                         post.getProfilePath(),
                         post.getDistrictName(),
@@ -117,5 +119,10 @@ public class PostResponse {
 
             }
         }
+    }
+
+    public record GetPostPostDto( // Post시 postId 반환용
+            Long id
+    ) {
     }
 }

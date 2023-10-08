@@ -3,6 +3,7 @@ package com.bungaebowling.server.post.controller;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.CursorRequest;
+import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.service.PostService;
@@ -130,11 +131,9 @@ public class PostController {
             @RequestBody @Valid PostRequest.CreatePostDto request,
             Errors errors
     ) {
-        Long postId = postService.create(userDetails.getId(), request);
+        PostResponse.GetPostPostDto response = postService.create(userDetails.getId(), request);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success(HttpStatus.CREATED));
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @PutMapping("/{postId}")
@@ -146,9 +145,7 @@ public class PostController {
     ) {
         postService.update(userDetails.getId(), postId, request);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success());
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
     @DeleteMapping("/{postId}")
@@ -158,7 +155,19 @@ public class PostController {
     ) {
         postService.delete(userDetails.getId(), postId);
 
-        return ResponseEntity.ok(ApiUtils.success());
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<?> patchPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId,
+            @RequestBody PostRequest.UpdatePostIsCloseDto request,
+            Errors errors
+    ) {
+        postService.updateIsClose(userDetails.getId(), postId, request);
+
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
 }
