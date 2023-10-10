@@ -83,6 +83,7 @@ public class UserResponse {
     }
 
     public record GetRecordDto(
+            String name,
             Integer game,
             Integer average,
             Integer maximum,

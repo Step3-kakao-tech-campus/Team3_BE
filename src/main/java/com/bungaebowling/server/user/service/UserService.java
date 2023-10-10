@@ -215,7 +215,7 @@ public class UserService {
         int average = calculateAverage(user);
         int maximum = findMaxScore(user);
         int minimum = findMinScore(user);
-        return new UserResponse.GetRecordDto(game, average, maximum, minimum);
+        return new UserResponse.GetRecordDto(user.getName(), game, average, maximum, minimum);
     }
 
     private User findUserById(Long userId) {
