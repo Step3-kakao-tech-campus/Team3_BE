@@ -229,7 +229,7 @@ public class UserService {
 
     private int calculateAverage(User user) {
         return (int) scoreRepository.findAllByUserId(user.getId()).stream()
-                .mapToInt(Score::getScore)
+                .mapToInt(Score::getScoreNum)
                 .average().orElse(0.0);
     }
 

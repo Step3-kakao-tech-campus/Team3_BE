@@ -114,7 +114,7 @@ public class PostResponse {
                 LocalDateTime dueTime,
                 String districtName,
                 LocalDateTime startTime,
-                Integer currentNumber,
+                Long currentNumber,
                 Boolean isClose,
                 List<ScoreDto> scores,
                 List<MemberDto> members
@@ -141,7 +141,7 @@ public class PostResponse {
                 public ScoreDto(Score score) {
                     this(
                             score.getId(),
-                            score.getScore(),
+                            score.getScoreNum(),
                             null //TODO: score image 추가
                     );
                 }
