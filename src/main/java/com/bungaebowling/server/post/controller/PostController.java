@@ -3,6 +3,7 @@ package com.bungaebowling.server.post.controller;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.CursorRequest;
+import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.service.PostService;
@@ -60,37 +61,16 @@ public class PostController {
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
-    @GetMapping("/{postId}/scores")
-    public ResponseEntity<?> getPostScores(@PathVariable Long postId) {
-        List<PostResponse.GetScoresDto.ScoreDto> scoreDtos = new ArrayList<>();
-        var getScoreDto1 = new PostResponse.GetScoresDto.ScoreDto(
-                1L,
-                180,
-                "/scoreImages/1.jpg"
-        );
-        scoreDtos.add(getScoreDto1);
-        var getScoreDto2 = new PostResponse.GetScoresDto.ScoreDto(
-                2L,
-                210,
-                null
-        );
-        scoreDtos.add(getScoreDto2);
-
-        var response = ApiUtils.success(scoreDtos);
-        return ResponseEntity.ok().body(response);
-    }
-
+    // ToDo : 모집글 등록 response에 모집글 id 반환하기
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}) // json 타입만 처리 가능
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid PostRequest.CreatePostDto request,
             Errors errors
     ) {
-        Long postId = postService.create(userDetails.getId(), request);
+        PostResponse.GetPostPostDto response = postService.create(userDetails.getId(), request);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success(HttpStatus.CREATED));
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @PutMapping("/{postId}")
@@ -102,9 +82,7 @@ public class PostController {
     ) {
         postService.update(userDetails.getId(), postId, request);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .location(URI.create("/api/posts/" + postId))
-                .body(ApiUtils.success());
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
     @DeleteMapping("/{postId}")
@@ -114,7 +92,19 @@ public class PostController {
     ) {
         postService.delete(userDetails.getId(), postId);
 
-        return ResponseEntity.ok(ApiUtils.success());
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<?> patchPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId,
+            @RequestBody PostRequest.UpdatePostIsCloseDto request,
+            Errors errors
+    ) {
+        postService.updateIsClose(userDetails.getId(), postId, request);
+
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
 }

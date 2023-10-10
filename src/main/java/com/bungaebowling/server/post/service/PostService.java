@@ -31,11 +31,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -55,7 +52,7 @@ public class PostService {
     public static final LocalDateTime END_TIME = LocalDateTime.now();
 
     @Transactional
-    public Long create(Long userId, PostRequest.CreatePostDto request) {
+    public PostResponse.GetPostPostDto create(Long userId, PostRequest.CreatePostDto request) {
 
         User user = findUserById(userId);
 
@@ -65,13 +62,14 @@ public class PostService {
 
     }
 
-    private Long savePost(User user, Long districtId, PostRequest.CreatePostDto request) { // 저장로직 따로 분리
+    private PostResponse.GetPostPostDto savePost(User user, Long districtId, PostRequest.CreatePostDto request) { // 저장로직 따로 분리
 
         District district = districtRepository.findById(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));
 
         Post post = request.toEntity(user, district);
+        Long postId = postRepository.save(post).getId();
 
-        return postRepository.save(post).getId();
+        return new PostResponse.GetPostPostDto(postId);
 
     }
 
@@ -138,12 +136,15 @@ public class PostService {
             throw new Exception403("모집글에 대한 수정 권한이 없습니다.");
         }
 
+        LocalDateTime editedAt = LocalDateTime.now();
+
         post.update(
                 request.title(),
                 request.content(),
                 request.startTime(),
                 request.dueTime(),
-                request.isClose()
+                request.isClose(),
+                editedAt
         );
 
     }
@@ -290,6 +291,17 @@ public class PostService {
     private Post findById(Long postId) { // id로 post 찾는 로직 따로 분리
         return postRepository.findById(postId)
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
+    }
+
+    @Transactional
+    public void updateIsClose(Long userId, Long postId, PostRequest.UpdatePostIsCloseDto request) {
+        Post post = findById(postId);
+
+        if (!post.isMine(userId)) {
+            throw new Exception403("모집글에 대한 마감 권한이 없습니다.");
+        }
+
+        post.updateIsClose(request.isClose());
     }
 
 }

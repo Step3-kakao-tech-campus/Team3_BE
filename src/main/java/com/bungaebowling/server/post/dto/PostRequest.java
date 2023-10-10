@@ -56,4 +56,9 @@ public class PostRequest {
             Boolean isClose
     ) {
     }
+
+    public record UpdatePostIsCloseDto (
+            Boolean isClose
+    ) {
+    }
 }
