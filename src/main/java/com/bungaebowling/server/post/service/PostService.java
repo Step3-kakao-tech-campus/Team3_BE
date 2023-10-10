@@ -234,19 +234,11 @@ public class PostService {
 
     private Specification<Post> createdAtBetween(String start, String end) {
         return (root, query, criteriaBuilder) -> {
-            String formattedStart = appendDay(start);
-            String formattedEnd = appendDay(end);
-
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDateTime startDate = start == null ? START_TIME : LocalDate.parse(formattedStart, formatter).atStartOfDay();
-            LocalDateTime endDate = end == null ? END_TIME : LocalDate.parse(formattedEnd, formatter).plusDays(1).atStartOfDay();
-
+            LocalDateTime startDate = start == null ? START_TIME : LocalDate.parse(start, formatter).atStartOfDay();
+            LocalDateTime endDate = end == null ? END_TIME : LocalDate.parse(end, formatter).plusDays(1).atStartOfDay();
             return criteriaBuilder.between(root.get("startTime"), startDate, endDate);
         };
-    }
-
-    private String appendDay(String date) {
-        return Optional.ofNullable(date).map(d -> d + "-01").orElse(null);
     }
 
     private Specification<Post> postIdLessThan(Long postId) {
