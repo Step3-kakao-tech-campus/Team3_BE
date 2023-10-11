@@ -5,6 +5,7 @@ import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
+import com.bungaebowling.server.city.country.Country;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.post.Post;
@@ -17,6 +18,7 @@ import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.rate.UserRate;
 import com.bungaebowling.server.user.rate.repository.UserRateRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
+import jakarta.persistence.criteria.Fetch;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -199,6 +201,9 @@ public class PostService {
             Join<Post, User> user = root.join("user", JoinType.LEFT);
             Join<Post, Applicant> applicant = root.join("applicants", JoinType.LEFT);
             Join<Applicant, User> applicantUserJoin = applicant.join("user", JoinType.LEFT);
+            Fetch<Post, District> district = root.fetch("district", JoinType.LEFT);
+            Fetch<District, Country> country = district.fetch("country", JoinType.LEFT);
+            country.fetch("city", JoinType.LEFT);
 
             Predicate createdPredicate = criteriaBuilder.equal(user.get("id"), userId);
             Predicate participatedPredicate = criteriaBuilder.and(
