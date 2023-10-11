@@ -84,7 +84,7 @@ public class ScoreService {
                 .post(post)
                 .user(user)
                 .createdAt(createTime)
-                .accessImageUrl(awsS3Service.getImageAccessUrl(null))
+                .accessImageUrl(null)
                 .build();
 
         scoreRepository.save(score);
@@ -119,10 +119,6 @@ public class ScoreService {
         Integer scoreNumCheck = Optional.ofNullable(scoreNum)
                 .orElseThrow(() -> new Exception400("점수를 입력해주세요."));
 
-        if (image.getSize() > 1) {
-            throw new Exception400("점수는 1개씩 등록해주세요.");
-        }
-
         User user = findUserById(userId);
         Score score = findScoreById(scoreId);
         LocalDateTime updateTime = LocalDateTime.now();
@@ -130,8 +126,10 @@ public class ScoreService {
         if(image.isEmpty()) { // null 체크 - null인 경우
             score.updateWithoutFile(scoreNumCheck, updateTime);
         } else { // null 체크 - null이 아닌 경우
-            awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
-            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId,"score", updateTime,image);
+            if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
+                awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
+            }
+            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId,"score", updateTime, image);
             String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
             score.updateWithFile(scoreNumCheck, imageurl, updateTime, accessImageUrl);
