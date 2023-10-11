@@ -4,6 +4,7 @@ import com.bungaebowling.server._core.errors.exception.client.Exception400;
 import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.errors.exception.server.Exception500;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server._core.utils.AwsS3Service;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,18 +46,20 @@ public class UserService {
 
     public static final int DEFAULT_SIZE = 20;
 
-    final private UserRepository userRepository;
-    final private DistrictRepository districtRepository;
-    final private UserRateRepository userRateRepository;
-    final private ScoreRepository scoreRepository;
-    final private ApplicantRepository applicantRepository;
-    final private PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final DistrictRepository districtRepository;
+    private final UserRateRepository userRateRepository;
+    private final ScoreRepository scoreRepository;
+    private final ApplicantRepository applicantRepository;
+    private final PostRepository postRepository;
 
-    final private RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    final private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    final private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
+
+    private final AwsS3Service awsS3Service;
 
     @Value("${bungaebowling.domain}")
     private String domain;
@@ -204,9 +208,17 @@ public class UserService {
                 districtRepository.findById(request.districtId()).orElseThrow(
                         () -> new Exception404("존재하지 않는 행정 구역입니다.")
                 );
+        MultipartFile imageCheck = Optional.ofNullable(profileImage).orElseThrow(() -> new Exception400("프로필 사진을 등록해주세요."));
+        LocalDateTime updateTime = LocalDateTime.now();
 
-        String imageUrl = null; //TODO: S3 upload
-        user.updateProfile(request.name(), district, imageUrl);
+        if(user.getImgUrl() != null){
+            awsS3Service.deleteFile(user.getImgUrl());
+        }
+
+        String imageUrl = awsS3Service.uploadProfileFile(user.getId(),"profile", updateTime, imageCheck);
+        String accessImageUrl = awsS3Service.getImageAccessUrl(imageUrl);
+
+        user.updateProfile(request.name(), district, imageUrl, accessImageUrl, updateTime);
     }
 
     public UserResponse.GetRecordDto getRecords(Long userId){

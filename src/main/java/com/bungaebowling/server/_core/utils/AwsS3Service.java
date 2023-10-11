@@ -45,6 +45,16 @@ public class AwsS3Service {
         return safeFileName;
     }
 
+    //프로필 이미지 등록
+    public String uploadProfileFile(Long userId, String category, LocalDateTime time, MultipartFile multipartFile) {
+        String fileName = CommonUtils.buildProfileFileName(userId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+        String safeFileName = fileWhiteList(fileName);
+
+        uploadFileToS3(safeFileName, multipartFile);
+
+        return safeFileName;
+    }
+
     // 단일 파일용 - 알아서 잘 custom해서 사용하면 됨
     public String uploadFile(Long userId, String category, MultipartFile multipartFile) {
         String fileName = CommonUtils.buildFileName(category, Objects.requireNonNull(multipartFile.getOriginalFilename()));
