@@ -124,7 +124,6 @@ public class PostService {
                 request.content(),
                 request.startTime(),
                 request.dueTime(),
-                request.isClose(),
                 editedAt
         );
 

@@ -52,8 +52,7 @@ public class PostRequest {
             LocalDateTime dueTime,
 
             @NotBlank(message = "모집글 내용은 필수 입력 사항입니다.")
-            String content,
-            Boolean isClose
+            String content
     ) {
     }
 
