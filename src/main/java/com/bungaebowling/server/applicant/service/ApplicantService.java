@@ -40,19 +40,19 @@ public class ApplicantService {
     public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
         Post post = getPost(postId);
 
-        if (!Objects.equals(post.getUser().getId(), userId))
+        if (!isMatchedUser(userId, post))
             throw new Exception403("자신의 모집글이 아닙니다.");
 
         Long participantNumber = applicantRepository.countByPostId(post.getId());
         Long currentNumber = applicantRepository.countByPostIdAndIsStatusTrue(post.getId());
         List<Applicant> applicants = loadApplicants(cursorRequest, post.getId());
-        Long lastKey = applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
+        Long lastKey = getLastKey(applicants);
 
-        var ratings = applicants.stream().map(applicant -> {
-                    return userRateRepository.findAllByUserId(applicant.getUser().getId()).stream()
+        var ratings = applicants.stream().map(applicant ->
+                     userRateRepository.findAllByUserId(applicant.getUser().getId()).stream()
                             .mapToInt(UserRate::getStarCount)
-                            .average().orElse(0.0);
-                }).toList();
+                            .average().orElse(0.0)
+                ).toList();
 
         return ApplicantResponse.GetApplicantsDto.of(
                 cursorRequest.next(lastKey, DEFAULT_SIZE),
@@ -78,18 +78,21 @@ public class ApplicantService {
         User user = getUser(userId);
         Post post = getPost(postId);
 
-        if (Objects.equals(post.getUser().getId(), user.getId()))
+        if (isMatchedUser(userId, post))
             throw new Exception400("본인의 모집글에 신청할 수 없습니다.");
 
         applicantRepository.findByUserIdAndPostId(userId, postId).ifPresent(applicant -> {
             throw new Exception400("이미 신청된 사용자입니다.");
         });
 
-        if(post.getIsClose() || LocalDateTime.now().isAfter(post.getDueTime())){
+        if(isPastDueTime(post)){
             throw new Exception400("이미 마감된 모집글입니다.");
         }
 
-        Applicant applicant = Applicant.builder().user(user).post(post).build();
+        Applicant applicant = Applicant.builder()
+                .user(user)
+                .post(post)
+                .build();
         applicantRepository.save(applicant);
     }
 
@@ -138,5 +141,17 @@ public class ApplicantService {
         return applicantRepository.findByIdJoinFetchPost(applicantId).orElseThrow(
                 () -> new Exception404("존재하지 않는 신청입니다.")
         );
+    }
+
+    private Long getLastKey(List<Applicant> applicants) {
+        return applicants.isEmpty() ? CursorRequest.NONE_KEY : applicants.get(applicants.size() - 1).getId();
+    }
+
+    private boolean isPastDueTime(Post post) {
+        return post.getIsClose() || LocalDateTime.now().isAfter(post.getDueTime());
+    }
+
+    private boolean isMatchedUser(Long userId, Post post) {
+        return Objects.equals(post.getUser().getId(), userId);
     }
 }

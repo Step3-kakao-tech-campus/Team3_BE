@@ -6,7 +6,6 @@ import com.bungaebowling.server._core.errors.exception.server.Exception500;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server._core.utils.AwsS3Service;
 import com.bungaebowling.server._core.utils.CursorRequest;
-import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;

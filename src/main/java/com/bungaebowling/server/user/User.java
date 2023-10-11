@@ -1,18 +1,15 @@
 package com.bungaebowling.server.user;
 
-import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.city.country.district.District;
-import com.bungaebowling.server.post.Post;
-import com.bungaebowling.server.score.Score;
-import com.bungaebowling.server.user.rate.UserRate;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity

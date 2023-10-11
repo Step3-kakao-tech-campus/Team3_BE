@@ -3,22 +3,16 @@ package com.bungaebowling.server.post.controller;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server._core.utils.CursorRequest;
-import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
 import com.bungaebowling.server.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
