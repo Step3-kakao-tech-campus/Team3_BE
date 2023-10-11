@@ -94,8 +94,8 @@ public class PostResponse {
             CursorRequest nextCursorRequest,
             List<PostDto> posts
     ) {
-        public static GetParticipationRecordsDto of(CursorRequest nextCursorRequest, List<Post> posts,
-                                                    Map<Long, List<Score>> scores, Map<Long, List<User>> members, Map<Long, List<UserRate>> rates) {
+        public static GetParticipationRecordsDto of(CursorRequest nextCursorRequest, List<Post> posts, Map<Long, List<Score>> scores,
+                                                    Map<Long, List<User>> members, Map<Long, List<UserRate>> rates, Map<Long, Map<Long, Long>> applicantIds) {
             return new GetParticipationRecordsDto(
                     nextCursorRequest,
                     posts.stream().map(post ->
@@ -103,7 +103,8 @@ public class PostResponse {
                                     post,
                                     scores.get(post.getId()),
                                     members.get(post.getId()),
-                                    rates.get(post.getId())
+                                    rates.get(post.getId()),
+                                    applicantIds.get(post.getId())
                             )).toList()
             );
         }
@@ -119,7 +120,7 @@ public class PostResponse {
                 List<ScoreDto> scores,
                 List<MemberDto> members
         ) {
-            public PostDto(Post post, List<Score> scores, List<User> users, List<UserRate> rates) {
+            public PostDto(Post post, List<Score> scores, List<User> users, List<UserRate> rates, Map<Long, Long> applicantIds) {
                 this(
                         post.getId(),
                         post.getTitle(),
@@ -129,7 +130,7 @@ public class PostResponse {
                         post.getCurrentNumber(),
                         post.getIsClose(),
                         scores.stream().map(ScoreDto::new).toList(),
-                        users.stream().map(user -> new MemberDto(user, rates)).toList()
+                        users.stream().map(user -> new MemberDto(user, rates, applicantIds)).toList()
                 );
             }
 
@@ -151,14 +152,16 @@ public class PostResponse {
                     Long id,
                     String name,
                     String profileImage,
-                    Boolean isRated
+                    Boolean isRated,
+                    Long applicantId
             ) {
-                public MemberDto(User user, List<UserRate> rates) {
+                public MemberDto(User user, List<UserRate> rates, Map<Long, Long> applicantIds) {
                     this(
                             user.getId(),
                             user.getName(),
                             user.getImgUrl(),
-                            rates != null && rates.stream().anyMatch(rate -> rate.getUser().getId().equals(user.getId()))
+                            rates != null && rates.stream().anyMatch(rate -> rate.getUser().getId().equals(user.getId())),
+                            applicantIds.get(user.getId())
                     );
                 }
             }

@@ -172,9 +172,10 @@ public class PostService {
         Map<Long, List<Score>> scoreMap = getScoreMap(userId, posts);
         Map<Long, List<User>> memberMap = getMemberMap(userId, posts);
         Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts);
+        Map<Long, Map<Long, Long>> applicantIdMap = getApplicantIdMap(posts);
 
         Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
-        return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap);
+        return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap, applicantIdMap);
     }
 
     private List<Post> loadPosts(CursorRequest cursorRequest, Long userId, String condition, String status, Long cityId, String start, String end) {
@@ -252,16 +253,27 @@ public class PostService {
         ));
     }
 
+    private Map<Long, Map<Long, Long>> getApplicantIdMap(List<Post> posts) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> applicantRepository.findAllByPostIdAndStatusTrue(post.getId())
+                        .stream()
+                        .collect(Collectors.toMap(
+                                applicant -> applicant.getUser().getId(),
+                                Applicant::getId
+                        ))
+        ));
+    }
+
     private Map<Long, List<User>> getMemberMap(Long userId, List<Post> posts) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
                 post -> {
-                    List<User> users = new ArrayList<>(
-                            applicantRepository.findAllByPostIdAndStatusTrue(post.getId()).stream()
+                    List<Applicant> applicants = applicantRepository.findAllByPostIdAndStatusTrue(post.getId());
+                    List<User> users = new ArrayList<>(applicants.stream()
                             .map(Applicant::getUser)
                             .filter(user -> !user.getId().equals(userId))
-                            .toList()
-                    );
+                            .toList());
                     if(!post.getUser().getId().equals(userId)){
                         User postAuthor = userRepository.findById(post.getUser().getId()).orElseThrow(() -> new Exception404("존재하지 않는 사용자입니다."));
                         users.add(postAuthor);
