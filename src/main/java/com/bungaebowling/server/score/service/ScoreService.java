@@ -49,7 +49,19 @@ public class ScoreService {
             throw new Exception400("아직 점수를 등록할 수 없습니다.");
         }
 
-        saveScore(userId, post, scoreNum, image);
+        if(scoreNum == null) {
+            throw new Exception400("점수를 입력해주세요.");
+        }
+
+        if (image.getSize() > 1) {
+            throw new Exception400("점수는 1개씩 등록해주세요.");
+        }
+
+        if(image.isEmpty()) { // null 체크 - null인 경우
+            saveScoreWithoutImage(userId, post, scoreNum);
+        } else { // null 체크 - null이 아닌 경우
+            saveScoreWithImage(userId, post, scoreNum, image);
+        }
     }
 
     private User findUserById(Long userId) {
@@ -62,13 +74,25 @@ public class ScoreService {
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
     }
 
-    private void saveScore(Long userId, Post post, Integer scoreNum, MultipartFile image) {
+    private void saveScoreWithoutImage(Long userId, Post post, Integer scoreNum) {
         User user = findUserById(userId);
         LocalDateTime createTime = LocalDateTime.now();
 
-        if(scoreNum == null) {
-            throw new Exception400("점수를 입력해주세요.");
-        }
+        Score score = Score.builder()
+                .scoreNum(scoreNum)
+                .resultImageUrl(null)
+                .post(post)
+                .user(user)
+                .createdAt(createTime)
+                .accessImageUrl(awsS3Service.getImageAccessUrl(null))
+                .build();
+
+        scoreRepository.save(score);
+    }
+
+    private void saveScoreWithImage(Long userId, Post post, Integer scoreNum, MultipartFile image) {
+        User user = findUserById(userId);
+        LocalDateTime createTime = LocalDateTime.now();
 
         String imageUrl = awsS3Service.uploadScoreFile(user.getId(), post.getId(),"score", createTime, image);
 
@@ -92,20 +116,26 @@ public class ScoreService {
             throw new Exception403("점수 정보에 대한 수정 권한이 없습니다.");
         }
 
+        Integer scoreNumCheck = Optional.ofNullable(scoreNum)
+                .orElseThrow(() -> new Exception400("점수를 입력해주세요."));
+
+        if (image.getSize() > 1) {
+            throw new Exception400("점수는 1개씩 등록해주세요.");
+        }
+
         User user = findUserById(userId);
         Score score = findScoreById(scoreId);
         LocalDateTime updateTime = LocalDateTime.now();
 
-        Integer scoreNumCheck = Optional.ofNullable(scoreNum)
-                .orElseThrow(() -> new Exception400("점수를 입력해주세요."));
-        MultipartFile imageCheck = Optional.ofNullable(image)
-                .orElseThrow(() -> new Exception400("점수 사진을 등록해주세요."));
+        if(image.isEmpty()) { // null 체크 - null인 경우
+            score.updateWithoutFile(scoreNumCheck, updateTime);
+        } else { // null 체크 - null이 아닌 경우
+            awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
+            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId,"score", updateTime,image);
+            String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
-        awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
-        String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId,"score", updateTime,imageCheck);
-        String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
-
-        score.update(scoreNumCheck, imageurl, updateTime, accessImageUrl);
+            score.updateWithFile(scoreNumCheck, imageurl, updateTime, accessImageUrl);
+        }
     }
 
     private Score findScoreById(Long scoreId) {
