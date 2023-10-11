@@ -143,7 +143,7 @@ public class PostResponse {
                     this(
                             score.getId(),
                             score.getScoreNum(),
-                            null //TODO: score image 추가
+                            score.getAccessImageUrl()
                     );
                 }
             }
