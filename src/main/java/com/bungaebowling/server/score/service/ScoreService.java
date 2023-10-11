@@ -42,14 +42,14 @@ public class ScoreService {
     }
 
     @Transactional
-    public void create(Long userId, Long postId, List<Integer> scoreNums, List<MultipartFile> images) {
+    public void create(Long userId, Long postId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
 
         if(!post.getIsClose()) {
             throw new Exception400("아직 점수를 등록할 수 없습니다.");
         }
 
-        saveScores(userId, post, scoreNums, images);
+        saveScore(userId, post, scoreNum, image);
     }
 
     private User findUserById(Long userId) {
@@ -62,36 +62,28 @@ public class ScoreService {
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
     }
 
-    private void saveScores(Long userId, Post post, List<Integer> scoreNums, List<MultipartFile> images) {
+    private void saveScore(Long userId, Post post, Integer scoreNum, MultipartFile image) {
         User user = findUserById(userId);
         LocalDateTime createTime = LocalDateTime.now();
 
-        for (Integer scoreNum : scoreNums) {
-            if(scoreNum == null) {
-                throw new Exception400("점수를 입력해주세요.");
-            }
+        if(scoreNum == null) {
+            throw new Exception400("점수를 입력해주세요.");
         }
 
-        List<String> imageURls = awsS3Service.uploadMultiFile(user.getId(), post.getId(),"score", createTime,images);
+        String imageUrl = awsS3Service.uploadScoreFile(user.getId(), post.getId(),"score", createTime, image);
 
-        if(!CollectionUtils.isEmpty(imageURls)) {
-            for (int i = 0; i < imageURls.size(); i++) {
+        Score score = Score.builder()
+                .scoreNum(scoreNum)
+                .resultImageUrl(imageUrl)
+                .post(post)
+                .user(user)
+                .createdAt(createTime)
+                .accessImageUrl(awsS3Service.getImageAccessUrl(imageUrl))
+                .build();
 
-                Score score = Score.builder()
-                        .scoreNum(scoreNums.get(i))
-                        .resultImageUrl(imageURls.get(i))
-                        .post(post)
-                        .user(user)
-                        .createdAt(createTime)
-                        .accessImageUrl(awsS3Service.getImageAccessUrl(imageURls.get(i)))
-                        .build();
-
-                scoreRepository.save(score);
-            }
-        }
+        scoreRepository.save(score);
     }
 
-    // ToDo: 수정했을 때 파일 이름 반환 잘 할 수 있도록 수정하기
     @Transactional
     public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
