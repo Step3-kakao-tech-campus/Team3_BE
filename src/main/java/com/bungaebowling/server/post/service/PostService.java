@@ -5,7 +5,6 @@ import com.bungaebowling.server._core.errors.exception.client.Exception404;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
-import com.bungaebowling.server.city.country.Country;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.post.Post;
@@ -18,12 +17,7 @@ import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.rate.UserRate;
 import com.bungaebowling.server.user.rate.repository.UserRateRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
-import jakarta.persistence.criteria.Fetch;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,15 +25,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
+import static com.bungaebowling.server.post.service.PostSpecification.*;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -53,8 +46,6 @@ public class PostService {
     private final UserRateRepository userRateRepository;
 
     public static final int DEFAULT_SIZE = 20;
-    public static final LocalDateTime START_TIME = LocalDateTime.now().minusMonths(3);
-    public static final LocalDateTime END_TIME = LocalDateTime.now();
 
     @Transactional
     public PostResponse.GetPostPostDto create(Long userId, PostRequest.CreatePostDto request) {
@@ -106,7 +97,7 @@ public class PostService {
 
         List<Post> posts = findPosts(cursorRequest, cityId, countryId, districtId, all);
 
-        Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
+        Long lastKey = getLastKey(posts);
 
         return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts);
 
@@ -175,8 +166,19 @@ public class PostService {
 
     }
 
+    @Transactional
+    public void updateIsClose(Long userId, Long postId, PostRequest.UpdatePostIsCloseDto request) {
+        Post post = findById(postId);
+
+        if (!post.isMine(userId)) {
+            throw new Exception403("모집글에 대한 마감 권한이 없습니다.");
+        }
+
+        post.updateIsClose(request.isClose());
+    }
+
     public PostResponse.GetParticipationRecordsDto getParticipationRecords(CursorRequest cursorRequest, Long userId,
-                                                                           String condition, String status, Long cityId, String start, String end){
+                                                                           String condition, String status, Long cityId, String start, String end) {
         List<Post> posts = loadPosts(cursorRequest, userId, condition, status, cityId, start, end);
 
         Map<Long, List<Score>> scoreMap = getScoreMap(userId, posts);
@@ -185,7 +187,7 @@ public class PostService {
         Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts, applicantMap);
         Map<Long, Long> applicantIdMap = getApplicantIdMap(userId, posts, applicantMap);
 
-        Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
+        Long lastKey = getLastKey(posts);
         return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap, applicantIdMap);
     }
 
@@ -202,64 +204,6 @@ public class PostService {
             spec = spec.and(postIdLessThan(cursorRequest.key()));
         }
         return postRepository.findAll(spec, pageable).getContent();
-    }
-
-    private Specification<Post> conditionEqual(String condition, Long userId) {
-        return (root, query, criteriaBuilder) -> {
-            Join<Post, User> userJoin = root.join("user", JoinType.LEFT);
-            Join<Post, Applicant> applicantJoin = root.join("applicants", JoinType.LEFT);
-            Join<Applicant, User> applicantUserJoin = applicantJoin.join("user", JoinType.LEFT);
-            Fetch<Post, District> districtFetch = root.fetch("district", JoinType.LEFT);
-            Fetch<District, Country> countryFetch = districtFetch.fetch("country", JoinType.LEFT);
-            countryFetch.fetch("city", JoinType.LEFT);
-            root.fetch("applicants", JoinType.LEFT);
-
-            Predicate createdPredicate = criteriaBuilder.equal(userJoin.get("id"), userId);
-            Predicate participatedPredicate = criteriaBuilder.and(
-                    criteriaBuilder.isTrue(applicantJoin.get("status")),
-                    criteriaBuilder.equal(applicantUserJoin.get("id"), userId),
-                    criteriaBuilder.notEqual(userJoin.get("id"), userId)
-            );
-
-            return switch (condition) {
-                case "created" -> createdPredicate;
-                case "participated" -> participatedPredicate;
-                default -> criteriaBuilder.or(createdPredicate, participatedPredicate);
-            };
-        };
-    }
-
-    private Specification<Post> statusEqual(String status) {
-        return (root, query, criteriaBuilder) -> switch (status) {
-            case "open" -> criteriaBuilder.equal(root.get("isClose"), false);
-            case "closed" -> criteriaBuilder.equal(root.get("isClose"), true);
-            default -> criteriaBuilder.conjunction();
-        };
-    }
-
-    private Specification<Post> cityIdEqual(Long cityId) {
-        return (root, query, criteriaBuilder) -> {
-            if (cityId != null) {
-                return criteriaBuilder.equal(
-                        root.join("district").join("country").join("city").get("id"),
-                        cityId
-                );
-            }
-            return criteriaBuilder.conjunction();
-        };
-    }
-
-    private Specification<Post> createdAtBetween(String start, String end) {
-        return (root, query, criteriaBuilder) -> {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDateTime startDate = start == null ? START_TIME : LocalDate.parse(start, formatter).atStartOfDay();
-            LocalDateTime endDate = end == null ? END_TIME : LocalDate.parse(end, formatter).plusDays(1).atStartOfDay();
-            return criteriaBuilder.between(root.get("startTime"), startDate, endDate);
-        };
-    }
-
-    private Specification<Post> postIdLessThan(Long postId) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.lessThan(root.get("postId"), postId);
     }
 
     private Map<Long, List<Applicant>> getApplicantMap(List<Post> posts) {
@@ -321,15 +265,8 @@ public class PostService {
                 .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
     }
 
-    @Transactional
-    public void updateIsClose(Long userId, Long postId, PostRequest.UpdatePostIsCloseDto request) {
-        Post post = findById(postId);
-
-        if (!post.isMine(userId)) {
-            throw new Exception403("모집글에 대한 마감 권한이 없습니다.");
-        }
-
-        post.updateIsClose(request.isClose());
+    private static Long getLastKey(List<Post> posts) {
+        return posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
     }
 
 }
