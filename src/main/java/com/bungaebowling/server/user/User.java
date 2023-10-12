@@ -48,8 +48,6 @@ public class User {
     @ColumnDefault("now()")
     private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt;
-
     @Builder
     public User(Long id, String name, String email, String password, District district, String imgUrl, Role role, LocalDateTime createdAt) {
         this.id = id;
@@ -66,12 +64,11 @@ public class User {
         this.role = role;
     }
 
-    public void updateProfile(String name, District district, String resultImageUrl, String accessImageUrl, LocalDateTime updatedAt){
+    public void updateProfile(String name, District district, String resultImageUrl, String accessImageUrl){
         this.name = Objects.nonNull(name) ? name : this.name;
         this.district = Objects.nonNull(district) ? district : this.district;
-        this.imgUrl = accessImageUrl;
-        this.resultImageUrl = resultImageUrl;
-        this.updatedAt = updatedAt;
+        this.imgUrl = Objects.nonNull(accessImageUrl) ? accessImageUrl : this.imgUrl;
+        this.resultImageUrl = Objects.nonNull(resultImageUrl) ? resultImageUrl : this.resultImageUrl;
     }
 
     public String getDistrictName() {

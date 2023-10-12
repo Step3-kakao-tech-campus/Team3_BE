@@ -206,17 +206,20 @@ public class UserService {
                 districtRepository.findById(request.districtId()).orElseThrow(
                         () -> new Exception404("존재하지 않는 행정 구역입니다.")
                 );
-        MultipartFile imageCheck = Optional.ofNullable(profileImage).orElseThrow(() -> new Exception400("프로필 사진을 등록해주세요."));
-        LocalDateTime updateTime = LocalDateTime.now();
 
-        if(user.getImgUrl() != null){
-            awsS3Service.deleteFile(user.getResultImageUrl());
+        if (profileImage != null) {
+            if (user.getImgUrl() != null) {
+                awsS3Service.deleteFile(user.getResultImageUrl());
+            }
+
+            LocalDateTime updateTime = LocalDateTime.now();
+            String resultImageUrl = awsS3Service.uploadProfileFile(user.getId(), "profile", updateTime, profileImage);
+            String accessImageUrl = awsS3Service.getImageAccessUrl(resultImageUrl);
+
+            user.updateProfile(request.name(), district, resultImageUrl, accessImageUrl);
+        } else {
+            user.updateProfile(request.name(), district, null, null);
         }
-
-        String resultImageUrl = awsS3Service.uploadProfileFile(user.getId(),"profile", updateTime, imageCheck);
-        String accessImageUrl = awsS3Service.getImageAccessUrl(resultImageUrl);
-
-        user.updateProfile(request.name(), district, resultImageUrl, accessImageUrl, updateTime);
     }
 
     public UserResponse.GetRecordDto getRecords(Long userId){
