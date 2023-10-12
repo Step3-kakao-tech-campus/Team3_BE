@@ -48,23 +48,31 @@ public class PostService {
     public static final int DEFAULT_SIZE = 20;
 
     @Transactional
-    public PostResponse.GetPostPostDto create(Long userId, PostRequest.CreatePostDto request) {
+    public PostResponse.GetPostPostDto createPostWithApplicant(Long userId, PostRequest.CreatePostDto request) {
 
         User user = findUserById(userId);
 
         Long districtId = request.districtId();
+        
+        var savedPost = savePost(user, districtId, request);
 
-        return savePost(user, districtId, request); // 저장로직 따로 분리
+        saveApplicant(savedPost, user);
+
+        return new PostResponse.GetPostPostDto(savedPost.getId());
 
     }
 
-    private PostResponse.GetPostPostDto savePost(User user, Long districtId, PostRequest.CreatePostDto request) { // 저장로직 따로 분리
+    private Post savePost(User user, Long districtId, PostRequest.CreatePostDto request) {
 
         District district = districtRepository.findById(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));
 
         Post post = request.toEntity(user, district);
-        Long postId = postRepository.save(post).getId();
 
+        return postRepository.save(post);
+
+    }
+
+    private void saveApplicant(Post post, User user) {
         applicantRepository.save(
                 Applicant.builder()
                         .post(post)
@@ -72,9 +80,6 @@ public class PostService {
                         .status(true)
                         .build()
         );
-
-        return new PostResponse.GetPostPostDto(postId);
-
     }
 
     private User findUserById(Long userId) {

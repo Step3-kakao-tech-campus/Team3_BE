@@ -62,7 +62,7 @@ public class PostController {
             @RequestBody @Valid PostRequest.CreatePostDto request,
             Errors errors
     ) {
-        PostResponse.GetPostPostDto response = postService.create(userDetails.getId(), request);
+        PostResponse.GetPostPostDto response = postService.createPostWithApplicant(userDetails.getId(), request);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
