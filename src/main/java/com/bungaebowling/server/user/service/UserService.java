@@ -166,9 +166,7 @@ public class UserService {
     public UserResponse.GetUsersDto getUsers(CursorRequest cursorRequest, String name){
         List<User> users = loadUsers(cursorRequest, name);
         List<Double> ratings = users.stream()
-                .map(user -> userRateRepository.findAllByUserId(user.getId()).stream()
-                    .mapToInt(UserRate::getStarCount)
-                    .average().orElse(0.0))
+                .map(user -> getRating(user.getId()))
                 .toList();
         Long lastKey = users.isEmpty() ? CursorRequest.NONE_KEY : users.get(users.size() - 1).getId();
         return UserResponse.GetUsersDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), users, ratings);
@@ -187,14 +185,16 @@ public class UserService {
     public UserResponse.GetUserDto getUser(Long userId){
         User user = findUserById(userId);
         double rating = getRating(userId);
-        int average = calculateAverage(user);
+        List<Score> scores = findScoreByUserId(userId);
+        int average = calculateAverage(scores);
         return new UserResponse.GetUserDto(user, rating, average);
     }
 
     public UserResponse.GetMyProfileDto getMyProfile(Long userId){
         User user = findUserById(userId);
         double rating = getRating(userId);
-        int average = calculateAverage(user);
+        List<Score> scores = findScoreByUserId(userId);
+        int average = calculateAverage(scores);
         return new UserResponse.GetMyProfileDto(user, rating, average);
     }
 
@@ -221,10 +221,11 @@ public class UserService {
 
     public UserResponse.GetRecordDto getRecords(Long userId){
         User user = findUserById(userId);
+        List<Score> scores = findScoreByUserId(userId);
         int game = countGames(user);
-        int average = calculateAverage(user);
-        int maximum = findMaxScore(user);
-        int minimum = findMinScore(user);
+        int average = calculateAverage(scores);
+        int maximum = findMaxScore(scores);
+        int minimum = findMinScore(scores);
         return new UserResponse.GetRecordDto(user.getName(), game, average, maximum, minimum);
     }
 
@@ -232,25 +233,34 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new Exception404("유저를 찾을 수 없습니다."));
     }
 
+    private List<Score> findScoreByUserId(Long userId){
+        return scoreRepository.findAllByUserId(userId);
+    }
+
     private int countGames(User user) {
         return applicantRepository.findAllByUserIdAndPostIsCloseTrueAndStatusTrue(user.getId()).size()
                 + postRepository.findAllByUserIdAndIsCloseTrue(user.getId()).size();
     }
 
-    private int calculateAverage(User user) {
-        return (int) scoreRepository.findAllByUserId(user.getId()).stream()
+    private int calculateAverage(List<Score> scores) {
+        return (int) scores.stream()
                 .mapToInt(Score::getScoreNum)
-                .average().orElse(0.0);
+                .average()
+                .orElse(0.0);
     }
 
-    private int findMaxScore(User user) {
-        return scoreRepository.findMaxScoreByUserId(user.getId()) != null ?
-                scoreRepository.findMaxScoreByUserId(user.getId()) : 0;
+    private int findMaxScore(List<Score> scores) {
+        return scores.stream()
+                .mapToInt(Score::getScoreNum)
+                .max()
+                .orElse(0);
     }
 
-    private int findMinScore(User user) {
-        return scoreRepository.findMinScoreByUserId(user.getId()) != null ?
-                scoreRepository.findMinScoreByUserId(user.getId()) : 0;
+    private int findMinScore(List<Score> scores) {
+        return scores.stream()
+                .mapToInt(Score::getScoreNum)
+                .min()
+                .orElse(0);
     }
 
     private double getRating(Long userId) {
