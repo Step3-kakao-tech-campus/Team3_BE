@@ -206,18 +206,19 @@ public class PostService {
 
     private Specification<Post> conditionEqual(String condition, Long userId) {
         return (root, query, criteriaBuilder) -> {
-            Join<Post, User> user = root.join("user", JoinType.LEFT);
-            Join<Post, Applicant> applicant = root.join("applicants", JoinType.LEFT);
-            Join<Applicant, User> applicantUserJoin = applicant.join("user", JoinType.LEFT);
-            Fetch<Post, District> district = root.fetch("district", JoinType.LEFT);
-            Fetch<District, Country> country = district.fetch("country", JoinType.LEFT);
-            country.fetch("city", JoinType.LEFT);
+            Join<Post, User> userJoin = root.join("user", JoinType.LEFT);
+            Join<Post, Applicant> applicantJoin = root.join("applicants", JoinType.LEFT);
+            Join<Applicant, User> applicantUserJoin = applicantJoin.join("user", JoinType.LEFT);
+            Fetch<Post, District> districtFetch = root.fetch("district", JoinType.LEFT);
+            Fetch<District, Country> countryFetch = districtFetch.fetch("country", JoinType.LEFT);
+            countryFetch.fetch("city", JoinType.LEFT);
+            root.fetch("applicants", JoinType.LEFT);
 
-            Predicate createdPredicate = criteriaBuilder.equal(user.get("id"), userId);
+            Predicate createdPredicate = criteriaBuilder.equal(userJoin.get("id"), userId);
             Predicate participatedPredicate = criteriaBuilder.and(
-                    criteriaBuilder.isTrue(applicant.get("status")),
+                    criteriaBuilder.isTrue(applicantJoin.get("status")),
                     criteriaBuilder.equal(applicantUserJoin.get("id"), userId),
-                    criteriaBuilder.notEqual(user.get("id"), userId)
+                    criteriaBuilder.notEqual(userJoin.get("id"), userId)
             );
 
             return switch (condition) {
@@ -271,7 +272,7 @@ public class PostService {
     private Map<Long, List<Score>> getScoreMap(Long userId, List<Post> posts) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
-                post -> scoreRepository.findAllByUserIdAndPostId(userId, post.getId())
+                post -> scoreRepository.findAllByUserIdAndPostIdOrderById(userId, post.getId())
         ));
     }
 
