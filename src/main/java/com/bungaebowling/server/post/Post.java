@@ -39,35 +39,25 @@ public class Post {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "start_time", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "due_time", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime dueTime;
 
-    @Column(name = "is_close")
     @ColumnDefault(value = "false")
     private Boolean isClose;
 
-    @Column(name = "view_count")
     @ColumnDefault(value = "0")
     private int viewCount;
 
-    @Column(name = "edited_at")
     @Temporal(TemporalType.TIMESTAMP)
     @ColumnDefault(value = "now()")
     private LocalDateTime editedAt;
 
-    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
-
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    //private final List<Comment> comments = new ArrayList<>();
-
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    //private final List<Score> scores = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private final List<Applicant> applicants = new ArrayList<>();
@@ -96,21 +86,12 @@ public class Post {
                 this.district.getName();
     }
 
-
     public int getApplicantNumber() { // 현재 신청한 사람 수
         return applicants.size();
     }
 
-    public int getCurrentNumber() { // 현재 모집된 사람 수
-        int count = 0;
-
-        for (Applicant applicant : applicants) {
-            if (applicant.getStatus()) {
-                count++;
-            }
-        }
-
-        return count;
+    public Long getCurrentNumber() { // 현재 모집된 사람 수
+        return applicants.stream().filter(Applicant::getStatus).count();
     }
 
 
@@ -122,16 +103,21 @@ public class Post {
         return this.user.getId().equals(userId);
     }
 
-    public void update(String newTitle, String newContent, LocalDateTime newStartTime, LocalDateTime newDueTime, Boolean newIsClose) { // 게시글 업데이트할 때 쓸 것
+    public void update(String newTitle, String newContent, LocalDateTime newStartTime, LocalDateTime newDueTime, Boolean newIsClose, LocalDateTime editedAt) { // 게시글 업데이트할 때 쓸 것
         this.title = newTitle;
         this.content = newContent;
         this.startTime = newStartTime;
         this.dueTime = newDueTime;
         this.isClose = newIsClose;
+        this.editedAt = editedAt;
     }
 
     public String getProfilePath() { // 사용자 Profile 이미지 경로 가져오기
         return this.user.getImgUrl();
+    }
+
+    public void updateIsClose(boolean isClose) {
+        this.isClose = isClose;
     }
 
 }
