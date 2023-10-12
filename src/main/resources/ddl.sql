@@ -52,7 +52,7 @@ CREATE TABLE score_tb
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id          BIGINT NOT NULL,
     post_id          BIGINT NOT NULL,
-    score_num            INT    NOT NULL,
+    score_num        INT    NOT NULL,
     result_image_url VARCHAR(100),
     access_image_url VARCHAR(200),
     created_at       TIMESTAMP DEFAULT now()
