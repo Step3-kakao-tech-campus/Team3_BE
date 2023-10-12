@@ -229,7 +229,7 @@ public class UserService {
     }
 
     private User findUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new Exception400("유저를 찾을 수 없습니다."));
+        return userRepository.findById(userId).orElseThrow(() -> new Exception404("유저를 찾을 수 없습니다."));
     }
 
     private int countGames(User user) {
