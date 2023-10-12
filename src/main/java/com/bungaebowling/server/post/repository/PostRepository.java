@@ -118,7 +118,5 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
             "WHERE p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
     List<Post> findAllByIdLessThanWithCloseFalseOrderByIdDesc(@Param("key") Long key, Pageable pageable);
 
-    List<Post> findAllByUserIdAndIsCloseTrue(Long userId);
-
     Page<Post> findAll(Specification<Post> spec, Pageable pageable);
 }
