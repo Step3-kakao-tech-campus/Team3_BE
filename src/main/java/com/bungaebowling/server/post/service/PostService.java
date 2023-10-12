@@ -258,8 +258,8 @@ public class PostService {
                 Post::getId,
                 post -> {
                     List<Applicant> applicants = new ArrayList<>();
-                    Applicant applicant = applicantRepository.findByUserIdAndPostIdAndStatusTrue(userId, post.getId()).get();
-                    applicants.add(applicant);
+                    applicantRepository.findByUserIdAndPostIdAndStatusTrue(userId, post.getId())
+                            .ifPresent(applicants::add);
                     return applicants;
                 }
         ));
