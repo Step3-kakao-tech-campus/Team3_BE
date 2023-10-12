@@ -30,4 +30,9 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
 
     @Query("SELECT a FROM Applicant a JOIN FETCH a.post p WHERE a.id = :id")
     Optional<Applicant> findByIdJoinFetchPost(@Param("id") Long id);
+
+    List<Applicant> findAllByUserIdAndPostIsCloseTrueAndStatusTrue(Long userId);
+
+    @Query("SELECT a FROM Applicant a JOIN FETCH a.user u WHERE a.post.id = :postId and a.status = true  ORDER BY u.id DESC")
+    List<Applicant> findAllByPostIdAndStatusTrueOrderByUserIdDesc(@Param("postId") Long postId);
 }

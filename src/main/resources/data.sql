@@ -4740,6 +4740,9 @@ VALUES ('김볼링', 'test@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb
 INSERT INTO post_tb (title, user_id, district_id, start_time, due_time, content)
 VALUES ('불금 볼링 점수 내기 하실 분~', 1, 1, '2023-12-01', '2023-11-29', '볼링 점수 내기합시다.');
 
+INSERT INTO applicant_tb (status, user_id, post_id)
+VALUES (true, 1, 1);
+
 INSERT INTO comment_tb (post_id, user_id, parent_id, content)
 VALUES (1, 2, null, '저 해도 되나요?'),
        (1, 1, 1, '신청해주세요~');
