@@ -35,7 +35,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -173,10 +172,10 @@ public class PostService {
         List<Post> posts = loadPosts(cursorRequest, userId, condition, status, cityId, start, end);
 
         Map<Long, List<Score>> scoreMap = getScoreMap(userId, posts);
-        Map<Long, List<Applicant>> applicants = getApplicantsByUserId(userId, posts);
-        Map<Long, List<User>> memberMap = getMemberMap(userId, posts);
-        Map<Long, List<UserRate>> rateMap = getRateMap(posts, applicants);
-        Map<Long, Map<Long, Long>> applicantIdMap = getApplicantIdMap(posts, applicants);
+        Map<Long, List<Applicant>> applicantMap = getApplicantMap(posts);
+        Map<Long, List<User>> memberMap = getMemberMap(userId, posts, applicantMap);
+        Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts, applicantMap);
+        Map<Long, Map<Long, Long>> applicantIdMap = getApplicantIdMap(posts, applicantMap);
 
         Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
         return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap, applicantIdMap);
@@ -253,15 +252,10 @@ public class PostService {
         return (root, query, criteriaBuilder) -> criteriaBuilder.lessThan(root.get("postId"), postId);
     }
 
-    private Map<Long, List<Applicant>> getApplicantsByUserId(Long userId, List<Post> posts) {
+    private Map<Long, List<Applicant>> getApplicantMap(List<Post> posts) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
-                post -> {
-                    List<Applicant> applicants = new ArrayList<>();
-                    applicantRepository.findByUserIdAndPostIdAndStatusTrue(userId, post.getId())
-                            .ifPresent(applicants::add);
-                    return applicants;
-                }
+                post -> applicantRepository.findAllByPostIdAndStatusTrueOrderByUserIdDesc(post.getId())
         ));
     }
 
@@ -283,15 +277,16 @@ public class PostService {
         ));
     }
 
-    private Map<Long, List<User>> getMemberMap(Long userId, List<Post> posts) {
+    private Map<Long, List<User>> getMemberMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
                 post -> {
-                    List<Applicant> applicants = applicantRepository.findAllByPostIdAndStatusTrue(post.getId());
-                    List<User> users = new ArrayList<>(applicants .stream()
-                            .map(Applicant::getUser)
-                            .filter(user -> !user.getId().equals(userId))
-                            .toList());
+                    List<User> users = new ArrayList<>(
+                            applicantMap.get(post.getId()) .stream()
+                                    .map(Applicant::getUser)
+                                    .filter(user -> !user.getId().equals(userId))
+                                    .toList()
+                    );
                     if(!post.getUser().getId().equals(userId)){
                         User postAuthor = userRepository.findById(post.getUser().getId()).orElseThrow(() -> new Exception404("존재하지 않는 사용자입니다."));
                         users.add(postAuthor);
@@ -301,14 +296,16 @@ public class PostService {
         ));
     }
 
-    private Map<Long, List<UserRate>> getRateMap(List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+    private Map<Long, List<UserRate>> getRateMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
                 post -> {
                     List<UserRate> userRates = new ArrayList<>();
-                    applicantMap.get(post.getId()).forEach(applicant ->
-                            userRates.addAll(userRateRepository.findAllByApplicantId(applicant.getId()))
-                    );
+                    applicantMap.get(post.getId()).stream()
+                            .filter(applicant -> applicant.getUser().getId().equals(userId))
+                            .forEach(applicant ->
+                                    userRates.addAll(userRateRepository.findAllByApplicantId(applicant.getId()))
+                            );
                     return userRates;
                 }
         ));
