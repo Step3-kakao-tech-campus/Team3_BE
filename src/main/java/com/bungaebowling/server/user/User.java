@@ -37,7 +37,7 @@ public class User {
     @Column(length = 200)
     private String imgUrl;
 
-    @Column(length = 200)
+    @Column(length = 100)
     private String resultImageUrl;
 
     @Enumerated(EnumType.STRING)
