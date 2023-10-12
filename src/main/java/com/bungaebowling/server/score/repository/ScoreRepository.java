@@ -14,11 +14,6 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     List<Score> findAllByUserId(Long userId);
 
-    List<Score> findAllByUserIdAndPostId(Long userId, Long postId);
-
-    @Query("SELECT MAX(s.scoreNum) FROM Score s WHERE s.user.id = :userId")
-    Integer findMaxScoreByUserId(@Param("userId") Long userId);
-
-    @Query("SELECT MIN(s.scoreNum) FROM Score s WHERE s.user.id = :userId")
-    Integer findMinScoreByUserId(@Param("userId") Long userId);
+    @Query("SELECT s FROM Score s JOIN FETCH s.user u WHERE u.id = :userId and s.post.id = :postId ORDER BY s.id ASC")
+    List<Score> findAllByUserIdAndPostIdOrderById(@Param("userId") Long userId, @Param("postId") Long postId);
 }
