@@ -119,10 +119,9 @@ public class ApplicantService {
     }
 
     public ApplicantResponse.CheckStatusDto checkStatus(Long userId, Long postId){
-        Applicant applicant = applicantRepository.findByUserIdAndPostId(userId, postId).orElseThrow(
-                () -> new Exception404("존재하지 않는 신청입니다.")
-        );
-        return new ApplicantResponse.CheckStatusDto(applicant.getStatus());
+        Applicant applicant = applicantRepository.findByUserIdAndPostId(userId, postId).orElse(null);
+        boolean isApplicantPresent  = applicant != null;
+        return new ApplicantResponse.CheckStatusDto(isApplicantPresent , isApplicantPresent  && applicant.getStatus());
     }
 
     private User getUser(Long userId) {

@@ -59,6 +59,7 @@ public class ApplicantResponse {
     }
 
     public record CheckStatusDto(
-            Boolean isApplied
+            Boolean isApplied, //신청됨
+            Boolean isAccepted //수락됨
     ) {}
 }
