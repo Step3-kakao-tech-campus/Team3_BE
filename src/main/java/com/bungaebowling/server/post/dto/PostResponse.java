@@ -160,7 +160,7 @@ public class PostResponse {
                             user.getId(),
                             user.getName(),
                             user.getImgUrl(),
-                            rates != null && rates.stream().anyMatch(rate -> rate.getUser().getId().equals(user.getId())),
+                            rates.stream().anyMatch(rate -> rate.getUser().getId().equals(user.getId())),
                             applicantIds.get(user.getId())
                     );
                 }
