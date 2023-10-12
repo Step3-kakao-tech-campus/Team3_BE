@@ -37,7 +37,8 @@ public class User {
     @Column(length = 200)
     private String imgUrl;
 
-    private String accessImageUrl;
+    @Column(length = 200)
+    private String resultImageUrl;
 
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'ROLE_PENDING'")
@@ -65,11 +66,11 @@ public class User {
         this.role = role;
     }
 
-    public void updateProfile(String name, District district, String imgUrl, String accessImageUrl, LocalDateTime updatedAt){
+    public void updateProfile(String name, District district, String resultImageUrl, String accessImageUrl, LocalDateTime updatedAt){
         this.name = Objects.nonNull(name) ? name : this.name;
         this.district = Objects.nonNull(district) ? district : this.district;
-        this.imgUrl = Objects.nonNull(imgUrl) ? imgUrl : this.imgUrl;
-        this.accessImageUrl = accessImageUrl;
+        this.imgUrl = accessImageUrl;
+        this.resultImageUrl = resultImageUrl;
         this.updatedAt = updatedAt;
     }
 

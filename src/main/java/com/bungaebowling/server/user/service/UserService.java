@@ -210,13 +210,13 @@ public class UserService {
         LocalDateTime updateTime = LocalDateTime.now();
 
         if(user.getImgUrl() != null){
-            awsS3Service.deleteFile(user.getImgUrl());
+            awsS3Service.deleteFile(user.getResultImageUrl());
         }
 
-        String imageUrl = awsS3Service.uploadProfileFile(user.getId(),"profile", updateTime, imageCheck);
-        String accessImageUrl = awsS3Service.getImageAccessUrl(imageUrl);
+        String resultImageUrl = awsS3Service.uploadProfileFile(user.getId(),"profile", updateTime, imageCheck);
+        String accessImageUrl = awsS3Service.getImageAccessUrl(resultImageUrl);
 
-        user.updateProfile(request.name(), district, imageUrl, accessImageUrl, updateTime);
+        user.updateProfile(request.name(), district, resultImageUrl, accessImageUrl, updateTime);
     }
 
     public UserResponse.GetRecordDto getRecords(Long userId){
