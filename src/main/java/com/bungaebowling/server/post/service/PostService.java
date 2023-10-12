@@ -74,6 +74,14 @@ public class PostService {
         Post post = request.toEntity(user, district);
         Long postId = postRepository.save(post).getId();
 
+        applicantRepository.save(
+                Applicant.builder()
+                        .post(post)
+                        .user(user)
+                        .status(true)
+                        .build()
+        );
+
         return new PostResponse.GetPostPostDto(postId);
 
     }
@@ -208,7 +216,8 @@ public class PostService {
             Predicate createdPredicate = criteriaBuilder.equal(user.get("id"), userId);
             Predicate participatedPredicate = criteriaBuilder.and(
                     criteriaBuilder.isTrue(applicant.get("status")),
-                    criteriaBuilder.equal(applicantUserJoin.get("id"), userId)
+                    criteriaBuilder.equal(applicantUserJoin.get("id"), userId),
+                    criteriaBuilder.notEqual(user.get("id"), userId)
             );
 
             return switch (condition) {
@@ -280,19 +289,10 @@ public class PostService {
     private Map<Long, List<User>> getMemberMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
-                post -> {
-                    List<User> users = new ArrayList<>(
-                            applicantMap.get(post.getId()) .stream()
-                                    .map(Applicant::getUser)
-                                    .filter(user -> !user.getId().equals(userId))
-                                    .toList()
-                    );
-                    if(!post.getUser().getId().equals(userId)){
-                        User postAuthor = userRepository.findById(post.getUser().getId()).orElseThrow(() -> new Exception404("존재하지 않는 사용자입니다."));
-                        users.add(postAuthor);
-                    }
-                    return users;
-                }
+                post -> applicantMap.get(post.getId()).stream()
+                        .map(Applicant::getUser)
+                        .filter(user -> !user.getId().equals(userId))
+                        .toList()
         ));
     }
 

@@ -34,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Transactional(readOnly = true)
@@ -241,8 +240,7 @@ public class UserService {
     }
 
     private int countGames(User user) {
-        return applicantRepository.findAllByUserIdAndPostIsCloseTrueAndStatusTrue(user.getId()).size()
-                + postRepository.findAllByUserIdAndIsCloseTrue(user.getId()).size();
+        return applicantRepository.findAllByUserIdAndPostIsCloseTrueAndStatusTrue(user.getId()).size();
     }
 
     private int calculateAverage(List<Score> scores) {
