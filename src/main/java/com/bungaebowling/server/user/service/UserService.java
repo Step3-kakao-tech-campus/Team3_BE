@@ -9,7 +9,6 @@ import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
-import com.bungaebowling.server.post.repository.PostRepository;
 import com.bungaebowling.server.score.Score;
 import com.bungaebowling.server.score.repository.ScoreRepository;
 import com.bungaebowling.server.user.Role;
@@ -48,7 +47,6 @@ public class UserService {
     private final UserRateRepository userRateRepository;
     private final ScoreRepository scoreRepository;
     private final ApplicantRepository applicantRepository;
-    private final PostRepository postRepository;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -167,7 +165,7 @@ public class UserService {
         List<Double> ratings = users.stream()
                 .map(user -> getRating(user.getId()))
                 .toList();
-        Long lastKey = users.isEmpty() ? CursorRequest.NONE_KEY : users.get(users.size() - 1).getId();
+        Long lastKey = getLastKey(users);
         return UserResponse.GetUsersDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), users, ratings);
     }
 
@@ -189,7 +187,7 @@ public class UserService {
         return new UserResponse.GetUserDto(user, rating, average);
     }
 
-    public UserResponse.GetMyProfileDto getMyProfile(Long userId){
+    public UserResponse.GetMyProfileDto getMyProfile(Long userId) {
         User user = findUserById(userId);
         double rating = getRating(userId);
         List<Score> scores = findScoreByUserId(userId);
@@ -198,7 +196,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateMyProfile(MultipartFile profileImage, UserRequest.UpdateMyProfileDto request, Long userId){
+    public void updateMyProfile(MultipartFile profileImage, UserRequest.UpdateMyProfileDto request, Long userId) {
         User user = findUserById(userId);
 
         District district = request.districtId() == null ? null :
@@ -206,22 +204,26 @@ public class UserService {
                         () -> new Exception404("존재하지 않는 행정 구역입니다.")
                 );
 
-        if (profileImage != null) {
-            if (user.getImgUrl() != null) {
-                awsS3Service.deleteFile(user.getResultImageUrl());
-            }
-
-            LocalDateTime updateTime = LocalDateTime.now();
-            String resultImageUrl = awsS3Service.uploadProfileFile(user.getId(), "profile", updateTime, profileImage);
-            String accessImageUrl = awsS3Service.getImageAccessUrl(resultImageUrl);
-
-            user.updateProfile(request.name(), district, resultImageUrl, accessImageUrl);
-        } else {
+        if (profileImage == null) {
             user.updateProfile(request.name(), district, null, null);
+        } else {
+            updateProfileWithImage(user, request.name(), district, profileImage);
         }
     }
 
-    public UserResponse.GetRecordDto getRecords(Long userId){
+    private void updateProfileWithImage(User user, String name, District district, MultipartFile profileImage) {
+        if (user.getImgUrl() != null) {
+            awsS3Service.deleteFile(user.getResultImageUrl());
+        }
+
+        LocalDateTime updateTime = LocalDateTime.now();
+        String resultImageUrl = awsS3Service.uploadProfileFile(user.getId(), "profile", updateTime, profileImage);
+        String accessImageUrl = awsS3Service.getImageAccessUrl(resultImageUrl);
+
+        user.updateProfile(name, district, resultImageUrl, accessImageUrl);
+    }
+
+    public UserResponse.GetRecordDto getRecords(Long userId) {
         User user = findUserById(userId);
         List<Score> scores = findScoreByUserId(userId);
         int game = countGames(user);
@@ -268,5 +270,9 @@ public class UserService {
         return userRateRepository.findAllByUserId(userId).stream()
                 .mapToInt(UserRate::getStarCount)
                 .average().orElse(0.0);
+    }
+
+    private Long getLastKey(List<User> users) {
+        return users.isEmpty() ? CursorRequest.NONE_KEY : users.get(users.size() - 1).getId();
     }
 }
