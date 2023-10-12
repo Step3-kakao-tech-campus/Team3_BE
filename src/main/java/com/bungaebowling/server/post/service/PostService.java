@@ -183,7 +183,7 @@ public class PostService {
         Map<Long, List<Applicant>> applicantMap = getApplicantMap(posts);
         Map<Long, List<User>> memberMap = getMemberMap(userId, posts, applicantMap);
         Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts, applicantMap);
-        Map<Long, Map<Long, Long>> applicantIdMap = getApplicantIdMap(posts, applicantMap);
+        Map<Long, Long> applicantIdMap = getApplicantIdMap(userId, posts, applicantMap);
 
         Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
         return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap, applicantIdMap);
@@ -275,14 +275,14 @@ public class PostService {
         ));
     }
 
-    private Map<Long, Map<Long, Long>> getApplicantIdMap(List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+    private Map<Long, Long> getApplicantIdMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
                 post -> applicantMap.get(post.getId()).stream()
-                        .collect(Collectors.toMap(
-                                applicant -> applicant.getUser().getId(),
-                                Applicant::getId
-                        ))
+                        .filter(applicant -> userId.equals(applicant.getUser().getId()))
+                        .map(Applicant::getId)
+                        .findFirst()
+                        .orElseThrow(() -> new Exception404("존재하지 않는 신청입니다."))
         ));
     }
 
