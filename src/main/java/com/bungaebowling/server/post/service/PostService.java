@@ -173,9 +173,10 @@ public class PostService {
         List<Post> posts = loadPosts(cursorRequest, userId, condition, status, cityId, start, end);
 
         Map<Long, List<Score>> scoreMap = getScoreMap(userId, posts);
+        Map<Long, List<Applicant>> applicants = getApplicantsByUserId(userId, posts);
         Map<Long, List<User>> memberMap = getMemberMap(userId, posts);
-        Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts);
-        Map<Long, Map<Long, Long>> applicantIdMap = getApplicantIdMap(posts);
+        Map<Long, List<UserRate>> rateMap = getRateMap(posts, applicants);
+        Map<Long, Map<Long, Long>> applicantIdMap = getApplicantIdMap(posts, applicants);
 
         Long lastKey = posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
         return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap, applicantIdMap);
@@ -252,6 +253,18 @@ public class PostService {
         return (root, query, criteriaBuilder) -> criteriaBuilder.lessThan(root.get("postId"), postId);
     }
 
+    private Map<Long, List<Applicant>> getApplicantsByUserId(Long userId, List<Post> posts) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> {
+                    List<Applicant> applicants = new ArrayList<>();
+                    Applicant applicant = applicantRepository.findByUserIdAndPostIdAndStatusTrue(userId, post.getId()).get();
+                    applicants.add(applicant);
+                    return applicants;
+                }
+        ));
+    }
+
     private Map<Long, List<Score>> getScoreMap(Long userId, List<Post> posts) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
@@ -259,11 +272,10 @@ public class PostService {
         ));
     }
 
-    private Map<Long, Map<Long, Long>> getApplicantIdMap(List<Post> posts) {
+    private Map<Long, Map<Long, Long>> getApplicantIdMap(List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
-                post -> applicantRepository.findAllByPostIdAndStatusTrue(post.getId())
-                        .stream()
+                post -> applicantMap.get(post.getId()).stream()
                         .collect(Collectors.toMap(
                                 applicant -> applicant.getUser().getId(),
                                 Applicant::getId
@@ -276,7 +288,7 @@ public class PostService {
                 Post::getId,
                 post -> {
                     List<Applicant> applicants = applicantRepository.findAllByPostIdAndStatusTrue(post.getId());
-                    List<User> users = new ArrayList<>(applicants.stream()
+                    List<User> users = new ArrayList<>(applicants .stream()
                             .map(Applicant::getUser)
                             .filter(user -> !user.getId().equals(userId))
                             .toList());
@@ -289,11 +301,16 @@ public class PostService {
         ));
     }
 
-    private Map<Long, List<UserRate>> getRateMap(Long userId, List<Post> posts) {
+    private Map<Long, List<UserRate>> getRateMap(List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
-                post -> applicantRepository.findByUserIdAndPostIdAndStatusTrue(userId, post.getId())
-                        .map(applicant -> userRateRepository.findAllByApplicantId(applicant.getId())).orElse(Collections.emptyList())
+                post -> {
+                    List<UserRate> userRates = new ArrayList<>();
+                    applicantMap.get(post.getId()).forEach(applicant ->
+                            userRates.addAll(userRateRepository.findAllByApplicantId(applicant.getId()))
+                    );
+                    return userRates;
+                }
         ));
     }
 
