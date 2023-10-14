@@ -154,4 +154,7 @@ public class ApplicantService {
     private boolean isMatchedUser(Long userId, Post post) {
         return Objects.equals(post.getUser().getId(), userId);
     }
+
+    public void rateUser(Long applicantId, ApplicantRequest.RateDto requestDto) {
+    }
 }

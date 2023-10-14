@@ -8,4 +8,12 @@ public class ApplicantRequest {
             @NotNull
             Boolean status
     ){}
+
+    public record RateDto(
+            @NotNull
+            Long targetId,
+            @NotNull
+            Integer rating
+    ) {
+    }
 }
