@@ -155,6 +155,36 @@ public class ApplicantService {
         return Objects.equals(post.getUser().getId(), userId);
     }
 
-    public void rateUser(Long applicantId, ApplicantRequest.RateDto requestDto) {
+    @Transactional
+    public void rateUser(Long userId, Long applicantId, ApplicantRequest.RateDto requestDto) {
+        var applicant = getApplicantWithPost(applicantId);
+
+        var isMine = Objects.equals(applicant.getUser().getId(), userId);
+        var isAccept = applicant.getStatus();
+        var isAvailable = applicant.getPost().getIsClose() && LocalDateTime.now().isAfter(applicant.getPost().getStartTime());
+
+        if (!isMine) throw new Exception403("자신의 신청이 아닙니다.");
+        if (!(isAccept && isAvailable)) throw new Exception400("등록할 수 있는 상태가 아닙니다.");
+
+        var targetApplicant = applicantRepository.findByUserIdAndPostId(requestDto.targetId(), applicant.getPost().getId()).orElse(null);
+
+        var checkTarget = targetApplicant != null && !Objects.equals(targetApplicant.getUser().getId(), userId) && targetApplicant.getStatus();
+        if (!checkTarget) {
+            throw new Exception400("잘못된 요청입니다.");
+        }
+        
+        userRateRepository.findAllByApplicantId(applicantId).forEach(userRate -> {
+            if (Objects.equals(userRate.getUser().getId(), requestDto.targetId())) throw new Exception400("이미 등록되었습니다.");
+        });
+
+        var targetUser = userRepository.findById(requestDto.targetId()).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
+
+        var rate = UserRate.builder()
+                .applicant(applicant)
+                .user(targetUser)
+                .starCount(requestDto.rating())
+                .build();
+
+        userRateRepository.save(rate);
     }
 }

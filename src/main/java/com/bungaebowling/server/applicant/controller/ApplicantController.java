@@ -63,7 +63,7 @@ public class ApplicantController {
                                       @PathVariable String postId,
                                       @PathVariable Long applicantId,
                                       @RequestBody @Valid ApplicantRequest.RateDto requestDto, Errors errors) {
-        applicantService.rateUser(applicantId, requestDto);
+        applicantService.rateUser(userDetails.getId(), applicantId, requestDto);
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 }
