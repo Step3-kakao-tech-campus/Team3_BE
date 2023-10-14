@@ -45,7 +45,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     void deleteAllByUserIdAndOpponentUserId(Long userId, Long opponentId);
 
 
-    List<Message> findAllByUserId(Long userId);
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Message m SET m.isRead = true WHERE m.user.id = :userId AND m.opponentUser.id = :opponentId AND m.isRead = false")
     void updateIsReadTrueByUserIdAndOpponentUserId(Long userId, Long opponentId);
