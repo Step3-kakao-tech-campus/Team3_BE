@@ -45,7 +45,7 @@ public class ApplicantService {
 
         Long participantNumber = applicantRepository.countByPostId(post.getId());
         Long currentNumber = applicantRepository.countByPostIdAndIsStatusTrue(post.getId());
-        List<Applicant> applicants = loadApplicants(cursorRequest, post.getId());
+        List<Applicant> applicants = loadApplicants(cursorRequest, post.getId(), userId);
         Long lastKey = getLastKey(applicants);
 
         var ratings = applicants.stream().map(applicant ->
@@ -62,14 +62,14 @@ public class ApplicantService {
                 ratings);
     }
 
-    private List<Applicant> loadApplicants(CursorRequest cursorRequest, Long postId) {
+    private List<Applicant> loadApplicants(CursorRequest cursorRequest, Long postId, Long userId) {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
 
-        if(!cursorRequest.hasKey()){
-            return applicantRepository.findAllByPostIdOrderByIdDesc(postId, pageable);
-        }else{
-            return applicantRepository.findAllByPostIdLessThanOrderByIdDesc(cursorRequest.key(), postId, pageable);
+        if (!cursorRequest.hasKey()) {
+            return applicantRepository.findAllByPostIdAndUserIdNotOrderByIdDesc(postId, userId, pageable);
+        } else {
+            return applicantRepository.findAllByPostIdAndUserIdNotLessThanOrderByIdDesc(cursorRequest.key(), postId, userId, pageable);
         }
     }
 
@@ -120,8 +120,9 @@ public class ApplicantService {
 
     public ApplicantResponse.CheckStatusDto checkStatus(Long userId, Long postId){
         Applicant applicant = applicantRepository.findByUserIdAndPostId(userId, postId).orElse(null);
-        boolean isApplicantPresent  = applicant != null;
-        return new ApplicantResponse.CheckStatusDto(isApplicantPresent , isApplicantPresent  && applicant.getStatus());
+        boolean isApplicantPresent = applicant != null;
+        Long applicantId = isApplicantPresent ? applicant.getId() : null;
+        return new ApplicantResponse.CheckStatusDto(applicantId, isApplicantPresent, isApplicantPresent && applicant.getStatus());
     }
 
     private User getUser(Long userId) {

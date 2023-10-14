@@ -54,12 +54,12 @@ public class ApplicantResponse {
                     );
                 }
             }
-
         }
     }
 
     public record CheckStatusDto(
-            Boolean isApplied, //신청됨
-            Boolean isAccepted //수락됨
+            Long applicantId,
+            Boolean isApplied, //신청 여부
+            Boolean isAccepted //수락 여부
     ) {}
 }
