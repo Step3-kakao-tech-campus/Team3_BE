@@ -4735,14 +4735,115 @@ VALUES
 -- 비밀번호는 test12!@
 INSERT INTO user_tb (name, email, password, district_id, role)
 VALUES ('김볼링', 'test@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
-       ('볼링볼링', 'test1@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER');
+       ('볼링볼링', 'test1@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('박볼', 'test3@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링링', 'test4@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('볼링링', 'test5@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼', 'test6@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링륑', 'test7@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('주주', 'test8@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('son', 'test9@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼2', 'test10@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('볼링링1', 'test11@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('볼스', 'test12@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링2', 'test13@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링3', 'test14@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링4', 'test15@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링5', 'test16@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링6', 'test17@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링7', 'test18@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링8', 'test19@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링9', 'test20@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링10', 'test21@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링11', 'test22@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링12', 'test23@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링13', 'test24@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링14', 'test25@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('김볼링링15', 'test26@test.net', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER');
 
-INSERT INTO post_tb (title, user_id, district_id, start_time, due_time, content)
-VALUES ('불금 볼링 점수 내기 하실 분~', 1, 1, '2023-12-01', '2023-11-29', '볼링 점수 내기합시다.');
+INSERT INTO post_tb (title, user_id, district_id, start_time, due_time, content, is_close)
+VALUES ('불금 볼링 점수 내기 하실 분~', 1, 1, '2023-12-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 1, 469, '2023-09-01', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 1, 469, '2023-09-08', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 1, 469, '2023-09-08', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 1, 469, '2023-08-05', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 2, 3, '2023-09-01', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 2, 4, '2023-09-01', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 2, 4, '2023-09-01', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 2, 4, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 2, 1, '2023-09-01', '2023-11-29', '볼링 점수 내기합시다.', false),
+       ('불금 볼링 점수 내기 하실 분~', 3, 1, '2023-10-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 3, 1, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 3, 1, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 3, 1, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 3, 1, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 4, 469, '2023-10-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 4, 469, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 4, 469, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 4, 469, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', true),
+       ('불금 볼링 점수 내기 하실 분~', 4, 469, '2023-08-01', '2023-11-29', '볼링 점수 내기합시다.', true);
 
-INSERT INTO applicant_tb (status, user_id, post_id)
-VALUES (true, 1, 1);
+INSERT INTO applicant_tb (user_id, post_id, status)
+VALUES (1, 1, true),
+       (1, 2, true),
+       (1, 3, true),
+       (1, 4, true),
+       (1, 5, true),
+       (2, 6, true),
+       (2, 7, true),
+       (2, 8, true),
+       (2, 9, true),
+       (2, 10, true),
+       (3, 11, true),
+       (3, 12, true),
+       (3, 13, true),
+       (3, 14, true),
+       (3, 15, true),
+       (4, 16, true),
+       (4, 17, true),
+       (4, 18, true),
+       (4, 19, true),
+       (4, 20, true),
+       -- 여기까지 자신의 모집글에 자동 신청
+       (1, 6, true),
+       (1, 7, false),
+       (1, 8, false),
+       (1, 9, false),
+       (1, 10, false),
+       (1, 11, false),
+       (1, 12, false),
+       (1, 13, false),
+       (1, 14, false),
+       (1, 15, false),
+       (1, 16, true),
+       (1, 17, true),
+       (1, 18, true),
+       (1, 19, true),
+       (1, 20, true),
+       (2, 1, true),
+       (3, 2, true),
+       (4, 1, true),
+       (5, 1, true),
+       (11, 6, true),
+       (7, 6, true),
+       (8, 6, true),
+       (9, 6, true),
+       (10, 6, true);
 
 INSERT INTO comment_tb (post_id, user_id, parent_id, content)
 VALUES (1, 2, null, '저 해도 되나요?'),
        (1, 1, 1, '신청해주세요~');
+
+INSERT INTO score_tb (user_id, post_id, score_num)
+VALUES (1, 6, 100),
+       (1, 1, 150),
+       (1, 6, 45);
+
+INSERT INTO user_rate_tb(applicant_id, user_id, star_count)
+VALUES (1, 2, 5),
+       (1, 4, 5),
+       (1, 5, 5),
+       (20, 1, 5),
+       (19, 1, 5),
+       (18, 1, 4),
+       (17, 1, 1);
