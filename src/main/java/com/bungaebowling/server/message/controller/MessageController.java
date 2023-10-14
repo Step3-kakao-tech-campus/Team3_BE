@@ -20,35 +20,35 @@ public class MessageController {
 
     // 대화방(쪽지) 목록 조회
     @GetMapping("/opponents")
-    public ResponseEntity<ApiUtils.Response> getOpponents(CursorRequest cursorRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<?> getOpponents(CursorRequest cursorRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
         MessageResponse.GetOpponentsDto response = messageService.getOpponents(cursorRequest, userDetails.getId());
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     // 일대일 대화방 쪽지 조회
     @GetMapping("/opponents/{opponentId}")
-    public ResponseEntity<ApiUtils.Response> getMessagesAndUpdateToRead(CursorRequest cursorRequest, @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long opponentId) {
+    public ResponseEntity<?> getMessagesAndUpdateToRead(CursorRequest cursorRequest, @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long opponentId) {
         MessageResponse.GetMessagesDto response = messageService.getMessagesAndUpdateToRead(cursorRequest, userDetails.getId(), opponentId);
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     // 쪽지 보내기
     @PostMapping("/opponents/{opponentId}")
-    public ResponseEntity<ApiUtils.Response> sendMessage(@RequestBody @Valid MessageRequest.SendMessageDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long opponentId) {
+    public ResponseEntity<?> sendMessage(@RequestBody @Valid MessageRequest.SendMessageDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long opponentId) {
         messageService.sendMessage(requestDto, userDetails.getId(), opponentId);
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 
     // 쪽지함 삭제
     @DeleteMapping("/opponents/{opponentId}")
-    public ResponseEntity<ApiUtils.Response> deleteMessagesByOpponentId(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long opponentId) {
+    public ResponseEntity<?> deleteMessagesByOpponentId(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long opponentId) {
         messageService.deleteMessagesByOpponentId(userDetails.getId(), opponentId);
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 
     // 쪽지 개별 삭제
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<ApiUtils.Response> deleteMessageById(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long messageId) {
+    public ResponseEntity<?> deleteMessageById(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long messageId) {
         messageService.deleteMessageById(userDetails.getId(), messageId);
         return ResponseEntity.ok().body(ApiUtils.success());
     }
