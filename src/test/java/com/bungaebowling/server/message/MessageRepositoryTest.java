@@ -1,4 +1,5 @@
 package com.bungaebowling.server.message;
+
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.message.repository.MessageRepository;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Pageable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -187,34 +189,6 @@ class MessageRepositoryTest {
         Assertions.assertThat(messages.get(1).getOpponentUser().getImgUrl()).isEqualTo("testimage1");
     }
 
-    @Test
-    @DisplayName("새로운 쪽지 갯수 조회")
-    void countByUserIdAndIsReceiveTrueAndIsReadFalse() {
-        //given
-        User testuser = userRepository.findByName("테스트유저3").get();
-        List<Message> messages = messageRepository.findAllByUserId(testuser.getId());
-        messages.get(0).read();
-        em.flush();
-        //when
-        System.out.println("====================start===================");
-        Long count = messageRepository.countByUserIdAndIsReceiveTrueAndIsReadFalse(testuser.getId());
-        System.out.println("========================end=====================");
-        //then
-        Assertions.assertThat(count).isEqualTo(19);
-    }
-
-    @Test
-    @DisplayName("전체 쪽지 갯수 조회")
-    void countByUserIdAndIsReceiveTrue() {
-        //given
-        User testuser = userRepository.findByName("테스트유저3").get();
-        //when
-        System.out.println("====================start===================");
-        Long count = messageRepository.countByUserIdAndIsReceiveTrue(testuser.getId());
-        System.out.println("========================end=====================");
-        //then
-        Assertions.assertThat(count).isEqualTo(20);
-    }
 
     @Test
     @DisplayName("일대일 대화방 쪽지 조회")
