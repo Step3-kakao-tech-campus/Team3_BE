@@ -1,4 +1,5 @@
 package com.bungaebowling.server.message.repository;
+
 import com.bungaebowling.server.message.Message;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -6,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 
@@ -13,27 +15,22 @@ import java.util.List;
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
 
-
     @Query("SELECT m " +
             "FROM Message m " +
             "JOIN FETCH m.opponentUser oppUser " +
-            "WHERE m.id " +
-            "IN (SELECT MAX(m2.id) FROM Message m2 WHERE m2.user.id = :userId GROUP BY m2.opponentUser.id) " +
-            "And (:key IS NULL OR m.id < :key)"+
+            "WHERE m.id IN (SELECT MAX(m2.id) FROM Message m2 WHERE m2.user.id = :userId " +
+            "GROUP BY m2.opponentUser.id) " +
+            "And (:key IS NULL OR m.id < :key)" +
             "ORDER BY m.id DESC")
-    List<Message> findLatestMessagesPerOpponentByUserId(@Param("userId") Long userId,@Param("key") Long key, Pageable pageable);
+    List<Message> findLatestMessagesPerOpponentByUserId(@Param("userId") Long userId, @Param("key") Long key, Pageable pageable);
 
-
-
-    @Query("SELECT count(m) " +
+    @Query("SELECT m.opponentUser.id, COUNT(m) " +
             "FROM Message m " +
-            "WHERE m.user.id = :userId AND m.isRead = false And m.isReceive = true ")
-    Long countByUserIdAndIsReceiveTrueAndIsReadFalse(@Param("userId") Long userId);
-
-    @Query("SELECT count(m) " +
-            "FROM Message m " +
-            "WHERE m.user.id = :userId And m.isReceive = true ")
-    Long countByUserIdAndIsReceiveTrue(@Param("userId") Long userId);
+            "WHERE m.user.id = :userId AND m.isRead = false And m.isReceive = true " +
+            "And (:key IS NULL OR m.id < :key) " +
+            "GROUP BY m.opponentUser.id " +
+            "ORDER BY MAX(m.id) DESC")
+    List<Long[]> countUnreadMessagesWithOpponents(@Param("userId") Long userId, @Param("key") Long key, Pageable pageable);
 
 
     @Query("SELECT m " +
