@@ -16,11 +16,11 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
     @Query("SELECT a FROM Applicant a WHERE a.user.id = :userId AND a.post.id = :postId")
     Optional<Applicant> findByUserIdAndPostId(@Param("userId") Long userId, @Param("postId") Long postId);
 
-    @Query("SELECT a FROM Applicant a JOIN FETCH a.user u WHERE a.post.id = :postId ORDER BY a.id DESC")
-    List<Applicant> findAllByPostIdOrderByIdDesc(@Param("postId") Long postId, Pageable pageable);
+    @Query("SELECT a FROM Applicant a JOIN FETCH a.user u WHERE a.post.id = :postId AND u.id != :userId ORDER BY a.id DESC")
+    List<Applicant> findAllByPostIdAndUserIdNotOrderByIdDesc(@Param("postId") Long postId, @Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT a FROM Applicant a JOIN FETCH a.user u WHERE a.post.id = :postId AND a.id < :key ORDER BY a.id DESC")
-    List<Applicant> findAllByPostIdLessThanOrderByIdDesc(@Param("key") Long key, @Param("postId") Long postId, Pageable pageable);
+    @Query("SELECT a FROM Applicant a JOIN FETCH a.user u WHERE a.post.id = :postId AND u.id != :userId AND a.id < :key ORDER BY a.id DESC")
+    List<Applicant> findAllByPostIdAndUserIdNotLessThanOrderByIdDesc(@Param("key") Long key, @Param("postId") Long postId, @Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT count(a) FROM Applicant a WHERE a.post.id = :postId AND a.status = true")
     Long countByPostIdAndIsStatusTrue(@Param("postId") Long postId);
