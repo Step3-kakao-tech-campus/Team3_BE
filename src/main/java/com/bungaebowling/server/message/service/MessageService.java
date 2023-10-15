@@ -33,7 +33,7 @@ public class MessageService {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
 
-        userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
+       getUser(userId);
 
         List<Message> messages = messageRepository.findLatestMessagesPerOpponentByUserId(userId, cursorRequest.key(), pageable);
 
@@ -54,11 +54,9 @@ public class MessageService {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
 
-        if (userId.equals(opponentId)) {
-            throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");
-        }
-        User opponentUser = userRepository.findById(opponentId).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
+        userCheck(userId, opponentId);
 
+        User opponentUser = getUser(opponentId);
         messageRepository.updateIsReadTrueByUserIdAndOpponentUserId(userId, opponentId);
 
         List<Message> messages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(userId, opponentId, cursorRequest.key(), pageable);
@@ -69,31 +67,44 @@ public class MessageService {
 
     @Transactional
     public void sendMessage(MessageRequest.SendMessageDto requestDto, Long userId, Long opponentId) {
-        if (userId.equals(opponentId)){throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");}
-        User user = userRepository.findById(userId).orElseThrow(()->new Exception404("존재하지 않는 유저입니다."));
-        User opponentUser = userRepository.findById(opponentId).orElseThrow(()->new Exception404("존재하지 않는 유저입니다."));
+        userCheck(userId, opponentId);
+        User user = getUser(userId);
+        User opponentUser = getUser(opponentId);
 
-        Message userMessage = requestDto.toEntity(user,opponentUser,false,true);
-        Message opponentMessage = requestDto.toEntity(opponentUser,user,true,false);
+        Message userMessage = requestDto.toEntity(user, opponentUser, false, true);
+        Message opponentMessage = requestDto.toEntity(opponentUser, user, true, false);
         messageRepository.save(userMessage);
         messageRepository.save(opponentMessage);
     }
 
     @Transactional
     public void deleteMessagesByOpponentId(Long userId, Long opponentId) {
-        if (userId.equals(opponentId)){throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");}
-        userRepository.findById(userId).orElseThrow(()->new Exception404("존재하지 않는 유저입니다."));
+        userCheck(userId, opponentId);
+        getUser(userId);
 
-        messageRepository.deleteAllByUserIdAndOpponentUserId(userId,opponentId);
+        messageRepository.deleteAllByUserIdAndOpponentUserId(userId, opponentId);
     }
-    
+
     @Transactional
     public void deleteMessageById(Long userId, Long messageId) {
-        Message message = messageRepository.findById(messageId).orElseThrow(()-> new Exception404("존재하지 않는 쪽지입니다."));
-        if (!userId.equals(message.getUser().getId())){
+        Message message = messageRepository.findById(messageId).orElseThrow(() -> new Exception404("존재하지 않는 쪽지입니다."));
+        if (!userId.equals(message.getUser().getId())) {
             throw new Exception400("해당 유저의 쪽지가 아닙니다.");
         }
 
         messageRepository.deleteById(messageId);
     }
+
+    public void userCheck(Long userId, Long opponentId) {
+        if (userId.equals(opponentId)) {
+            throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");
+        }
+    }
+
+    public User getUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
+        return user;
+    }
+
+
 }
