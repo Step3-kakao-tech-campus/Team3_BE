@@ -43,16 +43,16 @@ public class ApplicantService {
         if (!isMatchedUser(userId, post))
             throw new Exception403("자신의 모집글이 아닙니다.");
 
-        Long participantNumber = applicantRepository.countByPostId(post.getId());
-        Long currentNumber = applicantRepository.countByPostIdAndIsStatusTrue(post.getId());
+        Long participantNumber = applicantRepository.countByPostId(post.getId(), userId);
+        Long currentNumber = applicantRepository.countByPostIdAndUserIdNotAndIsStatusTrue(post.getId(), userId);
         List<Applicant> applicants = loadApplicants(cursorRequest, post.getId(), userId);
         Long lastKey = getLastKey(applicants);
 
         var ratings = applicants.stream().map(applicant ->
-                     userRateRepository.findAllByUserId(applicant.getUser().getId()).stream()
-                            .mapToInt(UserRate::getStarCount)
-                            .average().orElse(0.0)
-                ).toList();
+                userRateRepository.findAllByUserId(applicant.getUser().getId()).stream()
+                        .mapToInt(UserRate::getStarCount)
+                        .average().orElse(0.0)
+        ).toList();
 
         return ApplicantResponse.GetApplicantsDto.of(
                 cursorRequest.next(lastKey, DEFAULT_SIZE),
