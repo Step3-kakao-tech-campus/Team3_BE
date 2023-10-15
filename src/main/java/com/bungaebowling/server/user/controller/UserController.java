@@ -18,11 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -97,71 +96,42 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> getUsers() {
-        CursorRequest cursorRequest = new CursorRequest(1L, 20);
-        List<UserResponse.GetUsersDto.UserDto> userDtos = new ArrayList<>();
-        var userDto1 = new UserResponse.GetUsersDto.UserDto(
-                1L,
-                "김볼링12",
-                4.8,
-                null
-        );
-        userDtos.add(userDto1);
-
-        var userDto2 = new UserResponse.GetUsersDto.UserDto(
-                2L,
-                "12김볼링",
-                4.8,
-                null
-        );
-        userDtos.add(userDto2);
-
-        var userDto3 = new UserResponse.GetUsersDto.UserDto(
-                3L,
-                "12김볼링24",
-                4.8,
-                null
-        );
-        userDtos.add(userDto3);
-
-        var getUsersDto = new UserResponse.GetUsersDto(cursorRequest, userDtos);
-
-        var response = ApiUtils.success(getUsersDto);
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<?> getUsers(CursorRequest cursorRequest, @RequestParam(value = "name") String name) {
+        UserResponse.GetUsersDto response = userService.getUsers(cursorRequest, name);
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUser(@PathVariable Long userId) {
-        var getUserDto = new UserResponse.GetUserDto(
-                "김볼링",
-                190,
-                4.8,
-                "부산광역시 진구 부전동",
-                null
-        );
+        UserResponse.GetUserDto response = userService.getUser(userId);
+        return ResponseEntity.ok().body(ApiUtils.success(response));
+    }
 
-        var response = ApiUtils.success(getUserDto);
-        return ResponseEntity.ok().body(response);
+    @GetMapping("/users/mine")
+    public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails){
+        UserResponse.GetMyProfileDto response = userService.getMyProfile(userDetails.getId());
+        return ResponseEntity.ok().body(ApiUtils.success(response));
+    }
+
+    @PutMapping("/users/mine")
+    public ResponseEntity<?> updateMyProfile(@RequestPart(required = false) MultipartFile profileImage,
+                                        @RequestPart @Valid UserRequest.UpdateMyProfileDto request, Errors errors,
+                                        @AuthenticationPrincipal CustomUserDetails userDetails){
+        userService.updateMyProfile(profileImage, request, userDetails.getId());
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
     @GetMapping("/users/{userId}/records")
     public ResponseEntity<?> getUserRecords(@PathVariable Long userId) {
-        var getRecordDto = new UserResponse.GetRecordDto(
-                20,
-                160,
-                180,
-                110
-        );
-
-        var response = ApiUtils.success(getRecordDto);
-        return ResponseEntity.ok().body(response);
+        UserResponse.GetRecordDto response = userService.getRecords(userId);
+        return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     private static ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true) // javascript 접근 방지
                 .secure(true) // https 통신 강제
-		.sameSite("None")
+		        .sameSite("None")
                 .maxAge(JwtProvider.getRefreshExpSecond())
                 .build();
     }

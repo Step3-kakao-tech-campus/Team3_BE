@@ -35,16 +35,13 @@ public class Score {
     @Range(min = 0, max = 300, message = "점수는 0~300까지의 수만 입력 가능합니다.")
     private Integer scoreNum;
 
-    @Column(name = "result_image_url")
     private String resultImageUrl;
 
-    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
 
     // 브라우저 상의 이미지 접근 경로
-    @Column(name = "access_image_url")
     private String accessImageUrl;
 
     @Builder
@@ -57,10 +54,15 @@ public class Score {
         this.accessImageUrl = accessImageUrl;
     }
 
-    public void update(Integer scoreNum, String resultImageUrl, LocalDateTime updatedAt, String accessImageUrl){
+    public void updateWithFile(Integer scoreNum, String resultImageUrl, LocalDateTime updatedAt, String accessImageUrl){
         this.scoreNum = scoreNum;
         this.resultImageUrl = resultImageUrl;
         this.createdAt = updatedAt;
         this.accessImageUrl = accessImageUrl;
+    }
+
+    public void updateWithoutFile(Integer scoreNum, LocalDateTime updatedAt){
+        this.scoreNum = scoreNum;
+        this.createdAt = updatedAt;
     }
 }

@@ -19,6 +19,17 @@ public class CommonUtils {
         return "user" + WORD_SEPARATOR + userId + CATEGORY_PREFIX + postId + CATEGORY_PREFIX + category + CATEGORY_PREFIX + fileName + TIME_SEPARATOR + now + fileExtension;
     }
 
+    //프로필 등록
+    public static String buildProfileFileName(Long userId, String category, LocalDateTime time, String originalFileName) {
+        int fileExtensionIndex = originalFileName.lastIndexOf(FILE_EXTENSION_SEPARATOR); // 파일 확장자 구분선
+        String fileExtension = originalFileName.substring(fileExtensionIndex); // 파일 확장자
+        String fileName = originalFileName.substring(0, fileExtensionIndex); // 파일 이름
+        String now = String.valueOf(time); // 파일 업로드 시간
+
+        //작성자(user_1)/profile/파일명/파일업로드시간.확장자
+        return "user" + WORD_SEPARATOR + userId + CATEGORY_PREFIX + category + CATEGORY_PREFIX + fileName + TIME_SEPARATOR + now + fileExtension;
+    }
+
     // 단일 파일용 -> 이것도 사용 용도에 맞게 custom해서 써야 함
     public static String buildFileName(String category, String originalFileName) {
         int fileExtensionIndex = originalFileName.lastIndexOf(FILE_EXTENSION_SEPARATOR); // 파일 확장자 구분선

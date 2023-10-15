@@ -23,13 +23,12 @@ public class UserRate {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applicant_id", referencedColumnName = "id")
+    @JoinColumn(name = "applicant_id")
     private Applicant applicant;
-
 
     @Column(nullable = false)
     private Integer starCount;

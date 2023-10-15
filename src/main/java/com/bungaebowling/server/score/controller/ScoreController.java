@@ -10,8 +10,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/posts")
@@ -31,10 +29,10 @@ public class ScoreController {
     public ResponseEntity<?> createScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
-            @RequestParam(name = "scores") List<Integer> scoreNums,
-            @RequestParam(name = "images") List<MultipartFile> images
+            @RequestParam(name = "score") Integer scoreNum,
+            @RequestParam(name = "image", required = false) MultipartFile image
     ) {
-        scoreService.create(userDetails.getId(), postId, scoreNums, images);
+        scoreService.create(userDetails.getId(), postId, scoreNum, image);
 
         return ResponseEntity.ok().body(ApiUtils.success());
     }
@@ -45,7 +43,7 @@ public class ScoreController {
             @PathVariable Long postId,
             @PathVariable Long scoreId,
             @RequestParam(name = "score") Integer scoreNum,
-            @RequestParam(name = "image") MultipartFile image
+            @RequestParam(name = "image", required = false) MultipartFile image
     ) {
         scoreService.update(userDetails.getId(), postId, scoreId, scoreNum, image);
 

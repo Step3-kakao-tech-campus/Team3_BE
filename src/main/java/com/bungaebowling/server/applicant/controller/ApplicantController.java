@@ -22,14 +22,14 @@ public class ApplicantController {
 
     @GetMapping
     public ResponseEntity<?> getApplicants(@PathVariable Long postId, CursorRequest cursorRequest,
-                                           @AuthenticationPrincipal CustomUserDetails userDetails){
+                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
         ApplicantResponse.GetApplicantsDto getApplicantsDto = applicantService.getApplicants(userDetails.getId(), postId, cursorRequest);
         var response = ApiUtils.success(getApplicantsDto);
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<?> create(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         applicantService.create(userDetails.getId(), postId);
         return ResponseEntity.ok(ApiUtils.success());
     }
@@ -38,7 +38,7 @@ public class ApplicantController {
     public ResponseEntity<?> accept(@AuthenticationPrincipal CustomUserDetails userDetails,
                                     @PathVariable String postId,
                                     @PathVariable Long applicantId,
-                                    @RequestBody @Valid ApplicantRequest.UpdateDto requestDto, Errors errors){
+                                    @RequestBody @Valid ApplicantRequest.UpdateDto requestDto, Errors errors) {
         applicantService.accept(userDetails.getId(), applicantId, requestDto);
         return ResponseEntity.ok(ApiUtils.success());
     }
@@ -46,8 +46,24 @@ public class ApplicantController {
     @DeleteMapping("/{applicantId}")
     public ResponseEntity<?> reject(@AuthenticationPrincipal CustomUserDetails userDetails,
                                     @PathVariable String postId,
-                                    @PathVariable Long applicantId){
+                                    @PathVariable Long applicantId) {
         applicantService.reject(userDetails.getId(), applicantId);
         return ResponseEntity.ok(ApiUtils.success());
+    }
+
+    @GetMapping("/check-status")
+    public ResponseEntity<?> checkStatus(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                         @PathVariable Long postId) {
+        var response = applicantService.checkStatus(userDetails.getId(), postId);
+        return ResponseEntity.ok(ApiUtils.success(response));
+    }
+
+    @PostMapping("/{applicantId}/rating")
+    public ResponseEntity<?> rateUser(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                      @PathVariable String postId,
+                                      @PathVariable Long applicantId,
+                                      @RequestBody @Valid ApplicantRequest.RateDto requestDto, Errors errors) {
+        applicantService.rateUser(userDetails.getId(), applicantId, requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 }

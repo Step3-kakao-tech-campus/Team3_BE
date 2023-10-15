@@ -1,15 +1,16 @@
 package com.bungaebowling.server.user;
 
 import com.bungaebowling.server.city.country.district.District;
-import com.bungaebowling.server.user.rate.UserRate;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -36,6 +37,9 @@ public class User {
     @Column(length = 200)
     private String imgUrl;
 
+    @Column(length = 200)
+    private String resultImageUrl;
+
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'ROLE_PENDING'")
     @Column(length = 50)
@@ -58,5 +62,18 @@ public class User {
 
     public void updateRole(Role role) {
         this.role = role;
+    }
+
+    public void updateProfile(String name, District district, String resultImageUrl, String accessImageUrl){
+        this.name = Objects.nonNull(name) ? name : this.name;
+        this.district = Objects.nonNull(district) ? district : this.district;
+        this.imgUrl = Objects.nonNull(accessImageUrl) ? accessImageUrl : this.imgUrl;
+        this.resultImageUrl = Objects.nonNull(resultImageUrl) ? resultImageUrl : this.resultImageUrl;
+    }
+
+    public String getDistrictName() {
+        return this.district.getCountry().getCity().getName() + " " +
+                this.district.getCountry().getName() + " "  +
+                this.district.getName();
     }
 }

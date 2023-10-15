@@ -1,25 +1,29 @@
 package com.bungaebowling.server.message.dto;
+
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.message.Message;
 import com.bungaebowling.server.user.User;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class MessageResponse {
     public record GetOpponentsDto(
-            Long countNew,
-            Long countAll,
             CursorRequest nextCursorRequest,
-
             List<MessageResponse.GetOpponentsDto.MessageDto> messages
     ) {
-        public static MessageResponse.GetOpponentsDto of(CursorRequest nextCursorRequest, Long countNew, Long countAll, List<Message> messages){
+        public static MessageResponse.GetOpponentsDto of(CursorRequest nextCursorRequest, List<Message> messages, Map<Long, Long> countNews) {
+
+
             return new MessageResponse.GetOpponentsDto(
-                    countNew,
-                    countAll,
                     nextCursorRequest,
-                    messages.stream().map(MessageResponse.GetOpponentsDto.MessageDto::new).toList()
+                    messages.stream()
+                            .map(message -> new MessageDto(message, countNews.getOrDefault(message.getOpponentUser().getId(), 0L)))
+                            .toList()
             );
+
+
         }
 
         public record MessageDto(
@@ -27,20 +31,20 @@ public class MessageResponse {
                 String opponentUserName,
                 String opponentUserProfileImage,
                 String recentMessage,
-                Boolean isNew
+                Long countNew
         ) {
-
-            public MessageDto(Message message) {
+            public MessageDto(Message message, Long countNew) {
                 this(
                         message.getOpponentUser().getId(),
                         message.getOpponentUser().getName(),
                         message.getOpponentUser().getImgUrl(),
                         message.getContent(),
-                        !message.getIsRead() && message.getIsReceive()
+                        countNew
                 );
             }
         }
     }
+
 
     public record GetMessagesDto(
             CursorRequest nextCursorRequest,

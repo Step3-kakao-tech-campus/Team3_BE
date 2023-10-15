@@ -17,6 +17,7 @@ public class UserRequest {
 
     public record JoinDto(
             @Size(max = 20, message = "최대 20자까지 입니다.")
+            @Pattern(regexp = "[a-zA-Z0-9가-힣]*", message = "한글, 영문, 숫자만 입력 가능합니다.")
             String name,
             @NotEmpty @Size(max = 100, message = "최대 100자까지 입니다.")
             @Pattern(regexp = "^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$", message = "이메일 형식이 아닙니다.")
@@ -41,4 +42,11 @@ public class UserRequest {
             @NotEmpty
             String token
     ) {}
+
+    public record UpdateMyProfileDto(
+            @Size(max = 20, message = "최대 20자까지 입니다.")
+            @Pattern(regexp = "[a-zA-Z0-9가-힣]*", message = "한글, 영문, 숫자만 입력 가능합니다.")
+            String name,
+            Long districtId
+    ){}
 }

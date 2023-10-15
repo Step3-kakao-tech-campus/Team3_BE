@@ -1,8 +1,11 @@
 package com.bungaebowling.server.post.repository;
 
 import com.bungaebowling.server.post.Post;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificationExecutor<Post> {
 
     //ToDo: 마감시간이 현재시간보다 앞일때 AND 연산 추가하기
     @Query("SELECT p " +
@@ -114,4 +117,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
             "WHERE p.isClose = FALSE AND p.dueTime > CURRENT_TIMESTAMP AND p.id < :key ORDER BY p.id DESC")
     List<Post> findAllByIdLessThanWithCloseFalseOrderByIdDesc(@Param("key") Long key, Pageable pageable);
+
+    Page<Post> findAll(Specification<Post> spec, Pageable pageable);
 }

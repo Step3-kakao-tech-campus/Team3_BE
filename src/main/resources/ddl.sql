@@ -1,13 +1,14 @@
 CREATE TABLE user_tb
 (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name        VARCHAR(20)  NOT NULL UNIQUE,
-    email       VARCHAR(100) NOT NULL UNIQUE,
-    password    VARCHAR(100) NOT NULL,
-    district_id BIGINT       NOT NULL,
-    img_url     VARCHAR(200),
-    role        VARCHAR(50) DEFAULT 'ROLE_PENDING' CHECK (role IN ('ROLE_PENDING', 'ROLE_USER')),
-    created_at  TIMESTAMP   DEFAULT now()
+    id               BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name             VARCHAR(20)  NOT NULL UNIQUE,
+    email            VARCHAR(100) NOT NULL UNIQUE,
+    password         VARCHAR(100) NOT NULL,
+    district_id      BIGINT       NOT NULL,
+    img_url          VARCHAR(200),
+    result_image_url VARCHAR(200),
+    role             VARCHAR(50) DEFAULT 'ROLE_PENDING' CHECK (role IN ('ROLE_PENDING', 'ROLE_USER')),
+    created_at       TIMESTAMP   DEFAULT now()
 );
 
 CREATE TABLE post_tb
@@ -51,7 +52,7 @@ CREATE TABLE score_tb
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id          BIGINT NOT NULL,
     post_id          BIGINT NOT NULL,
-    score_num            INT    NOT NULL,
+    score_num        INT    NOT NULL,
     result_image_url VARCHAR(100),
     access_image_url VARCHAR(200),
     created_at       TIMESTAMP DEFAULT now()
