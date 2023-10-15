@@ -75,6 +75,6 @@ public class PostSpecification {
     }
 
     public static Specification<Post> postIdLessThan(Long postId) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.lessThan(root.get("postId"), postId);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.lessThan(root.get("id"), postId);
     }
 }
