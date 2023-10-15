@@ -91,7 +91,10 @@ public class Post {
     }
 
     public Long getCurrentNumber() { // 현재 모집된 사람 수
-        return applicants.stream().filter(Applicant::getStatus).count();
+        return applicants.stream()
+                .distinct()
+                .filter(Applicant::getStatus)
+                .count();
     }
 
 
