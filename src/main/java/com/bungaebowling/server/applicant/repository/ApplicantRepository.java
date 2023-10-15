@@ -26,7 +26,7 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
     Long countByPostIdAndUserIdNotAndIsStatusTrue(@Param("postId") Long postId, @Param("userId") Long userId);
 
     @Query("SELECT count(a) FROM Applicant a WHERE a.post.id = :postId AND a.user.id != :userId")
-    Long countByPostId(@Param("postId") Long postId, @Param("userId") Long userId);
+    Long countByPostIdAndUserIdNot(@Param("postId") Long postId, @Param("userId") Long userId);
 
     @Query("SELECT a FROM Applicant a JOIN FETCH a.post p WHERE a.id = :id")
     Optional<Applicant> findByIdJoinFetchPost(@Param("id") Long id);
