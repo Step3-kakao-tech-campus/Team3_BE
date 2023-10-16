@@ -16,7 +16,6 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificationExecutor<Post> {
 
-    //ToDo: 마감시간이 현재시간보다 앞일때 AND 연산 추가하기
     @Query("SELECT p " +
             "FROM Post p " +
             "JOIN FETCH p.user u JOIN FETCH p.district d JOIN FETCH d.country c JOIN FETCH c.city ci " +
