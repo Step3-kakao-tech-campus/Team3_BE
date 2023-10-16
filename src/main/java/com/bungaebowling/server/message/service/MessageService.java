@@ -100,7 +100,6 @@ public class MessageService {
     }
 
     public User getUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
-        return user;
+        return userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
     }
 }
