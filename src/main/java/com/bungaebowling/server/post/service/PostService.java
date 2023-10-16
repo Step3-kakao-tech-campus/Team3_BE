@@ -187,7 +187,7 @@ public class PostService {
 
         Map<Long, List<Score>> scoreMap = getScoreMap(userId, posts);
         Map<Long, List<Applicant>> applicantMap = getApplicantMap(posts);
-        Map<Long, List<User>> memberMap = getMemberMap(userId, posts, applicantMap);
+        Map<Long, List<User>> memberMap = getMemberMap(posts, applicantMap);
         Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts, applicantMap);
         Map<Long, Long> applicantIdMap = getApplicantIdMap(userId, posts, applicantMap);
 
@@ -235,12 +235,11 @@ public class PostService {
         ));
     }
 
-    private Map<Long, List<User>> getMemberMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+    private Map<Long, List<User>> getMemberMap(List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
                 post -> applicantMap.get(post.getId()).stream()
                         .map(Applicant::getUser)
-                        .filter(user -> !user.getId().equals(userId))
                         .toList()
         ));
     }
