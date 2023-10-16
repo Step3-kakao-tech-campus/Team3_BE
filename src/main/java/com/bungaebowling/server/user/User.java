@@ -64,7 +64,7 @@ public class User {
         this.role = role;
     }
 
-    public void updateProfile(String name, District district, String resultImageUrl, String accessImageUrl){
+    public void updateProfile(String name, District district, String resultImageUrl, String accessImageUrl) {
         this.name = Objects.nonNull(name) ? name : this.name;
         this.district = Objects.nonNull(district) ? district : this.district;
         this.imgUrl = Objects.nonNull(accessImageUrl) ? accessImageUrl : this.imgUrl;
@@ -73,7 +73,7 @@ public class User {
 
     public String getDistrictName() {
         return this.district.getCountry().getCity().getName() + " " +
-                this.district.getCountry().getName() + " "  +
+                this.district.getCountry().getName() + " " +
                 this.district.getName();
     }
 }

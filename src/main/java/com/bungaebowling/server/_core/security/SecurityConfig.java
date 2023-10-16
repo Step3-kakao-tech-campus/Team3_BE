@@ -87,7 +87,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/api/email-verification")).hasAnyRole("USER", "PENDING")
                         .requestMatchers(new AntPathRequestMatcher("/api/posts/**"),
                                 new AntPathRequestMatcher("/api/applicants/**"),
-                                new AntPathRequestMatcher( "/api/messages/**")).hasRole("USER")
+                                new AntPathRequestMatcher("/api/messages/**")).hasRole("USER")
                         .anyRequest().permitAll()
         );
 

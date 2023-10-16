@@ -59,5 +59,6 @@ public class ApplicantResponse {
             Long applicantId,
             Boolean isApplied, //신청 여부
             Boolean isAccepted //수락 여부
-    ) {}
+    ) {
+    }
 }

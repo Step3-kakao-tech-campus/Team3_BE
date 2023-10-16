@@ -37,7 +37,7 @@ public class ApplicantService {
 
     private final UserRateRepository userRateRepository;
 
-    public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
+    public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest) {
         Post post = getPost(postId);
 
         if (!isMatchedUser(userId, post))
@@ -72,7 +72,7 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void create(Long userId, Long postId){
+    public void create(Long userId, Long postId) {
         User user = getUser(userId);
         Post post = getPost(postId);
 
@@ -83,7 +83,7 @@ public class ApplicantService {
             throw new Exception400("이미 신청된 사용자입니다.");
         });
 
-        if(isPastDueTime(post)){
+        if (isPastDueTime(post)) {
             throw new Exception400("이미 마감된 모집글입니다.");
         }
 
@@ -95,7 +95,7 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void accept(Long userId, Long applicantId, ApplicantRequest.UpdateDto requestDto){
+    public void accept(Long userId, Long applicantId, ApplicantRequest.UpdateDto requestDto) {
         Applicant applicant = getApplicantWithPost(applicantId);
 
         if (!(Objects.equals(userId, applicant.getPost().getUser().getId())))
@@ -105,7 +105,7 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void reject(Long userId, Long applicantId){
+    public void reject(Long userId, Long applicantId) {
         Applicant applicant = getApplicantWithPost(applicantId);
         var isPostOwner = Objects.equals(userId, applicant.getPost().getUser().getId());
         var isApplicantOwner = Objects.equals(userId, applicant.getUser().getId());
@@ -116,7 +116,7 @@ public class ApplicantService {
         applicantRepository.delete(applicant);
     }
 
-    public ApplicantResponse.CheckStatusDto checkStatus(Long userId, Long postId){
+    public ApplicantResponse.CheckStatusDto checkStatus(Long userId, Long postId) {
         Applicant applicant = applicantRepository.findByUserIdAndPostId(userId, postId).orElse(null);
         boolean isApplicantPresent = applicant != null;
         Long applicantId = isApplicantPresent ? applicant.getId() : null;
@@ -170,7 +170,7 @@ public class ApplicantService {
         if (!checkTarget) {
             throw new Exception400("잘못된 요청입니다.");
         }
-        
+
         userRateRepository.findAllByApplicantId(applicantId).forEach(userRate -> {
             if (Objects.equals(userRate.getUser().getId(), requestDto.targetId())) throw new Exception400("이미 등록되었습니다.");
         });

@@ -9,11 +9,12 @@ import jakarta.validation.constraints.Size;
 public class UserRequest {
 
     public record LoginDto(
-            @NotEmpty @Size(max=100, message = "최대 100자까지 입력 가능합니다.")
+            @NotEmpty @Size(max = 100, message = "최대 100자까지 입력 가능합니다.")
             String email,
             @NotEmpty @Size(max = 64, message = "최대 64자까지 입력 가능합니다.")
             String password
-    ) {}
+    ) {
+    }
 
     public record JoinDto(
             @Size(max = 20, message = "최대 20자까지 입니다.")
@@ -41,12 +42,14 @@ public class UserRequest {
     public record ConfirmEmailDto(
             @NotEmpty
             String token
-    ) {}
+    ) {
+    }
 
     public record UpdateMyProfileDto(
             @Size(max = 20, message = "최대 20자까지 입니다.")
             @Pattern(regexp = "[a-zA-Z0-9가-힣]*", message = "한글, 영문, 숫자만 입력 가능합니다.")
             String name,
             Long districtId
-    ){}
+    ) {
+    }
 }

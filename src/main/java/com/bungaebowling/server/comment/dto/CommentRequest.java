@@ -10,7 +10,7 @@ public class CommentRequest {
     public record CreateDto(
             @NotBlank(message = "내용은 필수 입력 값 입니다.")
             String content
-    ){
+    ) {
         public Comment createComment(User user, Post post) {
             return Comment.builder()
                     .post(post)
@@ -32,5 +32,6 @@ public class CommentRequest {
     public record EditDto(
             @NotBlank(message = "내용은 필수 입력 값 입니다.")
             String content
-    ){ }
+    ) {
+    }
 }

@@ -60,5 +60,4 @@ public class ScoreController {
 
         return ResponseEntity.ok(ApiUtils.success());
     }
-
 }

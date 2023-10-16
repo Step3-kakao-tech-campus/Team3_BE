@@ -14,7 +14,6 @@ import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -45,11 +44,11 @@ public class ScoreService {
     public void create(Long userId, Long postId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
 
-        if(!post.getIsClose()) {
+        if (!post.getIsClose()) {
             throw new Exception400("아직 점수를 등록할 수 없습니다.");
         }
 
-        if(scoreNum == null) {
+        if (scoreNum == null) {
             throw new Exception400("점수를 입력해주세요.");
         }
 
@@ -57,7 +56,7 @@ public class ScoreService {
             throw new Exception400("점수는 1개씩 등록해주세요.");
         }
 
-        if(image.isEmpty()) { // null 체크 - null인 경우
+        if (image.isEmpty()) { // null 체크 - null인 경우
             saveScoreWithoutImage(userId, post, scoreNum);
         } else { // null 체크 - null이 아닌 경우
             saveScoreWithImage(userId, post, scoreNum, image);
@@ -94,7 +93,7 @@ public class ScoreService {
         User user = findUserById(userId);
         LocalDateTime createTime = LocalDateTime.now();
 
-        String imageUrl = awsS3Service.uploadScoreFile(user.getId(), post.getId(),"score", createTime, image);
+        String imageUrl = awsS3Service.uploadScoreFile(user.getId(), post.getId(), "score", createTime, image);
 
         Score score = Score.builder()
                 .scoreNum(scoreNum)
@@ -112,7 +111,7 @@ public class ScoreService {
     public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
 
-        if(!post.isMine(userId)) {
+        if (!post.isMine(userId)) {
             throw new Exception403("점수 정보에 대한 수정 권한이 없습니다.");
         }
 
@@ -123,13 +122,13 @@ public class ScoreService {
         Score score = findScoreById(scoreId);
         LocalDateTime updateTime = LocalDateTime.now();
 
-        if(image.isEmpty()) { // null 체크 - null인 경우
+        if (image.isEmpty()) { // null 체크 - null인 경우
             score.updateWithoutFile(scoreNumCheck, updateTime);
         } else { // null 체크 - null이 아닌 경우
             if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
                 awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
             }
-            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId,"score", updateTime, image);
+            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
             String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
             score.updateWithFile(scoreNumCheck, imageurl, updateTime, accessImageUrl);
@@ -145,7 +144,7 @@ public class ScoreService {
     public void delete(Long userId, Long postId, Long scoreId) {
         Post post = findPostById(postId);
 
-        if(!post.isMine(userId)) {
+        if (!post.isMine(userId)) {
             throw new Exception403("점수 정보에 대한 삭제 권한이 없습니다.");
         }
 
@@ -158,5 +157,4 @@ public class ScoreService {
         awsS3Service.deleteFile(score.getResultImageUrl());
         scoreRepository.delete(score);
     }
-
 }

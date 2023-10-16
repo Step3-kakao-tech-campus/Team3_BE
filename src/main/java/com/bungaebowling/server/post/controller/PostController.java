@@ -29,7 +29,7 @@ public class PostController {
             @RequestParam(value = "districtId", required = false) Long districtId,
             @RequestParam(value = "all", defaultValue = "true") Boolean all
     ) {
-        PostResponse.GetPostsDto response = postService.readPosts(cursorRequest,cityId, countryId, districtId, all);
+        PostResponse.GetPostsDto response = postService.readPosts(cursorRequest, cityId, countryId, districtId, all);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
@@ -100,5 +100,4 @@ public class PostController {
 
         return ResponseEntity.ok().body(ApiUtils.success());
     }
-
 }

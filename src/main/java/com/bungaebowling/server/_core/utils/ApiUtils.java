@@ -31,6 +31,7 @@ public class ApiUtils {
     public static <T> Response<T> error(String errorMessage, HttpStatus status) {
         return new Response<>(status.value(), null, errorMessage);
     }
+
     public static <T> Response<T> error(String errorMessage, Integer status) {
         return new Response<>(status, null, errorMessage);
     }
@@ -39,6 +40,7 @@ public class ApiUtils {
             int status,
             T response,
             String errorMessage
-    ) {}
+    ) {
+    }
 
 }

@@ -27,7 +27,7 @@ public class UserResponse {
                 Double rating,
                 String profileImage
         ) {
-            public UserDto(User user, Double rating){
+            public UserDto(User user, Double rating) {
                 this(
                         user.getId(),
                         user.getName(),
@@ -44,7 +44,7 @@ public class UserResponse {
             Double rating,
             String address,
             String profileImage
-    ){
+    ) {
         public GetUserDto(User user, Double rating, Integer average) {
             this(
                     user.getName(),
@@ -66,7 +66,7 @@ public class UserResponse {
             Long districtId,
             String address,
             String profileImage
-    ){
+    ) {
         public GetMyProfileDto(User user, Double rating, Integer average) {
             this(
                     user.getId(),
@@ -88,16 +88,19 @@ public class UserResponse {
             Integer average,
             Integer maximum,
             Integer minimum
-    ) {}
+    ) {
+    }
 
     public record JoinDto(
             Long savedId,
             String access,
             String refresh
-    ) {}
+    ) {
+    }
 
     public record TokensDto(
             String access,
             String refresh
-    ) {}
+    ) {
+    }
 }
