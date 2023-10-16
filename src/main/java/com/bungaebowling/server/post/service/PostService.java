@@ -53,13 +53,12 @@ public class PostService {
         User user = findUserById(userId);
 
         Long districtId = request.districtId();
-        
+
         var savedPost = savePost(user, districtId, request);
 
         saveApplicant(savedPost, user);
 
         return new PostResponse.GetPostPostDto(savedPost.getId());
-
     }
 
     private Post savePost(User user, Long districtId, PostRequest.CreatePostDto request) {
@@ -69,7 +68,6 @@ public class PostService {
         Post post = request.toEntity(user, district);
 
         return postRepository.save(post);
-
     }
 
     private void saveApplicant(Post post, User user) {
@@ -105,7 +103,6 @@ public class PostService {
         Long lastKey = getLastKey(posts);
 
         return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts);
-
     }
 
     private List<Post> findPosts(CursorRequest cursorRequest, Long cityId, Long countryId, Long districtId, Boolean all) {
@@ -114,7 +111,7 @@ public class PostService {
 
         Pageable pageable = PageRequest.of(0, size);
 
-        if(!cursorRequest.hasKey()) {
+        if (!cursorRequest.hasKey()) {
 
             if (districtId != null)
                 return all ? postRepository.findAllByDistrictIdOrderByIdDesc(districtId, pageable) : postRepository.findAllByDistrictIdWithCloseFalseOrderByIdDesc(districtId, pageable);
@@ -133,7 +130,6 @@ public class PostService {
             return all ? postRepository.findAllByCityIdAndIdLessThanOrderByIdDesc(cityId, cursorRequest.key(), pageable) : postRepository.findAllByCityIdAndIdLessThanWithCloseFalseOrderByIdDesc(cityId, cursorRequest.key(), pageable);
 
         return all ? postRepository.findAllByIdLessThanOrderByIdDesc(cursorRequest.key(), pageable) : postRepository.findAllByIdLessThanWithCloseFalseOrderByIdDesc(cursorRequest.key(), pageable);
-
     }
 
     @Transactional
@@ -154,7 +150,6 @@ public class PostService {
                 request.dueTime(),
                 editedAt
         );
-
     }
 
     @Transactional
@@ -167,7 +162,6 @@ public class PostService {
         }
 
         deletePost(post);
-
     }
 
     @Transactional
@@ -204,7 +198,7 @@ public class PostService {
                 .and(cityIdEqual(cityId))
                 .and(createdAtBetween(start, end));
 
-        if(cursorRequest.hasKey()){
+        if (cursorRequest.hasKey()) {
             spec = spec.and(postIdLessThan(cursorRequest.key()));
         }
         return postRepository.findAll(spec, pageable).getContent();
@@ -271,5 +265,4 @@ public class PostService {
     private static Long getLastKey(List<Post> posts) {
         return posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
     }
-
 }

@@ -15,15 +15,12 @@ public class MessageResponse {
     ) {
         public static MessageResponse.GetOpponentsDto of(CursorRequest nextCursorRequest, List<Message> messages, Map<Long, Long> countNews) {
 
-
             return new MessageResponse.GetOpponentsDto(
                     nextCursorRequest,
                     messages.stream()
                             .map(message -> new MessageDto(message, countNews.getOrDefault(message.getOpponentUser().getId(), 0L)))
                             .toList()
             );
-
-
         }
 
         public record MessageDto(
@@ -45,7 +42,6 @@ public class MessageResponse {
         }
     }
 
-
     public record GetMessagesDto(
             CursorRequest nextCursorRequest,
             String opponentUserName,
@@ -53,7 +49,7 @@ public class MessageResponse {
             List<MessageResponse.GetMessagesDto.MessageDto> messages
     ) {
         public static MessageResponse.GetMessagesDto of(CursorRequest nextCursorRequest, List<Message> messages, User opponentUser) {
-            return new MessageResponse.GetMessagesDto(nextCursorRequest,opponentUser.getName(), opponentUser.getImgUrl(), messages.stream().map(MessageResponse.GetMessagesDto.MessageDto::new).toList());
+            return new MessageResponse.GetMessagesDto(nextCursorRequest, opponentUser.getName(), opponentUser.getImgUrl(), messages.stream().map(MessageResponse.GetMessagesDto.MessageDto::new).toList());
         }
 
         public record MessageDto(

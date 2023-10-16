@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name="applicant_tb", uniqueConstraints = {
+@Table(name = "applicant_tb", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"user_id", "post_id"})
 })
 public class Applicant {
@@ -47,7 +47,7 @@ public class Applicant {
         this.createdAt = createdAt;
     }
 
-    public void updateStatus(Boolean status){
+    public void updateStatus(Boolean status) {
         this.status = status;
     }
 }

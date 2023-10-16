@@ -15,10 +15,12 @@ import java.util.Arrays;
 public class GlobalValidationHandler {
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping)")
-    public void postMapping() {}
+    public void postMapping() {
+    }
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PutMapping)")
-    public void putMapping() {}
+    public void putMapping() {
+    }
 
     @Before("postMapping() || putMapping()")
     public void validationAdvice(JoinPoint jp) {
@@ -27,7 +29,7 @@ public class GlobalValidationHandler {
         Arrays.stream(args)
                 .filter(arg -> arg instanceof Errors)
                 .forEach(arg -> {
-                    Errors errors = (Errors)  arg;
+                    Errors errors = (Errors) arg;
 
                     if (errors.hasErrors()) {
                         var error = errors.getFieldErrors().get(0);

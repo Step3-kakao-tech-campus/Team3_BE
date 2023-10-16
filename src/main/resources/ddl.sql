@@ -70,11 +70,11 @@ CREATE TABLE user_rate_tb
 CREATE TABLE message_tb
 (
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id          BIGINT    NOT NULL,
-    opponent_user_id BIGINT    NOT NULL,
-    is_receive       BOOLEAN   NOT NULL,
+    user_id          BIGINT  NOT NULL,
+    opponent_user_id BIGINT  NOT NULL,
+    is_receive       BOOLEAN NOT NULL,
     is_read          BOOLEAN   DEFAULT false,
-    content          TEXT      NOT NULL,
+    content          TEXT    NOT NULL,
     created_at       TIMESTAMP DEFAULT now()
 );
 

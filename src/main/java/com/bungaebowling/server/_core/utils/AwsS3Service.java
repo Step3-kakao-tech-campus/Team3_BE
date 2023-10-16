@@ -107,11 +107,11 @@ public class AwsS3Service {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
 
-        try(InputStream inputStream = multipartFile.getInputStream()) {
+        try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(
                     new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
                             .withCannedAcl(CannedAccessControlList.PublicRead));
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new Exception500("파일 업로드에 실패하였습니다.");
         }
     }
@@ -120,7 +120,7 @@ public class AwsS3Service {
     public void deleteFile(String fileName) {
         try {
             amazonS3Client.deleteObject(bucketName, fileName);
-        } catch(AmazonS3Exception e) {
+        } catch (AmazonS3Exception e) {
             throw new Exception500("파일 삭제에 실패하였습니다.");
         }
     }
@@ -129,15 +129,15 @@ public class AwsS3Service {
     private String fileWhiteList(String fileName) {
         // 대소문자 구별안하게
         String caseInSensitiveFileName = fileName.toLowerCase();
-        if(caseInSensitiveFileName == null) {
+        if (caseInSensitiveFileName == null) {
             throw new Exception400("잘못된 파일 업로드 요청입니다.");
         }
 
-        if(
+        if (
                 caseInSensitiveFileName.endsWith(".png") ||
-                caseInSensitiveFileName.endsWith(".gif") ||
-                caseInSensitiveFileName.endsWith(".jpeg") ||
-                caseInSensitiveFileName.endsWith(".jpg")
+                        caseInSensitiveFileName.endsWith(".gif") ||
+                        caseInSensitiveFileName.endsWith(".jpeg") ||
+                        caseInSensitiveFileName.endsWith(".jpg")
         ) {
             return caseInSensitiveFileName;
         } else {

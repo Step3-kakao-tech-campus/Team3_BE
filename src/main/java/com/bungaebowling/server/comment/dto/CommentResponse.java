@@ -6,7 +6,6 @@ import com.bungaebowling.server.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -23,8 +22,9 @@ public class CommentResponse {
                     IntStream.range(0, comments.size())
                             .mapToObj(index -> new CommentDto(comments.get(index), childComments.get(index)))
                             .toList()
-                    );
+            );
         }
+
         public record CommentDto(
                 Long id,
                 Long userId,
@@ -48,6 +48,7 @@ public class CommentResponse {
                         childComments.stream().map(ChildCommentDto::new).toList()
                 );
             }
+
             public record ChildCommentDto(
                     Long id,
                     Long userId,
@@ -74,5 +75,6 @@ public class CommentResponse {
 
     }
 
-    public record CreateDto(Long id) { }
+    public record CreateDto(Long id) {
+    }
 }

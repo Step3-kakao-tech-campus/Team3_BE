@@ -83,7 +83,7 @@ public class JwtProvider {
         try {
             DecodedJWT decodedJwt = JWT.require(Algorithm.HMAC512(secret)).build()
                     .verify(jwt.replace(TOKEN_PREFIX, ""));
-            
+
             if (!Objects.equals(decodedJwt.getClaim("type").asString(), type)) {
                 throw new JWTVerificationException("토큰 검증 실패");
             }

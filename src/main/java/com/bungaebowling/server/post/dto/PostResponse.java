@@ -13,8 +13,8 @@ import java.util.Map;
 public class PostResponse {
 
     public record GetPostsDto(
-        CursorRequest nextCursorRequest,
-        List<PostDto> posts
+            CursorRequest nextCursorRequest,
+            List<PostDto> posts
     ) {
         public static GetPostsDto of(CursorRequest nextCursorRequest, List<Post> posts) {
             return new GetPostsDto(nextCursorRequest, posts.stream().map(PostDto::new).toList());
@@ -53,6 +53,7 @@ public class PostResponse {
         public GetPostDto(Post post) {
             this(new PostDto(post));
         }
+
         public record PostDto(
                 Long id,
                 String title,
@@ -168,8 +169,7 @@ public class PostResponse {
         }
     }
 
-    public record GetPostPostDto( // Post시 postId 반환용
-            Long id
-    ) {
+    // Post시 postId 반환용
+    public record GetPostPostDto(Long id) {
     }
 }

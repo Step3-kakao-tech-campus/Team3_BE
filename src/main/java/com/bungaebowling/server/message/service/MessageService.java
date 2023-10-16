@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,13 +26,13 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-    public static final int DEFAULT_SIZE= 20;
+    public static final int DEFAULT_SIZE = 20;
 
     public MessageResponse.GetOpponentsDto getOpponents(CursorRequest cursorRequest, Long userId) {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
 
-       getUser(userId);
+        getUser(userId);
 
         List<Message> messages = messageRepository.findLatestMessagesPerOpponentByUserId(userId, cursorRequest.key(), pageable);
 
@@ -47,7 +46,6 @@ public class MessageService {
         Long lastKey = messages.isEmpty() ? CursorRequest.NONE_KEY : messages.get(messages.size() - 1).getId();
         return MessageResponse.GetOpponentsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), messages, countNews);
     }
-
 
     @Transactional
     public MessageResponse.GetMessagesDto getMessagesAndUpdateToRead(CursorRequest cursorRequest, Long userId, Long opponentId) {
@@ -102,9 +100,6 @@ public class MessageService {
     }
 
     public User getUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
-        return user;
+        return userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
     }
-
-
 }

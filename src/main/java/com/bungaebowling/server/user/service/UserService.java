@@ -160,7 +160,7 @@ public class UserService {
         user.updateRole(Role.ROLE_USER);
     }
 
-    public UserResponse.GetUsersDto getUsers(CursorRequest cursorRequest, String name){
+    public UserResponse.GetUsersDto getUsers(CursorRequest cursorRequest, String name) {
         List<User> users = loadUsers(cursorRequest, name);
         List<Double> ratings = users.stream()
                 .map(user -> getRating(user.getId()))
@@ -172,14 +172,14 @@ public class UserService {
     private List<User> loadUsers(CursorRequest cursorRequest, String name) {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
-        if(!cursorRequest.hasKey()){
+        if (!cursorRequest.hasKey()) {
             return userRepository.findAllByNameContainingOrderByIdDesc(name, pageable);
-        }else{
+        } else {
             return userRepository.findAllByNameContainingAndIdLessThanOrderByIdDesc(name, cursorRequest.key(), pageable);
         }
     }
 
-    public UserResponse.GetUserDto getUser(Long userId){
+    public UserResponse.GetUserDto getUser(Long userId) {
         User user = findUserById(userId);
         double rating = getRating(userId);
         List<Score> scores = findScoreByUserId(userId);
@@ -237,7 +237,7 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new Exception404("유저를 찾을 수 없습니다."));
     }
 
-    private List<Score> findScoreByUserId(Long userId){
+    private List<Score> findScoreByUserId(Long userId) {
         return scoreRepository.findAllByUserId(userId);
     }
 

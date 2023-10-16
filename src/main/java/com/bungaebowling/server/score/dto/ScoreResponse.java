@@ -12,6 +12,7 @@ public class ScoreResponse {
         public static GetScoresDto of(List<Score> scores) {
             return new GetScoresDto(scores.stream().map(ScoreDto::new).collect(Collectors.toList()));
         }
+
         public record ScoreDto(
                 Long id,
                 Integer scoreNum,
