@@ -28,12 +28,12 @@ public class ApiUtils {
         return new Response<>(status, null, null);
     }
 
-    public static <T> Response<T> error(String errorMessage, HttpStatus status) {
-        return new Response<>(status.value(), null, errorMessage);
+    public static <T> Response<T> error(String errorMessage, T errorCode, HttpStatus status) {
+        return new Response<>(status.value(), errorCode, errorMessage);
     }
 
-    public static <T> Response<T> error(String errorMessage, Integer status) {
-        return new Response<>(status, null, errorMessage);
+    public static <T> Response<T> error(String errorMessage, T errorCode, Integer status) {
+        return new Response<>(status, errorCode, errorMessage);
     }
 
     public record Response<T>(
