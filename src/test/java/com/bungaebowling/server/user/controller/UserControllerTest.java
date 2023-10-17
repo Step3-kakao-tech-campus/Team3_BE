@@ -69,7 +69,31 @@ class UserControllerTest {
     }
 
     @Test
-    void login() {
+    @DisplayName("로그인 테스트 - 성공")
+    void login() throws Exception {
+        //given
+        UserRequest.LoginDto loginDto = new UserRequest.LoginDto("test@test.com", "test12!@");
+
+        String requestBody = om.writeValueAsString(loginDto);
+
+        BDDMockito.given(redisTemplate.opsForValue()).willReturn(valueOperations);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .post("/api/login")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
     }
 
     @Test
