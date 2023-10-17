@@ -1,7 +1,7 @@
 package com.bungaebowling.server.post.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception403;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
@@ -63,7 +63,7 @@ public class PostService {
 
     private Post savePost(User user, Long districtId, PostRequest.CreatePostDto request) {
 
-        District district = districtRepository.findById(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));
+        District district = districtRepository.findById(districtId).orElseThrow(() -> new CustomException(ErrorCode.REGION_NOT_FOUND));
 
         Post post = request.toEntity(user, district);
 
@@ -82,13 +82,13 @@ public class PostService {
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional
     public PostResponse.GetPostDto read(Long postId) {
 
-        Post post = postRepository.findByIdJoinFetch(postId).orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다.")); // post 찾는 코드 빼서 함수화
+        Post post = postRepository.findByIdJoinFetch(postId).orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND)); // post 찾는 코드 빼서 함수화
 
         post.addViewCount(); // 조회수 1 증가
 
@@ -138,7 +138,7 @@ public class PostService {
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
         if (!post.isMine(userId)) {
-            throw new Exception403("모집글에 대한 수정 권한이 없습니다.");
+            throw new CustomException(ErrorCode.POST_UPDATE_NOT_ALLOWED);
         }
 
         LocalDateTime editedAt = LocalDateTime.now();
@@ -158,7 +158,7 @@ public class PostService {
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
         if (!post.isMine(userId)) {
-            throw new Exception403("모집글에 대한 삭제 권한이 없습니다.");
+            throw new CustomException(ErrorCode.POST_DELETE_NOT_ALLOWED);
         }
 
         deletePost(post);
@@ -169,7 +169,7 @@ public class PostService {
         Post post = findById(postId);
 
         if (!post.isMine(userId)) {
-            throw new Exception403("모집글에 대한 마감 권한이 없습니다.");
+            throw new CustomException(ErrorCode.POST_CLOSE_NOT_ALLOWED);
         }
 
         post.updateIsClose(request.isClose());
@@ -225,7 +225,7 @@ public class PostService {
                         .filter(applicant -> userId.equals(applicant.getUser().getId()))
                         .map(Applicant::getId)
                         .findFirst()
-                        .orElseThrow(() -> new Exception404("존재하지 않는 신청입니다."))
+                        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND))
         ));
     }
 
@@ -259,7 +259,7 @@ public class PostService {
 
     private Post findById(Long postId) { // id로 post 찾는 로직 따로 분리
         return postRepository.findById(postId)
-                .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
     }
 
     private static Long getLastKey(List<Post> posts) {

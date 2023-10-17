@@ -5,7 +5,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.bungaebowling.server._core.errors.exception.client.Exception401;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server.user.User;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,7 +90,7 @@ public class JwtProvider {
             }
             return decodedJwt;
         } catch (JWTVerificationException e) {
-            throw new Exception401("토큰 검증 실패");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }
 }
