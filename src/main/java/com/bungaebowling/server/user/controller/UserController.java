@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +19,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 @Slf4j
@@ -37,11 +35,10 @@ public class UserController {
 
         var responseCookie = createRefreshTokenCookie(responseDto.refresh());
 
-        var response = ApiUtils.success(HttpStatus.CREATED);
-        return ResponseEntity.created(new URI("/api/users/" + responseDto.savedId()))
+        return ResponseEntity.ok()
                 .header(JwtProvider.HEADER, responseDto.access())
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                .body(response);
+                .body(ApiUtils.success());
     }
 
     @PostMapping("/login")
