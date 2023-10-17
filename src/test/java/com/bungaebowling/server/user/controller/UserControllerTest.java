@@ -1,7 +1,10 @@
 package com.bungaebowling.server.user.controller;
 
+import com.bungaebowling.server._core.security.CustomUserDetails;
+import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -15,6 +18,7 @@ import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -122,7 +126,31 @@ class UserControllerTest {
     }
 
     @Test
-    void reIssueTokens() {
+    @WithUserDetails(value = "김볼링")
+    @DisplayName("토큰 재발급 테스트 - 성공")
+    void reIssueTokens() throws Exception {
+        //given
+        var userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var refreshToken = JwtProvider.createRefresh(userDetails.user());
+
+        var refreshCookie = new Cookie("refreshToken", refreshToken);
+
+        BDDMockito.given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .post("/api/authentication")
+                        .cookie(refreshCookie)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
     }
 
     @Test

@@ -107,9 +107,9 @@ public class UserService {
     }
 
     public UserResponse.TokensDto reIssueTokens(String refreshToken) {
-        var decodedRefreshToekn = JwtProvider.verify(refreshToken, JwtProvider.TYPE_REFRESH);
+        var decodedRefreshToken = JwtProvider.verify(refreshToken, JwtProvider.TYPE_REFRESH);
 
-        var user = userRepository.findById(Long.valueOf(decodedRefreshToekn.getSubject())).orElseThrow(() ->
+        var user = userRepository.findById(Long.valueOf(decodedRefreshToken.getSubject())).orElseThrow(() ->
                 new CustomException(ErrorCode.UNKNOWN_SERVER_ERROR, "재발급 과정에서 오류가 발생했습니다."));
 
         return issueTokens(user);
