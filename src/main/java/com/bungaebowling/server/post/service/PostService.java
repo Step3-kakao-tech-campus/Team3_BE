@@ -138,7 +138,7 @@ public class PostService {
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
         if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.POST_UPDATE_NOT_ALLOWED);
+            throw new CustomException(ErrorCode.POST_UPDATE_PERMISSION_DENIED);
         }
 
         LocalDateTime editedAt = LocalDateTime.now();
@@ -158,7 +158,7 @@ public class PostService {
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
         if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.POST_DELETE_NOT_ALLOWED);
+            throw new CustomException(ErrorCode.POST_DELETE_PERMISSION_DENIED);
         }
 
         deletePost(post);
@@ -169,7 +169,7 @@ public class PostService {
         Post post = findById(postId);
 
         if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.POST_CLOSE_NOT_ALLOWED);
+            throw new CustomException(ErrorCode.POST_CLOSE_PERMISSION_DENIED);
         }
 
         post.updateIsClose(request.isClose());

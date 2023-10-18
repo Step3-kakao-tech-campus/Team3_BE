@@ -111,7 +111,7 @@ public class ScoreService {
         Post post = findPostById(postId);
 
         if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.SCORE_UPDATE_NOT_ALLOWED);
+            throw new CustomException(ErrorCode.SCORE_UPDATE_PERMISSION_DENIED);
         }
 
         Integer scoreNumCheck = Optional.ofNullable(scoreNum)
@@ -144,7 +144,7 @@ public class ScoreService {
         Post post = findPostById(postId);
 
         if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.SCORE_DELETE_NOT_ALLOWED);
+            throw new CustomException(ErrorCode.SCORE_DELETE_PERMISSION_DENIED);
         }
 
         Score score = findScoreById(scoreId);

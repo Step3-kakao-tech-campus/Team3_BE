@@ -93,7 +93,7 @@ public class CommentService {
         var comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!Objects.equals(comment.getUser().getId(), user.getId())) {
-            throw new CustomException(ErrorCode.COMMENT_UPDATE_FAILED);
+            throw new CustomException(ErrorCode.COMMENT_UPDATE_PERMISSION_DENIED);
         }
 
         comment.updateContent(requestDto.content());
@@ -105,7 +105,7 @@ public class CommentService {
         var comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!Objects.equals(comment.getUser().getId(), user.getId())) {
-            throw new CustomException(ErrorCode.COMMENT_DELETE_FAILED);
+            throw new CustomException(ErrorCode.COMMENT_DELETE_PERMISSION_DENIED);
         }
 
         comment.delete();

@@ -71,7 +71,7 @@ public class AwsS3Service {
         Long totalSize = 0L;
 
         if (multipartFiles.size() > 10) {
-            throw new CustomException(ErrorCode.FILE_SIZE_EXCEEDED, "파일은 최대 10개까지 올릴 수 있습니다.");
+            throw new CustomException(ErrorCode.FILE_UPLOAD_LIMIT_EXCEEDED, "파일은 최대 10개까지 올릴 수 있습니다.");
         }
 
         for (MultipartFile multipartFile : multipartFiles) {
@@ -130,7 +130,7 @@ public class AwsS3Service {
         // 대소문자 구별안하게
         String caseInSensitiveFileName = fileName.toLowerCase();
         if (caseInSensitiveFileName == null) {
-            throw new CustomException(ErrorCode.FILE_UPLOAD_REQUEST_NOT_ALLOWED);
+            throw new CustomException(ErrorCode.INVALID_FILE_UPLOAD_REQUEST);
         }
 
         if (
@@ -141,7 +141,7 @@ public class AwsS3Service {
         ) {
             return caseInSensitiveFileName;
         } else {
-            throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+            throw new CustomException(ErrorCode.INVALID_FILE_EXTENTION);
         }
     }
 }

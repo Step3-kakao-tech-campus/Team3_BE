@@ -87,7 +87,7 @@ public class MessageService {
     public void deleteMessageById(Long userId, Long messageId) {
         Message message = messageRepository.findById(messageId).orElseThrow(() -> new CustomException(ErrorCode.MESSAGE_NOT_FOUND));
         if (!userId.equals(message.getUser().getId())) {
-            throw new CustomException(ErrorCode.MESSAGE_DELETE_FAILED);
+            throw new CustomException(ErrorCode.MESSAGE_DELETE_PERMISSION_DENIED);
         }
 
         messageRepository.deleteById(messageId);
