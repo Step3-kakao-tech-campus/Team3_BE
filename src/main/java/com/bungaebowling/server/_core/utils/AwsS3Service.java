@@ -5,8 +5,8 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.server.Exception500;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,18 +71,18 @@ public class AwsS3Service {
         Long totalSize = 0L;
 
         if (multipartFiles.size() > 10) {
-            throw new Exception400("파일은 최대 10개까지 올릴 수 있습니다.");
+            throw new CustomException(ErrorCode.FILE_UPLOAD_LIMIT_EXCEEDED, "파일은 최대 10개까지 올릴 수 있습니다.");
         }
 
         for (MultipartFile multipartFile : multipartFiles) {
             if (multipartFile.getSize() > fileMaxSize) {
-                throw new Exception400("최대 10MB의 파일을 첨부 할 수 있습니다");
+                throw new CustomException(ErrorCode.FILE_SIZE_EXCEEDED, "최대 10MB의 파일을 첨부 할 수 있습니다");
             }
 
             totalSize += multipartFile.getSize();
 
             if (totalSize > totalFilesMaxSize) {
-                throw new Exception400("최대 총 100MB의 파일을 첨부 할 수 있습니다");
+                throw new CustomException(ErrorCode.FILE_SIZE_EXCEEDED, "최대 총 100MB의 파일을 첨부 할 수 있습니다");
             }
         }
 
@@ -112,7 +112,7 @@ public class AwsS3Service {
                     new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
                             .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
-            throw new Exception500("파일 업로드에 실패하였습니다.");
+            throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
         }
     }
 
@@ -121,7 +121,7 @@ public class AwsS3Service {
         try {
             amazonS3Client.deleteObject(bucketName, fileName);
         } catch (AmazonS3Exception e) {
-            throw new Exception500("파일 삭제에 실패하였습니다.");
+            throw new CustomException(ErrorCode.FILE_DELETE_FAILED);
         }
     }
 
@@ -130,7 +130,7 @@ public class AwsS3Service {
         // 대소문자 구별안하게
         String caseInSensitiveFileName = fileName.toLowerCase();
         if (caseInSensitiveFileName == null) {
-            throw new Exception400("잘못된 파일 업로드 요청입니다.");
+            throw new CustomException(ErrorCode.INVALID_FILE_UPLOAD_REQUEST);
         }
 
         if (
@@ -141,7 +141,7 @@ public class AwsS3Service {
         ) {
             return caseInSensitiveFileName;
         } else {
-            throw new Exception400("허용되지 않는 파일 확장자입니다.");
+            throw new CustomException(ErrorCode.INVALID_FILE_EXTENTION);
         }
     }
 }

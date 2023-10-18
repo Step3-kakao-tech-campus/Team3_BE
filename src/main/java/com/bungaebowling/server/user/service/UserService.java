@@ -1,8 +1,7 @@
 package com.bungaebowling.server.user.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
-import com.bungaebowling.server._core.errors.exception.server.Exception500;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server._core.utils.AwsS3Service;
 import com.bungaebowling.server._core.utils.CursorRequest;
@@ -65,17 +64,17 @@ public class UserService {
         try {
             districtId = Long.parseLong(requestDto.districtId());
         } catch (NumberFormatException e) {
-            throw new Exception400("숫자만 가능합니다.:districtId");
+            throw new CustomException(ErrorCode.INVALID_RUQUEST_DATA, "숫자만 가능합니다.:districtId");
         }
 
         if (userRepository.findByEmail(requestDto.email()).isPresent())
-            throw new Exception400("이미 존재하는 이메일입니다.");
+            throw new CustomException(ErrorCode.USER_EMAIL_DUPLICATED);
 
         if (userRepository.findByName(requestDto.name()).isPresent())
-            throw new Exception400("이미 존재하는 닉네임입니다.");
+            throw new CustomException(ErrorCode.USER_NAME_DUPLICATED);
 
         var district = districtRepository.findById(districtId).orElseThrow(() ->
-                new Exception404("존재하지 않는 행정구역 id입니다."));
+                new CustomException(ErrorCode.REGION_NOT_FOUND));
 
         var encodedPassword = passwordEncoder.encode(requestDto.password());
 
@@ -94,10 +93,10 @@ public class UserService {
 
     public UserResponse.TokensDto login(UserRequest.LoginDto requestDto) {
         var user = userRepository.findByEmail(requestDto.email()).orElseThrow(() ->
-                new Exception400("이메일 혹은 비밀번호가 일치하지 않습니다."));
+                new CustomException(ErrorCode.LOGIN_FAILED, "이메일 혹은 비밀번호가 일치하지 않습니다."));
 
         if (!passwordEncoder.matches(requestDto.password(), user.getPassword())) {
-            throw new Exception400("이메일 혹은 비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.LOGIN_FAILED, "이메일 혹은 비밀번호가 일치하지 않습니다.");
         }
 
         return issueTokens(user);
@@ -111,7 +110,7 @@ public class UserService {
         var decodedRefreshToekn = JwtProvider.verify(refreshToken, JwtProvider.TYPE_REFRESH);
 
         var user = userRepository.findById(Long.valueOf(decodedRefreshToekn.getSubject())).orElseThrow(() ->
-                new Exception500("재발급 과정에서 오류가 발생했습니다."));
+                new CustomException(ErrorCode.UNKNOWN_SERVER_ERROR, "재발급 과정에서 오류가 발생했습니다."));
 
         return issueTokens(user);
     }
@@ -147,7 +146,7 @@ public class UserService {
             helper.setText(text, true);
             javaMailSender.send(mimeMessage);
         } catch (Exception e) {
-            throw new Exception500("서버 이메일 전송 한도가 초과되었습니다. 내일 다시 시도해주세요.");
+            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
         }
     }
 
@@ -201,7 +200,7 @@ public class UserService {
 
         District district = request.districtId() == null ? null :
                 districtRepository.findById(request.districtId()).orElseThrow(
-                        () -> new Exception404("존재하지 않는 행정 구역입니다.")
+                        () -> new CustomException(ErrorCode.REGION_NOT_FOUND)
                 );
 
         if (profileImage == null) {
@@ -234,7 +233,7 @@ public class UserService {
     }
 
     private User findUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new Exception404("유저를 찾을 수 없습니다."));
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     private List<Score> findScoreByUserId(Long userId) {

@@ -1,6 +1,7 @@
 package com.bungaebowling.server._core.errors;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -33,7 +34,7 @@ public class GlobalValidationHandler {
 
                     if (errors.hasErrors()) {
                         var error = errors.getFieldErrors().get(0);
-                        throw new Exception400(
+                        throw new CustomException(ErrorCode.INVALID_RUQUEST_DATA,
                                 error.getDefaultMessage() + ":" + error.getField()
                         );
                     }
