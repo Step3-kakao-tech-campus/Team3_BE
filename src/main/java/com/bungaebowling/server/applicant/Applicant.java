@@ -28,15 +28,12 @@ public class Applicant {
     private Boolean status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", referencedColumnName = "id")
+    @JoinColumn(name = "post_id")
     private Post post;
-
-    //@OneToOne
-    //private UserRate userRate;
 
     @ColumnDefault("now()")
     private LocalDateTime createdAt;
