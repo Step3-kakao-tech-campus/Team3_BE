@@ -22,6 +22,6 @@ public class CustomException extends RuntimeException {
     }
 
     public ApiUtils.Response<?> body() {
-        return ApiUtils.error(message, errorCode, status());
+        return ApiUtils.error(message, errorCode);
     }
 }

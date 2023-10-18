@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> unknownServerError(Exception e) {
         log.error("unknown 에러 발생", e);
         var status = HttpStatus.INTERNAL_SERVER_ERROR;
-        var response = ApiUtils.error(e.getMessage(), ErrorCode.UNKNOWN_SERVER_ERROR, status);
+        var response = ApiUtils.error(e.getMessage(), ErrorCode.UNKNOWN_SERVER_ERROR);
         return ResponseEntity.status(status).body(response);
     }
 

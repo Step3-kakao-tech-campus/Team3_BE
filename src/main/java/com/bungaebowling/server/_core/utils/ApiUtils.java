@@ -1,5 +1,6 @@
 package com.bungaebowling.server._core.utils;
 
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public class ApiUtils {
@@ -28,13 +29,10 @@ public class ApiUtils {
         return new Response<>(status, null, null);
     }
 
-    public static <T> Response<T> error(String errorMessage, T errorCode, HttpStatus status) {
-        return new Response<>(status.value(), errorCode, errorMessage);
+    public static Response<ErrorCode> error(String errorMessage, ErrorCode errorCode) {
+        return new Response<>(errorCode.getHttpStatus().value(), errorCode, errorMessage);
     }
 
-    public static <T> Response<T> error(String errorMessage, T errorCode, Integer status) {
-        return new Response<>(status, errorCode, errorMessage);
-    }
 
     public record Response<T>(
             int status,
