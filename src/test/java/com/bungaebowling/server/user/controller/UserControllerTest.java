@@ -2,6 +2,7 @@ package com.bungaebowling.server.user.controller;
 
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
@@ -157,12 +158,57 @@ class UserControllerTest {
         );
     }
 
-    @Test
-    void sendVerification() {
-    }
+//    @Test
+//    @WithUserDetails(value = "최볼링")
+//    @DisplayName("인증 메일 발송 테스트 - 성공")
+//    void sendVerification() throws Exception {
+//        // when
+//        ResultActions resultActions = mvc.perform(
+//                MockMvcRequestBuilders
+//                        .post("/api/email-verification")
+//        );
+//
+//        // then
+//        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+//        Object json = om.readValue(responseBody, Object.class);
+//        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+//
+//        resultActions.andExpectAll(
+//                status().isOk(),
+//                jsonPath("$.status").value(200)
+//        );
+//    }
 
     @Test
-    void confirmEmail() {
+    @DisplayName("메일 인증 테스트")
+    void confirmEmail() throws Exception {
+        // given
+        User user = User.builder()
+                .id(2L)
+                .build();
+        var token = JwtProvider.createEmailVerification(user);
+
+        UserRequest.ConfirmEmailDto requestDto = new UserRequest.ConfirmEmailDto(token);
+
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .post("/api/email-confirm")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
     }
 
     @Test
