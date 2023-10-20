@@ -52,7 +52,7 @@ class UserControllerTest {
     private ValueOperations<String, String> valueOperations;
 
     @Test
-    @DisplayName("회원가입 테스트 - 성공")
+    @DisplayName("회원가입 테스트")
     void join() throws Exception {
         // given
         UserRequest.JoinDto joinDto = new UserRequest.JoinDto("testCode회원", "testCode@test.com", "testCode12!@", "1");
@@ -80,7 +80,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 테스트 - 성공")
+    @DisplayName("로그인 테스트")
     void login() throws Exception {
         //given
         UserRequest.LoginDto loginDto = new UserRequest.LoginDto("test@test.com", "test12!@");
@@ -109,7 +109,7 @@ class UserControllerTest {
 
     @Test
     @WithUserDetails(value = "김볼링")
-    @DisplayName("로그아웃 테스트 - 성공")
+    @DisplayName("로그아웃 테스트")
     void logout() throws Exception {
         // given
         BDDMockito.given(redisTemplate.delete(Mockito.anyString())).willReturn(null);
@@ -132,7 +132,7 @@ class UserControllerTest {
 
     @Test
     @WithUserDetails(value = "김볼링")
-    @DisplayName("토큰 재발급 테스트 - 성공")
+    @DisplayName("토큰 재발급 테스트")
     void reIssueTokens() throws Exception {
         //given
         var userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -160,7 +160,7 @@ class UserControllerTest {
 
 //    @Test
 //    @WithUserDetails(value = "최볼링")
-//    @DisplayName("인증 메일 발송 테스트 - 성공")
+//    @DisplayName("인증 메일 발송 테스트")
 //    void sendVerification() throws Exception {
 //        // when
 //        ResultActions resultActions = mvc.perform(
