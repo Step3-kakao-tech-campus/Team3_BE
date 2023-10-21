@@ -49,13 +49,14 @@ public class User {
     private LocalDateTime createdAt;
 
     @Builder
-    public User(Long id, String name, String email, String password, District district, String imgUrl, Role role, LocalDateTime createdAt) {
+    public User(Long id, String name, String email, String password, District district, String imgUrl, String resultImageUrl, Role role, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.district = district;
         this.imgUrl = imgUrl;
+        this.resultImageUrl = resultImageUrl;
         this.role = role;
         this.createdAt = createdAt;
     }

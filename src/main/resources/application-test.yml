@@ -1,0 +1,53 @@
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:h2:mem:test;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+      default_batch_fetch_size: 100
+    open-in-view: false
+  sql:
+    init:
+      encoding: utf-8
+      mode: never
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  jackson:
+    time-zone: Asia/Seoul
+  servlet:
+    multipart:
+      max-file-size: 10485760 # 10MB
+      max-request-size: 104857600 # 100MB
+
+logging:
+  level:
+    com.bungaebowling.server: DEBUG
+    org.hibernate:
+      SQL: DEBUG
+      orm.jdbc:
+        extract: TRACE
+        bind: TRACE
+
+bungaebowling:
+  token_exp:
+    access: 172800
+    refresh: 2592000
