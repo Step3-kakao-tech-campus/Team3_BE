@@ -57,8 +57,8 @@ public class PostResponse {
     public record GetPostDto(
             PostDto post
     ) {
-        public GetPostDto(Post post) {
-            this(new PostDto(post));
+        public GetPostDto(Post post, Long currentNumber) {
+            this(new PostDto(post, currentNumber));
         }
 
         public record PostDto(
@@ -77,7 +77,7 @@ public class PostResponse {
                 LocalDateTime editedAt,
                 Boolean isClose
         ) {
-            public PostDto(Post post) {
+            public PostDto(Post post, Long currentNumber) {
                 this(
                         post.getId(),
                         post.getTitle(),
@@ -85,7 +85,7 @@ public class PostResponse {
                         post.getUserName(),
                         post.getProfilePath(),
                         post.getDistrictName(),
-                        post.getCurrentNumber(),
+                        currentNumber,
                         post.getContent(),
                         post.getStartTime(),
                         post.getDueTime(),

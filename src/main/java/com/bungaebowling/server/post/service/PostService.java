@@ -92,7 +92,9 @@ public class PostService {
 
         post.addViewCount(); // 조회수 1 증가
 
-        return new PostResponse.GetPostDto(post);
+        Long currentNumber = (long) applicantRepository.findAllByPostIdAndStatusTrueOrderByUserIdDesc(post.getId()).size();
+
+        return new PostResponse.GetPostDto(post, currentNumber);
 
     }
 
