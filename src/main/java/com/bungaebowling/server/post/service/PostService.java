@@ -184,9 +184,18 @@ public class PostService {
         Map<Long, List<User>> memberMap = getMemberMap(posts, applicantMap);
         Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts, applicantMap);
         Map<Long, Long> applicantIdMap = getApplicantIdMap(userId, posts, applicantMap);
+        Map<Long, Long> currentNumberMap = getCurrentNumberMap(posts, applicantMap);
 
         Long lastKey = getLastKey(posts);
-        return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap, applicantIdMap);
+        return PostResponse.GetParticipationRecordsDto.of(
+                cursorRequest.next(lastKey, DEFAULT_SIZE),
+                posts,
+                scoreMap,
+                memberMap,
+                rateMap,
+                applicantIdMap,
+                currentNumberMap
+        );
     }
 
     private List<Post> loadPosts(CursorRequest cursorRequest, Long userId, String condition, String status, Long cityId, String start, String end) {
@@ -204,13 +213,6 @@ public class PostService {
         return postRepository.findAll(spec, pageable).getContent();
     }
 
-    private Map<Long, List<Applicant>> getApplicantMap(List<Post> posts) {
-        return posts.stream().collect(Collectors.toMap(
-                Post::getId,
-                post -> applicantRepository.findAllByPostIdAndStatusTrueOrderByUserIdDesc(post.getId())
-        ));
-    }
-
     private Map<Long, List<Score>> getScoreMap(Long userId, List<Post> posts) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
@@ -218,14 +220,10 @@ public class PostService {
         ));
     }
 
-    private Map<Long, Long> getApplicantIdMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+    private Map<Long, List<Applicant>> getApplicantMap(List<Post> posts) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
-                post -> applicantMap.get(post.getId()).stream()
-                        .filter(applicant -> userId.equals(applicant.getUser().getId()))
-                        .map(Applicant::getId)
-                        .findFirst()
-                        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND))
+                post -> applicantRepository.findAllByPostIdAndStatusTrueOrderByUserIdDesc(post.getId())
         ));
     }
 
@@ -250,6 +248,24 @@ public class PostService {
                             );
                     return userRates;
                 }
+        ));
+    }
+
+    private Map<Long, Long> getApplicantIdMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> applicantMap.get(post.getId()).stream()
+                        .filter(applicant -> userId.equals(applicant.getUser().getId()))
+                        .map(Applicant::getId)
+                        .findFirst()
+                        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND))
+        ));
+    }
+
+    private Map<Long, Long> getCurrentNumberMap(List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> (long) applicantMap.get(post.getId()).size()
         ));
     }
 
