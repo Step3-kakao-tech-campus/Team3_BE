@@ -18,7 +18,6 @@ import java.time.format.DateTimeFormatter;
 public class PostSpecification {
 
     public static final LocalDateTime START_TIME = LocalDateTime.now().minusMonths(3);
-    public static final LocalDateTime END_TIME = LocalDateTime.now();
 
     public static Specification<Post> conditionEqual(String condition, Long userId) {
         return (root, query, criteriaBuilder) -> {
@@ -69,8 +68,13 @@ public class PostSpecification {
         return (root, query, criteriaBuilder) -> {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDateTime startDate = start == null ? START_TIME : LocalDate.parse(start, formatter).atStartOfDay();
-            LocalDateTime endDate = end == null ? END_TIME : LocalDate.parse(end, formatter).plusDays(1).atStartOfDay();
-            return criteriaBuilder.between(root.get("startTime"), startDate, endDate);
+
+            if (end == null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("startTime"), startDate);
+            } else {
+                LocalDateTime endDate = LocalDate.parse(end, formatter).plusDays(1).atStartOfDay();
+                return criteriaBuilder.between(root.get("startTime"), startDate, endDate);
+            }
         };
     }
 
