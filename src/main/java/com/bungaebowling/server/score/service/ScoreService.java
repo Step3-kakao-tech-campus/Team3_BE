@@ -156,4 +156,25 @@ public class ScoreService {
         awsS3Service.deleteFile(score.getResultImageUrl());
         scoreRepository.delete(score);
     }
+
+    public int calculateAverage(List<Score> scores) {
+        return (int) scores.stream()
+                .mapToInt(Score::getScoreNum)
+                .average()
+                .orElse(0.0);
+    }
+
+    public int findMaxScore(List<Score> scores) {
+        return scores.stream()
+                .mapToInt(Score::getScoreNum)
+                .max()
+                .orElse(0);
+    }
+
+    public int findMinScore(List<Score> scores) {
+        return scores.stream()
+                .mapToInt(Score::getScoreNum)
+                .min()
+                .orElse(0);
+    }
 }
