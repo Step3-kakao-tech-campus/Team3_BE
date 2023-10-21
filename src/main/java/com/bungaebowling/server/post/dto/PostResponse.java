@@ -16,8 +16,15 @@ public class PostResponse {
             CursorRequest nextCursorRequest,
             List<PostDto> posts
     ) {
-        public static GetPostsDto of(CursorRequest nextCursorRequest, List<Post> posts) {
-            return new GetPostsDto(nextCursorRequest, posts.stream().map(PostDto::new).toList());
+        public static GetPostsDto of(CursorRequest nextCursorRequest, List<Post> posts, Map<Long, Long> currentNumberMap) {
+            return new GetPostsDto(
+                    nextCursorRequest,
+                    posts.stream().map(post ->
+                            new PostDto(
+                                    post,
+                                    currentNumberMap.get(post.getId()))
+                    ).toList()
+            );
         }
 
         public record PostDto(
@@ -31,7 +38,7 @@ public class PostResponse {
                 Long currentNumber,
                 Boolean isClose
         ) {
-            public PostDto(Post post) {
+            public PostDto(Post post, Long currentNumber) {
                 this(
                         post.getId(),
                         post.getTitle(),
@@ -40,7 +47,7 @@ public class PostResponse {
                         post.getStartTime(),
                         post.getUserName(),
                         post.getProfilePath(),
-                        post.getCurrentNumber(),
+                        currentNumber,
                         post.getIsClose()
                 );
             }

@@ -102,7 +102,10 @@ public class PostService {
 
         Long lastKey = getLastKey(posts);
 
-        return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts);
+        Map<Long, List<Applicant>> applicantMap = getApplicantMap(posts);
+        Map<Long, Long> currentNumberMap = getCurrentNumberMap(posts, applicantMap);
+
+        return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, currentNumberMap);
     }
 
     private List<Post> findPosts(CursorRequest cursorRequest, Long cityId, Long countryId, Long districtId, Boolean all) {
