@@ -1,6 +1,5 @@
 package com.bungaebowling.server.post;
 
-import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.user.User;
 import jakarta.persistence.*;
@@ -12,8 +11,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -59,9 +56,6 @@ public class Post {
     @ColumnDefault(value = "now()")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    private final List<Applicant> applicants = new ArrayList<>();
-
     @Builder
     public Post(String title, User user, District district, String content, LocalDateTime startTime, LocalDateTime dueTime, Boolean isClose, int viewCount, LocalDateTime editedAt, LocalDateTime createdAt) {
         this.title = title;
@@ -85,18 +79,6 @@ public class Post {
                 this.district.getCountry().getName() + " " +
                 this.district.getName();
     }
-
-    public int getApplicantNumber() { // 현재 신청한 사람 수
-        return applicants.size();
-    }
-
-    public Long getCurrentNumber() { // 현재 모집된 사람 수
-        return applicants.stream()
-                .distinct()
-                .filter(Applicant::getStatus)
-                .count();
-    }
-
 
     public void addViewCount() { // viewCount 증가
         this.viewCount++;
