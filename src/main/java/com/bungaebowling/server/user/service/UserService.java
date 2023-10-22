@@ -10,6 +10,7 @@ import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.score.Score;
 import com.bungaebowling.server.score.repository.ScoreRepository;
+import com.bungaebowling.server.score.service.ScoreService;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
@@ -54,6 +55,7 @@ public class UserService {
     private final JavaMailSender javaMailSender;
 
     private final AwsS3Service awsS3Service;
+    private final ScoreService scoreService;
 
     @Value("${bungaebowling.domain}")
     private String domain;
@@ -182,7 +184,7 @@ public class UserService {
         User user = findUserById(userId);
         double rating = getRating(userId);
         List<Score> scores = findScoreByUserId(userId);
-        int average = calculateAverage(scores);
+        int average = scoreService.calculateAverage(scores);
         return new UserResponse.GetUserDto(user, rating, average);
     }
 
@@ -190,7 +192,7 @@ public class UserService {
         User user = findUserById(userId);
         double rating = getRating(userId);
         List<Score> scores = findScoreByUserId(userId);
-        int average = calculateAverage(scores);
+        int average = scoreService.calculateAverage(scores);
         return new UserResponse.GetMyProfileDto(user, rating, average);
     }
 
@@ -226,9 +228,9 @@ public class UserService {
         User user = findUserById(userId);
         List<Score> scores = findScoreByUserId(userId);
         int game = countGames(user);
-        int average = calculateAverage(scores);
-        int maximum = findMaxScore(scores);
-        int minimum = findMinScore(scores);
+        int average = scoreService.calculateAverage(scores);
+        int maximum = scoreService.findMaxScore(scores);
+        int minimum = scoreService.findMinScore(scores);
         return new UserResponse.GetRecordDto(user.getName(), game, average, maximum, minimum);
     }
 
@@ -242,27 +244,6 @@ public class UserService {
 
     private int countGames(User user) {
         return applicantRepository.findAllByUserIdAndPostIsCloseTrueAndStatusTrue(user.getId()).size();
-    }
-
-    private int calculateAverage(List<Score> scores) {
-        return (int) scores.stream()
-                .mapToInt(Score::getScoreNum)
-                .average()
-                .orElse(0.0);
-    }
-
-    private int findMaxScore(List<Score> scores) {
-        return scores.stream()
-                .mapToInt(Score::getScoreNum)
-                .max()
-                .orElse(0);
-    }
-
-    private int findMinScore(List<Score> scores) {
-        return scores.stream()
-                .mapToInt(Score::getScoreNum)
-                .min()
-                .orElse(0);
     }
 
     private double getRating(Long userId) {
