@@ -14,7 +14,6 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-
     @Query("SELECT m " +
             "FROM Message m " +
             "JOIN FETCH m.opponentUser oppUser " +
@@ -32,7 +31,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "ORDER BY MAX(m.id) DESC")
     List<Long[]> countUnreadMessagesWithOpponents(@Param("userId") Long userId, @Param("key") Long key, Pageable pageable);
 
-
     @Query("SELECT m " +
             "FROM Message m " +
             "WHERE (m.user.id = :userId AND m.opponentUser.id = :opponentId) " +
@@ -40,10 +38,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "ORDER BY m.id DESC")
     List<Message> findAllByUserIdAndOpponentUserIdOrderByIdDesc(@Param("userId") Long userId, @Param("opponentId") Long opponentId, @Param("key") Long key, Pageable pageable);
 
-
-
     void deleteAllByUserIdAndOpponentUserId(Long userId, Long opponentId);
-
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Message m SET m.isRead = true WHERE m.user.id = :userId AND m.opponentUser.id = :opponentId AND m.isRead = false")

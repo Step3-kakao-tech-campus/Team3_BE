@@ -1,9 +1,7 @@
 package com.bungaebowling.server.comment.service;
 
-
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception403;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.comment.Comment;
 import com.bungaebowling.server.comment.dto.CommentRequest;
@@ -69,8 +67,8 @@ public class CommentService {
 
     @Transactional
     public CommentResponse.CreateDto create(Long userId, Long postId, CommentRequest.CreateDto requestDto) {
-        var user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저의 접근입니다."));
-        var post = postRepository.findById(postId).orElseThrow(() -> new Exception404("존재하지 않는 모집글입니다."));
+        var user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        var post = postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         var comment = requestDto.createComment(user, post);
 
         var savedComment = commentRepository.save(comment);
@@ -79,9 +77,9 @@ public class CommentService {
 
     @Transactional
     public CommentResponse.CreateDto createReply(Long userId, Long postId, Long parentId, CommentRequest.CreateDto requestDto) {
-        var user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저의 접근입니다."));
-        var post = postRepository.findById(postId).orElseThrow(() -> new Exception404("존재하지 않는 모집글입니다."));
-        var parent = commentRepository.findByIdAndPostIdAndParentNull(parentId, postId).orElseThrow(() -> new Exception400("대댓글을 작성할 수 없는 댓글입니다."));
+        var user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        var post = postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        var parent = commentRepository.findByIdAndPostIdAndParentNull(parentId, postId).orElseThrow(() -> new CustomException(ErrorCode.REPLY_TO_COMMENT_NOT_ALLOWED));
 
         var comment = requestDto.createReply(user, post, parent);
 
@@ -91,11 +89,11 @@ public class CommentService {
 
     @Transactional
     public void edit(Long commentId, Long userId, CommentRequest.EditDto requestDto) {
-        var user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저의 접근입니다."));
-        var comment = commentRepository.findById(commentId).orElseThrow(() -> new Exception404("존재하지 않는 댓글입니다."));
+        var user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        var comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!Objects.equals(comment.getUser().getId(), user.getId())) {
-            throw new Exception403("본인의 댓글만 수정 가능합니다.");
+            throw new CustomException(ErrorCode.COMMENT_UPDATE_PERMISSION_DENIED);
         }
 
         comment.updateContent(requestDto.content());
@@ -103,11 +101,11 @@ public class CommentService {
 
     @Transactional
     public void delete(Long commentId, Long userId) {
-        var user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저의 접근입니다."));
-        var comment = commentRepository.findById(commentId).orElseThrow(() -> new Exception404("존재하지 않는 댓글입니다."));
+        var user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        var comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!Objects.equals(comment.getUser().getId(), user.getId())) {
-            throw new Exception403("본인의 댓글만 삭제 가능합니다.");
+            throw new CustomException(ErrorCode.COMMENT_DELETE_PERMISSION_DENIED);
         }
 
         comment.delete();

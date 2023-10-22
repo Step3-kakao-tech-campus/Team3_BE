@@ -1,11 +1,7 @@
 package com.bungaebowling.server._core.errors;
 
 import com.bungaebowling.server._core.errors.exception.CustomException;
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception401;
-import com.bungaebowling.server._core.errors.exception.client.Exception403;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
-import com.bungaebowling.server._core.errors.exception.server.Exception500;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.utils.ApiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +21,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> unknownServerError(Exception e) {
         log.error("unknown 에러 발생", e);
         var status = HttpStatus.INTERNAL_SERVER_ERROR;
-        var response = ApiUtils.error(e.getMessage(), status);
+        var response = ApiUtils.error(e.getMessage(), ErrorCode.UNKNOWN_SERVER_ERROR);
         return ResponseEntity.status(status).body(response);
     }
 

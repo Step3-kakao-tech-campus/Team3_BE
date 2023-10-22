@@ -49,13 +49,14 @@ public class User {
     private LocalDateTime createdAt;
 
     @Builder
-    public User(Long id, String name, String email, String password, District district, String imgUrl, Role role, LocalDateTime createdAt) {
+    public User(Long id, String name, String email, String password, District district, String imgUrl, String resultImageUrl, Role role, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.district = district;
         this.imgUrl = imgUrl;
+        this.resultImageUrl = resultImageUrl;
         this.role = role;
         this.createdAt = createdAt;
     }
@@ -64,7 +65,7 @@ public class User {
         this.role = role;
     }
 
-    public void updateProfile(String name, District district, String resultImageUrl, String accessImageUrl){
+    public void updateProfile(String name, District district, String resultImageUrl, String accessImageUrl) {
         this.name = Objects.nonNull(name) ? name : this.name;
         this.district = Objects.nonNull(district) ? district : this.district;
         this.imgUrl = Objects.nonNull(accessImageUrl) ? accessImageUrl : this.imgUrl;
@@ -73,7 +74,7 @@ public class User {
 
     public String getDistrictName() {
         return this.district.getCountry().getCity().getName() + " " +
-                this.district.getCountry().getName() + " "  +
+                this.district.getCountry().getName() + " " +
                 this.district.getName();
     }
 }

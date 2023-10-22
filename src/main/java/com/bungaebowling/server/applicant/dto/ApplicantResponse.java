@@ -11,15 +11,13 @@ public class ApplicantResponse {
 
     public record GetApplicantsDto(
             CursorRequest nextCursorRequest,
-            Long participantNumber,
-            Long currentNumber,
+            Long applicantNumber,
             List<ApplicantDto> applicants
     ) {
-        public static GetApplicantsDto of(CursorRequest nextCursorRequest, Long participantNumber, Long currentNumber, List<Applicant> applicants, List<Double> ratings){
+        public static GetApplicantsDto of(CursorRequest nextCursorRequest, Long applicantNumber, List<Applicant> applicants, List<Double> ratings) {
             return new GetApplicantsDto(
                     nextCursorRequest,
-                    participantNumber,
-                    currentNumber,
+                    applicantNumber,
                     IntStream.range(0, applicants.size())
                             .mapToObj(index -> new ApplicantDto(applicants.get(index), ratings.get(index))).toList()
             );
@@ -61,5 +59,6 @@ public class ApplicantResponse {
             Long applicantId,
             Boolean isApplied, //신청 여부
             Boolean isAccepted //수락 여부
-    ) {}
+    ) {
+    }
 }
