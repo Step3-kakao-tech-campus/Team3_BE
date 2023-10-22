@@ -9,7 +9,7 @@ import java.util.List;
 public class CityResponse {
     public record GetCitiesDto(
             List<CityDto> cities
-    )  {
+    ) {
         public static GetCitiesDto of(List<City> cityList) {
             return new GetCitiesDto(cityList.stream()
                     .map(CityDto::new)
@@ -28,7 +28,7 @@ public class CityResponse {
 
     public record GetCountriesDto(
             List<CountryDto> countries
-    )  {
+    ) {
         public static GetCountriesDto of(List<Country> countryList) {
             return new GetCountriesDto(countryList.stream()
                     .map(CountryDto::new)
@@ -47,7 +47,7 @@ public class CityResponse {
 
     public record GetDistrictsDto(
             List<DistrictDto> districts
-    )  {
+    ) {
         public static GetDistrictsDto of(List<District> districtList) {
             return new GetDistrictsDto(districtList.stream()
                     .map(DistrictDto::new)

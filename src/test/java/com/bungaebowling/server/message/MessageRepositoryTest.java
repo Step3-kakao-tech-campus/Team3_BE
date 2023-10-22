@@ -20,13 +20,10 @@ import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 @DataJpaTest
 @Import(ObjectMapper.class)
 @DisplayName("쪽지 레포지토리 테스트")
 class MessageRepositoryTest {
-
 
     private final MessageRepository messageRepository;
     private final EntityManager em;
@@ -34,14 +31,13 @@ class MessageRepositoryTest {
     private final DistrictRepository districtRepository;
     private final ObjectMapper om;
 
-
     @Autowired
     public MessageRepositoryTest(MessageRepository messageRepository,
                                  EntityManager em,
                                  UserRepository userRepository,
                                  DistrictRepository districtRepository,
                                  ObjectMapper om
-                                 ){
+    ) {
         this.messageRepository = messageRepository;
         this.em = em;
         this.userRepository = userRepository;
@@ -51,7 +47,7 @@ class MessageRepositoryTest {
 
     @BeforeEach
     @DisplayName("초기세팅- 유저 등록, 쪽지 생성")
-    public void setUp(){
+    public void setUp() {
         District district = districtRepository.findById(1l).get();
         User testuser1 = User.builder()
                 .name("테스트유저1")
@@ -164,15 +160,14 @@ class MessageRepositoryTest {
         messageRepository.saveAll(messages);
     }
 
-
     @Test
     @DisplayName("나의 대화상대, 대화상대별 최신메시지 조회")
-    void findLatestMessagesByUserId(){
+    void findLatestMessagesByUserId() {
         //given
         User testuser = userRepository.findByName("테스트유저3").get();
         //when
         System.out.println("====================start===================");
-        List<Message> messages = messageRepository.findLatestMessagesPerOpponentByUserId(testuser.getId(), null,Pageable.unpaged());
+        List<Message> messages = messageRepository.findLatestMessagesPerOpponentByUserId(testuser.getId(), null, Pageable.unpaged());
         System.out.println("========================end=====================");
         //then
         Assertions.assertThat(messages.get(0).getContent()).isEqualTo("39");
@@ -188,7 +183,6 @@ class MessageRepositoryTest {
         Assertions.assertThat(messages.get(1).getIsReceive()).isEqualTo(true);
         Assertions.assertThat(messages.get(1).getOpponentUser().getImgUrl()).isEqualTo("testimage1");
     }
-
 
     @Test
     @DisplayName("일대일 대화방 쪽지 조회")
@@ -214,11 +208,11 @@ class MessageRepositoryTest {
         //given
         User testuser = userRepository.findByName("테스트유저3").get();
         User opponentUser = userRepository.findByName("테스트유저2").get();
-        int before = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(),opponentUser.getId(), null, Pageable.unpaged()).size();
+        int before = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged()).size();
         //when
         System.out.println("====================start===================");
-        messageRepository.deleteAllByUserIdAndOpponentUserId(testuser.getId(),opponentUser.getId());
-        int after = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(),opponentUser.getId(), null, Pageable.unpaged()).size();
+        messageRepository.deleteAllByUserIdAndOpponentUserId(testuser.getId(), opponentUser.getId());
+        int after = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged()).size();
         System.out.println("========================end=====================");
         //then
         Assertions.assertThat(before).isEqualTo(20);
@@ -248,9 +242,8 @@ class MessageRepositoryTest {
         Assertions.assertThat(updatedMessages.size()).isEqualTo(20);
         Assertions.assertThat(before).isEqualTo(10);
         Assertions.assertThat(after).isEqualTo(0);
-
-
     }
+
     @Test
     @DisplayName("일대일 대화방 쪽지 조회시 읽음 처리 영속성 테스트")
     void updateIsReadByUserIdAndOpponentUserIdContextTest() {
@@ -268,7 +261,5 @@ class MessageRepositoryTest {
         //then
         Assertions.assertThat(messages.size()).isEqualTo(20);
         Assertions.assertThat(isReadCount).isEqualTo(0);
-
-
     }
 }

@@ -1,8 +1,7 @@
 package com.bungaebowling.server.applicant.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception403;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.dto.ApplicantRequest;
@@ -37,27 +36,25 @@ public class ApplicantService {
 
     private final UserRateRepository userRateRepository;
 
-    public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest){
+    public ApplicantResponse.GetApplicantsDto getApplicants(Long userId, Long postId, CursorRequest cursorRequest) {
         Post post = getPost(postId);
 
         if (!isMatchedUser(userId, post))
-            throw new Exception403("자신의 모집글이 아닙니다.");
+            throw new CustomException(ErrorCode.APPLICANT_PERMISSION_DENIED, "자신의 모집글이 아닙니다.");
 
-        Long participantNumber = applicantRepository.countByPostId(post.getId());
-        Long currentNumber = applicantRepository.countByPostIdAndIsStatusTrue(post.getId());
+        Long applicantNumber = applicantRepository.countByPostIdAndUserIdNot(post.getId(), userId);
         List<Applicant> applicants = loadApplicants(cursorRequest, post.getId(), userId);
         Long lastKey = getLastKey(applicants);
 
         var ratings = applicants.stream().map(applicant ->
-                     userRateRepository.findAllByUserId(applicant.getUser().getId()).stream()
-                            .mapToInt(UserRate::getStarCount)
-                            .average().orElse(0.0)
-                ).toList();
+                userRateRepository.findAllByUserId(applicant.getUser().getId()).stream()
+                        .mapToInt(UserRate::getStarCount)
+                        .average().orElse(0.0)
+        ).toList();
 
         return ApplicantResponse.GetApplicantsDto.of(
                 cursorRequest.next(lastKey, DEFAULT_SIZE),
-                participantNumber,
-                currentNumber,
+                applicantNumber,
                 applicants,
                 ratings);
     }
@@ -74,19 +71,19 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void create(Long userId, Long postId){
+    public void create(Long userId, Long postId) {
         User user = getUser(userId);
         Post post = getPost(postId);
 
         if (isMatchedUser(userId, post))
-            throw new Exception400("본인의 모집글에 신청할 수 없습니다.");
+            throw new CustomException(ErrorCode.APPLICANT_PERMISSION_DENIED, "본인의 모집글에 신청할 수 없습니다.");
 
         applicantRepository.findByUserIdAndPostId(userId, postId).ifPresent(applicant -> {
-            throw new Exception400("이미 신청된 사용자입니다.");
+            throw new CustomException(ErrorCode.APPLICANT_PERMISSION_DENIED, "이미 신청된 사용자입니다.");
         });
 
-        if(isPastDueTime(post)){
-            throw new Exception400("이미 마감된 모집글입니다.");
+        if (isPastDueTime(post)) {
+            throw new CustomException(ErrorCode.APPLICANT_PERMISSION_DENIED, "이미 마감된 모집글입니다.");
         }
 
         Applicant applicant = Applicant.builder()
@@ -97,28 +94,28 @@ public class ApplicantService {
     }
 
     @Transactional
-    public void accept(Long userId, Long applicantId, ApplicantRequest.UpdateDto requestDto){
+    public void accept(Long userId, Long applicantId, ApplicantRequest.UpdateDto requestDto) {
         Applicant applicant = getApplicantWithPost(applicantId);
 
         if (!(Objects.equals(userId, applicant.getPost().getUser().getId())))
-            throw new Exception403("작성자만 수락 가능합니다.");
+            throw new CustomException(ErrorCode.APPLICANT_ACCEPT_PERMISSION_DENIED);
 
         applicant.updateStatus(requestDto.status());
     }
 
     @Transactional
-    public void reject(Long userId, Long applicantId){
+    public void reject(Long userId, Long applicantId) {
         Applicant applicant = getApplicantWithPost(applicantId);
         var isPostOwner = Objects.equals(userId, applicant.getPost().getUser().getId());
         var isApplicantOwner = Objects.equals(userId, applicant.getUser().getId());
 
         if (!(isApplicantOwner || isPostOwner))
-            throw new Exception403("권한이 없습니다.");
+            throw new CustomException(ErrorCode.APPLICANT_REJECT_PERMISSION_DENIED);
 
         applicantRepository.delete(applicant);
     }
 
-    public ApplicantResponse.CheckStatusDto checkStatus(Long userId, Long postId){
+    public ApplicantResponse.CheckStatusDto checkStatus(Long userId, Long postId) {
         Applicant applicant = applicantRepository.findByUserIdAndPostId(userId, postId).orElse(null);
         boolean isApplicantPresent = applicant != null;
         Long applicantId = isApplicantPresent ? applicant.getId() : null;
@@ -127,19 +124,19 @@ public class ApplicantService {
 
     private User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-                () -> new Exception404("존재하지 않는 사용자입니다.")
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
     }
 
     private Post getPost(Long postId) {
         return postRepository.findById(postId).orElseThrow(
-                () -> new Exception404("존재하지 않는 모집글입니다.")
+                () -> new CustomException(ErrorCode.POST_NOT_FOUND)
         );
     }
 
     private Applicant getApplicantWithPost(Long applicantId) {
         return applicantRepository.findByIdJoinFetchPost(applicantId).orElseThrow(
-                () -> new Exception404("존재하지 않는 신청입니다.")
+                () -> new CustomException(ErrorCode.APPLICANT_NOT_FOUND)
         );
     }
 
@@ -163,21 +160,23 @@ public class ApplicantService {
         var isAccept = applicant.getStatus();
         var isAvailable = applicant.getPost().getIsClose() && LocalDateTime.now().isAfter(applicant.getPost().getStartTime());
 
-        if (!isMine) throw new Exception403("자신의 신청이 아닙니다.");
-        if (!(isAccept && isAvailable)) throw new Exception400("등록할 수 있는 상태가 아닙니다.");
+        if (!isMine) throw new CustomException(ErrorCode.RATING_PERMISSION_DENIED, "자신의 신청이 아닙니다.");
+        if (!(isAccept && isAvailable))
+            throw new CustomException(ErrorCode.RATING_REQUEST_FAILED, "등록할 수 있는 상태가 아닙니다.");
 
         var targetApplicant = applicantRepository.findByUserIdAndPostId(requestDto.targetId(), applicant.getPost().getId()).orElse(null);
 
         var checkTarget = targetApplicant != null && !Objects.equals(targetApplicant.getUser().getId(), userId) && targetApplicant.getStatus();
         if (!checkTarget) {
-            throw new Exception400("잘못된 요청입니다.");
+            throw new CustomException(ErrorCode.RATING_REQUEST_FAILED, "잘못된 요청입니다.");
         }
-        
+
         userRateRepository.findAllByApplicantId(applicantId).forEach(userRate -> {
-            if (Objects.equals(userRate.getUser().getId(), requestDto.targetId())) throw new Exception400("이미 등록되었습니다.");
+            if (Objects.equals(userRate.getUser().getId(), requestDto.targetId()))
+                throw new CustomException(ErrorCode.RATING_REQUEST_FAILED, "이미 등록되었습니다.");
         });
 
-        var targetUser = userRepository.findById(requestDto.targetId()).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
+        var targetUser = userRepository.findById(requestDto.targetId()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         var rate = UserRate.builder()
                 .applicant(applicant)

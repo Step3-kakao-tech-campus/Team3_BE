@@ -1,8 +1,8 @@
 package com.bungaebowling.server._core.security;
 
 import com.bungaebowling.server._core.config.Configs;
-import com.bungaebowling.server._core.errors.exception.client.Exception401;
-import com.bungaebowling.server._core.errors.exception.client.Exception403;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,7 +57,7 @@ public class SecurityConfig {
         // 8. 인증 실패 처리
         http.exceptionHandling(handling ->
                 handling.authenticationEntryPoint(((request, response, authException) -> {
-                    var e = new Exception401("인증되지 않았습니다.");
+                    var e = new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
                     response.setStatus(e.status());
                     response.setContentType("application/json; charset=utf-8");
                     ObjectMapper om = new ObjectMapper();
@@ -68,7 +68,7 @@ public class SecurityConfig {
         // 9. 권한 실패 처리
         http.exceptionHandling(handling ->
                 handling.accessDeniedHandler(((request, response, accessDeniedException) -> {
-                    var e = new Exception403("권한이 없습니다.");
+                    var e = new CustomException(ErrorCode.PERMISSION_DENIED);
                     response.setStatus(e.status());
                     response.setContentType("application/json; charset=utf-8");
                     ObjectMapper om = new ObjectMapper();
@@ -87,7 +87,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/api/email-verification")).hasAnyRole("USER", "PENDING")
                         .requestMatchers(new AntPathRequestMatcher("/api/posts/**"),
                                 new AntPathRequestMatcher("/api/applicants/**"),
-                                new AntPathRequestMatcher( "/api/messages/**")).hasRole("USER")
+                                new AntPathRequestMatcher("/api/messages/**")).hasRole("USER")
                         .anyRequest().permitAll()
         );
 

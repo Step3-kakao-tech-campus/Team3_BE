@@ -1,8 +1,7 @@
 package com.bungaebowling.server.user.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
-import com.bungaebowling.server._core.errors.exception.server.Exception500;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server._core.utils.AwsS3Service;
 import com.bungaebowling.server._core.utils.CursorRequest;
@@ -11,6 +10,7 @@ import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
 import com.bungaebowling.server.score.Score;
 import com.bungaebowling.server.score.repository.ScoreRepository;
+import com.bungaebowling.server.score.service.ScoreService;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
@@ -55,6 +55,7 @@ public class UserService {
     private final JavaMailSender javaMailSender;
 
     private final AwsS3Service awsS3Service;
+    private final ScoreService scoreService;
 
     @Value("${bungaebowling.domain}")
     private String domain;
@@ -65,17 +66,17 @@ public class UserService {
         try {
             districtId = Long.parseLong(requestDto.districtId());
         } catch (NumberFormatException e) {
-            throw new Exception400("숫자만 가능합니다.:districtId");
+            throw new CustomException(ErrorCode.INVALID_RUQUEST_DATA, "숫자만 가능합니다.:districtId");
         }
 
         if (userRepository.findByEmail(requestDto.email()).isPresent())
-            throw new Exception400("이미 존재하는 이메일입니다.");
+            throw new CustomException(ErrorCode.USER_EMAIL_DUPLICATED);
 
         if (userRepository.findByName(requestDto.name()).isPresent())
-            throw new Exception400("이미 존재하는 닉네임입니다.");
+            throw new CustomException(ErrorCode.USER_NAME_DUPLICATED);
 
         var district = districtRepository.findById(districtId).orElseThrow(() ->
-                new Exception404("존재하지 않는 행정구역 id입니다."));
+                new CustomException(ErrorCode.REGION_NOT_FOUND));
 
         var encodedPassword = passwordEncoder.encode(requestDto.password());
 
@@ -94,10 +95,10 @@ public class UserService {
 
     public UserResponse.TokensDto login(UserRequest.LoginDto requestDto) {
         var user = userRepository.findByEmail(requestDto.email()).orElseThrow(() ->
-                new Exception400("이메일 혹은 비밀번호가 일치하지 않습니다."));
+                new CustomException(ErrorCode.LOGIN_FAILED, "이메일 혹은 비밀번호가 일치하지 않습니다."));
 
         if (!passwordEncoder.matches(requestDto.password(), user.getPassword())) {
-            throw new Exception400("이메일 혹은 비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.LOGIN_FAILED, "이메일 혹은 비밀번호가 일치하지 않습니다.");
         }
 
         return issueTokens(user);
@@ -108,10 +109,10 @@ public class UserService {
     }
 
     public UserResponse.TokensDto reIssueTokens(String refreshToken) {
-        var decodedRefreshToekn = JwtProvider.verify(refreshToken, JwtProvider.TYPE_REFRESH);
+        var decodedRefreshToken = JwtProvider.verify(refreshToken, JwtProvider.TYPE_REFRESH);
 
-        var user = userRepository.findById(Long.valueOf(decodedRefreshToekn.getSubject())).orElseThrow(() ->
-                new Exception500("재발급 과정에서 오류가 발생했습니다."));
+        var user = userRepository.findById(Long.valueOf(decodedRefreshToken.getSubject())).orElseThrow(() ->
+                new CustomException(ErrorCode.UNKNOWN_SERVER_ERROR, "재발급 과정에서 오류가 발생했습니다."));
 
         return issueTokens(user);
     }
@@ -147,7 +148,7 @@ public class UserService {
             helper.setText(text, true);
             javaMailSender.send(mimeMessage);
         } catch (Exception e) {
-            throw new Exception500("서버 이메일 전송 한도가 초과되었습니다. 내일 다시 시도해주세요.");
+            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
         }
     }
 
@@ -160,7 +161,7 @@ public class UserService {
         user.updateRole(Role.ROLE_USER);
     }
 
-    public UserResponse.GetUsersDto getUsers(CursorRequest cursorRequest, String name){
+    public UserResponse.GetUsersDto getUsers(CursorRequest cursorRequest, String name) {
         List<User> users = loadUsers(cursorRequest, name);
         List<Double> ratings = users.stream()
                 .map(user -> getRating(user.getId()))
@@ -172,18 +173,18 @@ public class UserService {
     private List<User> loadUsers(CursorRequest cursorRequest, String name) {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
-        if(!cursorRequest.hasKey()){
+        if (!cursorRequest.hasKey()) {
             return userRepository.findAllByNameContainingOrderByIdDesc(name, pageable);
-        }else{
+        } else {
             return userRepository.findAllByNameContainingAndIdLessThanOrderByIdDesc(name, cursorRequest.key(), pageable);
         }
     }
 
-    public UserResponse.GetUserDto getUser(Long userId){
+    public UserResponse.GetUserDto getUser(Long userId) {
         User user = findUserById(userId);
         double rating = getRating(userId);
         List<Score> scores = findScoreByUserId(userId);
-        int average = calculateAverage(scores);
+        int average = scoreService.calculateAverage(scores);
         return new UserResponse.GetUserDto(user, rating, average);
     }
 
@@ -191,7 +192,7 @@ public class UserService {
         User user = findUserById(userId);
         double rating = getRating(userId);
         List<Score> scores = findScoreByUserId(userId);
-        int average = calculateAverage(scores);
+        int average = scoreService.calculateAverage(scores);
         return new UserResponse.GetMyProfileDto(user, rating, average);
     }
 
@@ -201,7 +202,7 @@ public class UserService {
 
         District district = request.districtId() == null ? null :
                 districtRepository.findById(request.districtId()).orElseThrow(
-                        () -> new Exception404("존재하지 않는 행정 구역입니다.")
+                        () -> new CustomException(ErrorCode.REGION_NOT_FOUND)
                 );
 
         if (profileImage == null) {
@@ -227,43 +228,22 @@ public class UserService {
         User user = findUserById(userId);
         List<Score> scores = findScoreByUserId(userId);
         int game = countGames(user);
-        int average = calculateAverage(scores);
-        int maximum = findMaxScore(scores);
-        int minimum = findMinScore(scores);
+        int average = scoreService.calculateAverage(scores);
+        int maximum = scoreService.findMaxScore(scores);
+        int minimum = scoreService.findMinScore(scores);
         return new UserResponse.GetRecordDto(user.getName(), game, average, maximum, minimum);
     }
 
     private User findUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new Exception404("유저를 찾을 수 없습니다."));
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
-    private List<Score> findScoreByUserId(Long userId){
+    private List<Score> findScoreByUserId(Long userId) {
         return scoreRepository.findAllByUserId(userId);
     }
 
     private int countGames(User user) {
         return applicantRepository.findAllByUserIdAndPostIsCloseTrueAndStatusTrue(user.getId()).size();
-    }
-
-    private int calculateAverage(List<Score> scores) {
-        return (int) scores.stream()
-                .mapToInt(Score::getScoreNum)
-                .average()
-                .orElse(0.0);
-    }
-
-    private int findMaxScore(List<Score> scores) {
-        return scores.stream()
-                .mapToInt(Score::getScoreNum)
-                .max()
-                .orElse(0);
-    }
-
-    private int findMinScore(List<Score> scores) {
-        return scores.stream()
-                .mapToInt(Score::getScoreNum)
-                .min()
-                .orElse(0);
     }
 
     private double getRating(Long userId) {

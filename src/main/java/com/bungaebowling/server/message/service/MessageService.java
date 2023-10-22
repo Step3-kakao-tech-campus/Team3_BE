@@ -1,7 +1,7 @@
 package com.bungaebowling.server.message.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.message.Message;
 import com.bungaebowling.server.message.dto.MessageRequest;
@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,13 +26,13 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-    public static final int DEFAULT_SIZE= 20;
+    public static final int DEFAULT_SIZE = 20;
 
     public MessageResponse.GetOpponentsDto getOpponents(CursorRequest cursorRequest, Long userId) {
         int size = cursorRequest.hasSize() ? cursorRequest.size() : DEFAULT_SIZE;
         Pageable pageable = PageRequest.of(0, size);
 
-       getUser(userId);
+        getUser(userId);
 
         List<Message> messages = messageRepository.findLatestMessagesPerOpponentByUserId(userId, cursorRequest.key(), pageable);
 
@@ -47,7 +46,6 @@ public class MessageService {
         Long lastKey = messages.isEmpty() ? CursorRequest.NONE_KEY : messages.get(messages.size() - 1).getId();
         return MessageResponse.GetOpponentsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), messages, countNews);
     }
-
 
     @Transactional
     public MessageResponse.GetMessagesDto getMessagesAndUpdateToRead(CursorRequest cursorRequest, Long userId, Long opponentId) {
@@ -87,9 +85,9 @@ public class MessageService {
 
     @Transactional
     public void deleteMessageById(Long userId, Long messageId) {
-        Message message = messageRepository.findById(messageId).orElseThrow(() -> new Exception404("존재하지 않는 쪽지입니다."));
+        Message message = messageRepository.findById(messageId).orElseThrow(() -> new CustomException(ErrorCode.MESSAGE_NOT_FOUND));
         if (!userId.equals(message.getUser().getId())) {
-            throw new Exception400("해당 유저의 쪽지가 아닙니다.");
+            throw new CustomException(ErrorCode.MESSAGE_DELETE_PERMISSION_DENIED);
         }
 
         messageRepository.deleteById(messageId);
@@ -97,14 +95,11 @@ public class MessageService {
 
     public void userCheck(Long userId, Long opponentId) {
         if (userId.equals(opponentId)) {
-            throw new Exception400("본인과 쪽지 대화를 할 수 없습니다.");
+            throw new CustomException(ErrorCode.MESSAGE_NOT_ALLOWED);
         }
     }
 
     public User getUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new Exception404("존재하지 않는 유저입니다."));
-        return user;
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
-
-
 }

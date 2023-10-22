@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +19,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 @Slf4j
@@ -37,11 +35,10 @@ public class UserController {
 
         var responseCookie = createRefreshTokenCookie(responseDto.refresh());
 
-        var response = ApiUtils.success(HttpStatus.CREATED);
-        return ResponseEntity.created(new URI("/api/users/" + responseDto.savedId()))
+        return ResponseEntity.ok()
                 .header(JwtProvider.HEADER, responseDto.access())
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                .body(response);
+                .body(ApiUtils.success());
     }
 
     @PostMapping("/login")
@@ -62,7 +59,7 @@ public class UserController {
 
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", "")
                 .maxAge(0)
-		.sameSite("None")
+                .sameSite("None")
                 .build();
 
         var response = ApiUtils.success();
@@ -108,15 +105,15 @@ public class UserController {
     }
 
     @GetMapping("/users/mine")
-    public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
         UserResponse.GetMyProfileDto response = userService.getMyProfile(userDetails.getId());
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     @PutMapping("/users/mine")
     public ResponseEntity<?> updateMyProfile(@RequestPart(required = false) MultipartFile profileImage,
-                                        @RequestPart @Valid UserRequest.UpdateMyProfileDto request, Errors errors,
-                                        @AuthenticationPrincipal CustomUserDetails userDetails){
+                                             @RequestPart @Valid UserRequest.UpdateMyProfileDto request, Errors errors,
+                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         userService.updateMyProfile(profileImage, request, userDetails.getId());
         return ResponseEntity.ok().body(ApiUtils.success());
     }
@@ -131,7 +128,7 @@ public class UserController {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true) // javascript 접근 방지
                 .secure(true) // https 통신 강제
-		        .sameSite("None")
+                .sameSite("None")
                 .maxAge(JwtProvider.getRefreshExpSecond())
                 .build();
     }
