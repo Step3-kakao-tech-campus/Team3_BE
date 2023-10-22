@@ -55,7 +55,7 @@ public class ScoreService {
             throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "0~300 사이의 숫자만 입력해주세요.");
         }
 
-        if (image.isEmpty()) { // null 체크 - null인 경우
+        if (image == null) { // null 체크 - null인 경우
             saveScoreWithoutImage(userId, post, scoreNum);
         } else { // null 체크 - null이 아닌 경우
             saveScoreWithImage(userId, post, scoreNum, image);
