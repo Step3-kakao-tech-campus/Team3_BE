@@ -16,7 +16,11 @@ public class PostResponse {
             CursorRequest nextCursorRequest,
             List<PostDto> posts
     ) {
-        public static GetPostsDto of(CursorRequest nextCursorRequest, List<Post> posts, Map<Long, Long> currentNumberMap) {
+        public static GetPostsDto of(
+                CursorRequest nextCursorRequest,
+                List<Post> posts,
+                Map<Long, Long> currentNumberMap
+        ) {
             return new GetPostsDto(
                     nextCursorRequest,
                     posts.stream().map(post ->
