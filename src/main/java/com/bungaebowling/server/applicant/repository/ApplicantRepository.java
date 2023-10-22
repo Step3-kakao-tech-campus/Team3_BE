@@ -22,9 +22,6 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
     @Query("SELECT a FROM Applicant a JOIN FETCH a.user u WHERE a.post.id = :postId AND u.id != :userId AND a.id < :key ORDER BY a.id DESC")
     List<Applicant> findAllByPostIdAndUserIdNotLessThanOrderByIdDesc(@Param("key") Long key, @Param("postId") Long postId, @Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT count(a) FROM Applicant a WHERE a.post.id = :postId AND a.user.id != :userId AND a.status = true")
-    Long countByPostIdAndUserIdNotAndIsStatusTrue(@Param("postId") Long postId, @Param("userId") Long userId);
-
     @Query("SELECT count(a) FROM Applicant a WHERE a.post.id = :postId AND a.user.id != :userId")
     Long countByPostIdAndUserIdNot(@Param("postId") Long postId, @Param("userId") Long userId);
 
