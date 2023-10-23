@@ -1,15 +1,15 @@
 -- 테이블 초기화
 SET REFERENTIAL_INTEGRITY FALSE;
-TRUNCATE TABLE district_tb;
-TRUNCATE TABLE country_tb;
-TRUNCATE TABLE city_tb;
-TRUNCATE TABLE message_tb;
-TRUNCATE TABLE comment_tb;
-TRUNCATE TABLE applicant_tb;
-TRUNCATE TABLE user_rate_tb;
-TRUNCATE TABLE score_tb;
-TRUNCATE TABLE post_tb;
-TRUNCATE TABLE user_tb;
+TRUNCATE TABLE district_tb RESTART IDENTITY;
+TRUNCATE TABLE country_tb RESTART IDENTITY;
+TRUNCATE TABLE city_tb RESTART IDENTITY;
+TRUNCATE TABLE message_tb RESTART IDENTITY;
+TRUNCATE TABLE comment_tb RESTART IDENTITY;
+TRUNCATE TABLE applicant_tb RESTART IDENTITY;
+TRUNCATE TABLE user_rate_tb RESTART IDENTITY;
+TRUNCATE TABLE score_tb RESTART IDENTITY;
+TRUNCATE TABLE post_tb RESTART IDENTITY;
+TRUNCATE TABLE user_tb RESTART IDENTITY;
 SET REFERENTIAL_INTEGRITY TRUE;
 
 INSERT INTO city_tb (name)
@@ -787,3 +787,26 @@ VALUES (1, 7, 100),
 INSERT INTO user_rate_tb(applicant_id, user_id, star_count)
 VALUES (1, 4, 5),
        (17, 3, 1);
+
+INSERT INTO message_tb(user_id, opponent_user_id, content, is_receive, is_read)
+VALUES (1, 3, '1번이 3번에게 보낸 쪽지1', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지1', true, true),
+       (1, 3, '1번이 3번에게 보낸 쪽지2', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지2', true, true),
+       (1, 3, '1번이 3번에게 보낸 쪽지3', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지3', true, true),
+       (1, 3, '1번이 3번에게 보낸 쪽지4', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지4', true, true),
+       (1, 3, '1번이 3번에게 보낸 쪽지5', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지5', true, true),
+
+       (3, 1, '3번이 1번에게 보낸 쪽지1', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지1', true, false),
+       (3, 1, '3번이 1번에게 보낸 쪽지2', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지2', true, false),
+       (3, 1, '3번이 1번에게 보낸 쪽지3', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지3', true, false),
+       (3, 1, '3번이 1번에게 보낸 쪽지4', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지4', true, false),
+       (3, 1, '3번이 1번에게 보낸 쪽지5', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지5', true, false);
