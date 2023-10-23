@@ -90,26 +90,26 @@ class MessageRepositoryTest {
     @Test
     @DisplayName("일대일 대화방 쪽지 조회시 읽음 처리")
     void updateIsReadByUserIdAndOpponentUserId() {
-//        //given
-//        User testuser = userRepository.findByName("테스트유저3").get();
-//        User opponentUser = userRepository.findByName("테스트유저2").get();
-//        List<Message> messages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged());
-//        long before = messages.stream()
-//                .filter(message -> !message.getIsRead())
-//                .count();
-//        //when
-//        System.out.println("====================start===================");
-//        messageRepository.updateIsReadTrueByUserIdAndOpponentUserId(testuser.getId(), opponentUser.getId());
-//        List<Message> updatedMessages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged());
-//        long after = updatedMessages.stream()
-//                .filter(message -> !message.getIsRead())
-//                .count();
-//        System.out.println("========================end=====================");
-//        //then
-//        Assertions.assertThat(messages.size()).isEqualTo(20);
-//        Assertions.assertThat(updatedMessages.size()).isEqualTo(20);
-//        Assertions.assertThat(before).isEqualTo(10);
-//        Assertions.assertThat(after).isEqualTo(0);
+        // given
+        Long testUserId = 3L;
+        Long opponentUserId = 4L;
+        List<Message> messages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testUserId, opponentUserId, null, Pageable.unpaged());
+        long before = messages.stream()
+                .filter(message -> !message.getIsRead())
+                .count();
+        // when
+        System.out.println("====================start===================");
+        messageRepository.updateIsReadTrueByUserIdAndOpponentUserId(testUserId, opponentUserId);
+        List<Message> updatedMessages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testUserId, opponentUserId, null, Pageable.unpaged());
+        long after = updatedMessages.stream()
+                .filter(message -> !message.getIsRead())
+                .count();
+        System.out.println("========================end=====================");
+        // then
+        Assertions.assertThat(messages).hasSize(5);
+        Assertions.assertThat(updatedMessages).hasSize(5);
+        Assertions.assertThat(before).isEqualTo(5);
+        Assertions.assertThat(after).isZero();
     }
 
     @Test
