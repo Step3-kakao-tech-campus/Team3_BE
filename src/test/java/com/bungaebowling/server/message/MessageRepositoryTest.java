@@ -1,7 +1,6 @@
 package com.bungaebowling.server.message;
 
 import com.bungaebowling.server.message.repository.MessageRepository;
-import com.bungaebowling.server.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,14 +20,11 @@ import java.util.List;
 class MessageRepositoryTest {
 
     private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
 
     @Autowired
-    public MessageRepositoryTest(MessageRepository messageRepository,
-                                 UserRepository userRepository
+    public MessageRepositoryTest(MessageRepository messageRepository
     ) {
         this.messageRepository = messageRepository;
-        this.userRepository = userRepository;
     }
 
     @Test

@@ -37,11 +37,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class UserControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
+    private final MockMvc mvc;
 
-    @Autowired
-    private ObjectMapper om;
+    private final ObjectMapper om;
 
     @MockBean(name = "redisTemplate")
     private RedisTemplate<String, String> redisTemplate;
@@ -51,6 +49,12 @@ class UserControllerTest {
 
     @Mock
     private ValueOperations<String, String> valueOperations;
+
+    @Autowired
+    public UserControllerTest(MockMvc mvc, ObjectMapper om) {
+        this.mvc = mvc;
+        this.om = om;
+    }
 
     @Test
     @DisplayName("회원가입 테스트")
