@@ -73,18 +73,18 @@ class MessageRepositoryTest {
     @Test
     @DisplayName("대화방 쪽지 전체 삭제")
     void deleteAllByUserIdAndOpponentUserId() {
-//        //given
-//        User testuser = userRepository.findByName("테스트유저3").get();
-//        User opponentUser = userRepository.findByName("테스트유저2").get();
-//        int before = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged()).size();
-//        //when
-//        System.out.println("====================start===================");
-//        messageRepository.deleteAllByUserIdAndOpponentUserId(testuser.getId(), opponentUser.getId());
-//        int after = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged()).size();
-//        System.out.println("========================end=====================");
-//        //then
-//        Assertions.assertThat(before).isEqualTo(20);
-//        Assertions.assertThat(after).isEqualTo(0);
+        // given
+        Long testUserId = 3L;
+        Long opponentUserId = 1L;
+        int before = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testUserId, opponentUserId, null, Pageable.unpaged()).size();
+        // when
+        System.out.println("====================start===================");
+        messageRepository.deleteAllByUserIdAndOpponentUserId(testUserId, opponentUserId);
+        int after = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testUserId, opponentUserId, null, Pageable.unpaged()).size();
+        System.out.println("========================end=====================");
+        // then
+        Assertions.assertThat(before).isEqualTo(10);
+        Assertions.assertThat(after).isZero();
     }
 
     @Test
