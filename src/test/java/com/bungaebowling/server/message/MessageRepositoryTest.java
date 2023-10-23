@@ -2,13 +2,17 @@ package com.bungaebowling.server.message;
 
 import com.bungaebowling.server.message.repository.MessageRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+
+import java.util.List;
 
 @DataJpaTest
 @ActiveProfiles(value = {"test", "private", "aws"})
@@ -30,25 +34,23 @@ class MessageRepositoryTest {
     @Test
     @DisplayName("나의 대화상대, 대화상대별 최신메시지 조회")
     void findLatestMessagesByUserId() {
-//        //given
-//        User testuser = userRepository.findByName("이볼링").get();
-//        //when
-//        System.out.println("====================start===================");
-//        List<Message> messages = messageRepository.findLatestMessagesPerOpponentByUserId(testuser.getId(), null, Pageable.unpaged());
-//        System.out.println("========================end=====================");
-//        //then
-//        Assertions.assertThat(messages.get(0).getContent()).isEqualTo("39");
-//        Assertions.assertThat(messages.get(0).getUser().getName()).isEqualTo("테스트유저3");
-//        Assertions.assertThat(messages.get(0).getOpponentUser().getName()).isEqualTo("테스트유저2");
-//        Assertions.assertThat(messages.get(0).getIsRead()).isEqualTo(true);
-//        Assertions.assertThat(messages.get(0).getIsReceive()).isEqualTo(false);
-//        Assertions.assertThat(messages.get(0).getOpponentUser().getImgUrl()).isEqualTo("testimage2");
-//        Assertions.assertThat(messages.get(1).getContent()).isEqualTo("19");
-//        Assertions.assertThat(messages.get(1).getUser().getName()).isEqualTo("테스트유저3");
-//        Assertions.assertThat(messages.get(1).getOpponentUser().getName()).isEqualTo("테스트유저1");
-//        Assertions.assertThat(messages.get(1).getIsRead()).isEqualTo(false);
-//        Assertions.assertThat(messages.get(1).getIsReceive()).isEqualTo(true);
-//        Assertions.assertThat(messages.get(1).getOpponentUser().getImgUrl()).isEqualTo("testimage1");
+        // given
+        Long testUserId = 3L;
+        // when
+        System.out.println("====================start===================");
+        List<Message> messages = messageRepository.findLatestMessagesPerOpponentByUserId(testUserId, null, Pageable.unpaged());
+        System.out.println("========================end=====================");
+        // then
+        Assertions.assertThat(messages.get(0).getContent()).isEqualTo("4번이 3번에게 보낸 쪽지5");
+        Assertions.assertThat(messages.get(0).getUser().getName()).isEqualTo("이볼링");
+        Assertions.assertThat(messages.get(0).getOpponentUser().getName()).isEqualTo("박볼링");
+        Assertions.assertThat(messages.get(0).getIsRead()).isFalse();
+        Assertions.assertThat(messages.get(0).getIsReceive()).isTrue();
+        Assertions.assertThat(messages.get(1).getContent()).isEqualTo("3번이 1번에게 보낸 쪽지5");
+        Assertions.assertThat(messages.get(1).getUser().getName()).isEqualTo("이볼링");
+        Assertions.assertThat(messages.get(1).getOpponentUser().getName()).isEqualTo("김볼링");
+        Assertions.assertThat(messages.get(1).getIsRead()).isTrue();
+        Assertions.assertThat(messages.get(1).getIsReceive()).isFalse();
     }
 
     @Test
