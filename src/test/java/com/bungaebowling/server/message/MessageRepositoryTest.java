@@ -115,19 +115,19 @@ class MessageRepositoryTest {
     @Test
     @DisplayName("일대일 대화방 쪽지 조회시 읽음 처리 영속성 테스트")
     void updateIsReadByUserIdAndOpponentUserIdContextTest() {
-//        //given
-//        User testuser = userRepository.findByName("테스트유저3").get();
-//        User opponentUser = userRepository.findByName("테스트유저2").get();
-//        //when
-//        System.out.println("====================start===================");
-//        messageRepository.updateIsReadTrueByUserIdAndOpponentUserId(testuser.getId(), opponentUser.getId());
-//        List<Message> messages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged());
-//        long isReadCount = messages.stream()
-//                .filter(message -> !message.getIsRead())
-//                .count();
-//        System.out.println("========================end=====================");
-//        //then
-//        Assertions.assertThat(messages.size()).isEqualTo(20);
-//        Assertions.assertThat(isReadCount).isEqualTo(0);
+        // given
+        Long testUserId = 3L;
+        Long opponentUserId = 4L;
+        // when
+        System.out.println("====================start===================");
+        messageRepository.updateIsReadTrueByUserIdAndOpponentUserId(testUserId, opponentUserId);
+        List<Message> messages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testUserId, opponentUserId, null, Pageable.unpaged());
+        long isReadCount = messages.stream()
+                .filter(message -> !message.getIsRead())
+                .count();
+        System.out.println("========================end=====================");
+        // then
+        Assertions.assertThat(messages).hasSize(5);
+        Assertions.assertThat(isReadCount).isZero();
     }
 }
