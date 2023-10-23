@@ -56,19 +56,18 @@ class MessageRepositoryTest {
     @Test
     @DisplayName("일대일 대화방 쪽지 조회")
     void findAllByUserIdAndOpponentUserOrderByIdDesc() {
-//        //given
-//        User testuser = userRepository.findByName("테스트유저3").get();
-//        User opponentUser = userRepository.findByName("테스트유저2").get();
-//        //when
-//        System.out.println("====================start===================");
-//        List<Message> messages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testuser.getId(), opponentUser.getId(), null, Pageable.unpaged());
-//        System.out.println("========================end=====================");
-//        //then
-//        Assertions.assertThat(messages.size()).isEqualTo(20);
-//        Assertions.assertThat(messages.get(0).getContent()).isEqualTo("39");
-//        Assertions.assertThat(messages.get(0).getUser().getName()).isEqualTo("테스트유저3");
-//        Assertions.assertThat(messages.get(0).getOpponentUser().getName()).isEqualTo("테스트유저2");
-//        Assertions.assertThat(messages.get(0).getOpponentUser().getImgUrl()).isEqualTo("testimage2");
+        // given
+        Long testUserId = 3L;
+        Long opponentUserId = 1L;
+        // when
+        System.out.println("====================start===================");
+        List<Message> messages = messageRepository.findAllByUserIdAndOpponentUserIdOrderByIdDesc(testUserId, opponentUserId, null, Pageable.unpaged());
+        System.out.println("========================end=====================");
+        // then
+        Assertions.assertThat(messages).hasSize(10);
+        Assertions.assertThat(messages.get(0).getContent()).isEqualTo("3번이 1번에게 보낸 쪽지5");
+        Assertions.assertThat(messages.get(0).getUser().getName()).isEqualTo("이볼링");
+        Assertions.assertThat(messages.get(0).getOpponentUser().getName()).isEqualTo("김볼링");
     }
 
     @Test
