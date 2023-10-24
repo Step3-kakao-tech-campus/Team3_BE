@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -32,15 +33,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @ActiveProfiles(value = {"test", "private", "aws"})
-@Sql(value = "classpath:test_db/teardown.sql")
+@Sql(value = "classpath:test_db/teardown.sql", config = @SqlConfig(encoding = "UTF-8"))
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class UserControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
+    private final MockMvc mvc;
 
-    @Autowired
-    private ObjectMapper om;
+    private final ObjectMapper om;
 
     @MockBean(name = "redisTemplate")
     private RedisTemplate<String, String> redisTemplate;
@@ -50,6 +49,12 @@ class UserControllerTest {
 
     @Mock
     private ValueOperations<String, String> valueOperations;
+
+    @Autowired
+    public UserControllerTest(MockMvc mvc, ObjectMapper om) {
+        this.mvc = mvc;
+        this.om = om;
+    }
 
     @Test
     @DisplayName("회원가입 테스트")
