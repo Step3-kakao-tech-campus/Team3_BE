@@ -44,7 +44,7 @@ public enum ErrorCode {
     RATING_PERMISSION_DENIED(HttpStatus.BAD_REQUEST, "권한이 없습니다."),
     RATING_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "잘못된 평점 요청입니다."),
 
-    INVALID_RUQUEST_DATA(HttpStatus.BAD_REQUEST, "올바른 양식이 아닙니다."),
+    INVALID_REQUEST_DATA(HttpStatus.BAD_REQUEST, "올바른 양식이 아닙니다."),
     LOGIN_FAILED(HttpStatus.BAD_REQUEST, "로그인에 실패하였습니다."),
     REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 행정구역입니다."),
     USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),

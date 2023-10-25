@@ -66,7 +66,7 @@ public class UserService {
         try {
             districtId = Long.parseLong(requestDto.districtId());
         } catch (NumberFormatException e) {
-            throw new CustomException(ErrorCode.INVALID_RUQUEST_DATA, "숫자만 가능합니다.:districtId");
+            throw new CustomException(ErrorCode.INVALID_REQUEST_DATA, "숫자만 가능합니다.:districtId");
         }
 
         if (userRepository.findByEmail(requestDto.email()).isPresent())
