@@ -295,7 +295,35 @@ class UserControllerTest {
     }
 
     @Test
-    void getMyProfile() {
+    @WithUserDetails(value = "김볼링")
+    @DisplayName("자신의 프로필 조회 테스트")
+    void getMyProfile() throws Exception {
+        // given
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .get("/api/users/mine")
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.id").exists(),
+                jsonPath("$.response.name").exists(),
+                jsonPath("$.response.email").exists(),
+                jsonPath("$.response.verification").isBoolean(),
+                jsonPath("$.response.averageScore").isNumber(),
+                jsonPath("$.response.rating").isNumber(),
+                jsonPath("$.response.districtId").isNumber(),
+                jsonPath("$.response.address").exists(),
+                jsonPath("$.response.profileImage").hasJsonPath()
+        );
     }
 
     @Test
