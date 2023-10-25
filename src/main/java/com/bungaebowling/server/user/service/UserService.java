@@ -162,7 +162,8 @@ public class UserService {
     }
 
     public UserResponse.GetUsersDto getUsers(CursorRequest cursorRequest, String name) {
-        List<User> users = loadUsers(cursorRequest, name);
+        String searchName = name != null ? name : "";
+        List<User> users = loadUsers(cursorRequest, searchName);
         List<Double> ratings = users.stream()
                 .map(user -> getRating(user.getId()))
                 .toList();

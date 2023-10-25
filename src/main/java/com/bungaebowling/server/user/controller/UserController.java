@@ -93,7 +93,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> getUsers(CursorRequest cursorRequest, @RequestParam(value = "name") String name) {
+    public ResponseEntity<?> getUsers(CursorRequest cursorRequest, @RequestParam(value = "name", required = false) String name) {
         UserResponse.GetUsersDto response = userService.getUsers(cursorRequest, name);
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
