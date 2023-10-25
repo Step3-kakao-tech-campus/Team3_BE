@@ -383,6 +383,70 @@ class UserControllerTest {
     }
 
     @Test
+    @WithUserDetails(value = "김볼링")
+    @DisplayName("자신의 프로필 수정 테스트 - 이름만 변경")
+    void updateMyProfileOnlyName() throws Exception {
+        // given
+        String newName = "김볼링싫어";
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .multipart(HttpMethod.PUT, "/api/users/mine")
+                        .part(new MockPart("name", newName.getBytes(StandardCharsets.UTF_8)))
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        var user = userRepository.findByName(newName).orElse(null);
+
+        Assertions.assertNotNull(user);
+        Assertions.assertEquals(user.getName(), newName);
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
+    }
+
+    @Test
+    @WithUserDetails(value = "김볼링")
+    @DisplayName("자신의 프로필 수정 테스트 - 프로필 이미지만 변경")
+    void updateMyProfileOnlyProfileImage() throws Exception {
+        // given
+        MockMultipartFile file = new MockMultipartFile("profileImage", "image.png", MediaType.IMAGE_PNG_VALUE, "mockImageData".getBytes());
+
+        String imageUrl = "https://kakao.com";
+
+        BDDMockito.given(amazonS3Client.putObject(Mockito.any())).willReturn(null);
+        BDDMockito.given(amazonS3Client.getUrl(Mockito.any(), Mockito.any())).willReturn(new URL(imageUrl));
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .multipart(HttpMethod.PUT, "/api/users/mine")
+                        .file(file)
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        var user = userRepository.findByName("김볼링").orElse(null);
+
+        Assertions.assertNotNull(user);
+        Assertions.assertEquals(user.getImgUrl(), imageUrl);
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
+    }
+
+    @Test
     void getUserRecords() {
     }
 }
