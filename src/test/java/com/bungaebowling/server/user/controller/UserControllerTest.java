@@ -447,6 +447,29 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserRecords() {
+    @DisplayName("유저 기록 조회")
+    void getUserRecords() throws Exception {
+        // given
+        Long userId = 1L;
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .get("/api/users/" + userId + "/records")
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.name").exists(),
+                jsonPath("$.response.game").isNumber(),
+                jsonPath("$.response.average").isNumber(),
+                jsonPath("$.response.maximum").isNumber(),
+                jsonPath("$.response.minimum").isNumber()
+        );
     }
 }
