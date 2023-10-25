@@ -28,6 +28,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.everyItem;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -217,7 +219,52 @@ class UserControllerTest {
     }
 
     @Test
-    void getUsers() {
+    @DisplayName("사용자 목록 조회 테스트")
+    void getUsers() throws Exception {
+        // given
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .get("/api/users")
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.nextCursorRequest").exists(),
+                jsonPath("$.response.users[0].id").exists(),
+                jsonPath("$.response.users[0].name").exists(),
+                jsonPath("$.response.users[0].rating").isNumber(),
+                jsonPath("$.response.users[0].profileImage").hasJsonPath()
+        );
+    }
+
+    @Test
+    @DisplayName("사용자 목록 조회 테스트 - name 검색")
+    void getUsersWithName() throws Exception {
+        // given
+        String searchName = "볼링";
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .get("/api/users")
+                        .param("name", searchName)
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpect(
+                jsonPath("$.response.users[*].name", everyItem(containsString(searchName)))
+        );
     }
 
     @Test
