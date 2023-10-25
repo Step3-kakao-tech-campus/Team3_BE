@@ -1,11 +1,14 @@
 package com.bungaebowling.server.user.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
+import com.bungaebowling.server.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -18,7 +21,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,6 +33,9 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.everyItem;
@@ -43,6 +52,8 @@ class UserControllerTest {
 
     private final ObjectMapper om;
 
+    private final UserRepository userRepository;
+
     @MockBean(name = "redisTemplate")
     private RedisTemplate<String, String> redisTemplate;
 
@@ -52,10 +63,14 @@ class UserControllerTest {
     @Mock
     private ValueOperations<String, String> valueOperations;
 
+    @MockBean
+    private AmazonS3 amazonS3Client;
+
     @Autowired
-    public UserControllerTest(MockMvc mvc, ObjectMapper om) {
+    public UserControllerTest(MockMvc mvc, ObjectMapper om, UserRepository userRepository) {
         this.mvc = mvc;
         this.om = om;
+        this.userRepository = userRepository;
     }
 
     @Test
@@ -327,7 +342,44 @@ class UserControllerTest {
     }
 
     @Test
-    void updateMyProfile() {
+    @WithUserDetails(value = "김볼링")
+    @DisplayName("자신의 프로필 수정 테스트")
+    void updateMyProfile() throws Exception {
+        // given
+        String newName = "김볼링싫어";
+        long newDistrictId = 15L;
+        MockMultipartFile file = new MockMultipartFile("profileImage", "image.png", MediaType.IMAGE_PNG_VALUE, "mockImageData".getBytes());
+
+        String imageUrl = "https://kakao.com";
+
+        BDDMockito.given(amazonS3Client.putObject(Mockito.any())).willReturn(null);
+        BDDMockito.given(amazonS3Client.getUrl(Mockito.any(), Mockito.any())).willReturn(new URL(imageUrl));
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .multipart(HttpMethod.PUT, "/api/users/mine")
+                        .file(file)
+                        .part(new MockPart("name", newName.getBytes(StandardCharsets.UTF_8)))
+                        .part(new MockPart("districtId", Long.toString(newDistrictId).getBytes(StandardCharsets.UTF_8)))
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        var user = userRepository.findByName(newName).orElse(null);
+
+        Assertions.assertNotNull(user);
+        Assertions.assertEquals(user.getName(), newName);
+        Assertions.assertEquals(user.getDistrict().getId(), newDistrictId);
+        Assertions.assertEquals(user.getImgUrl(), imageUrl);
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
     }
 
     @Test
