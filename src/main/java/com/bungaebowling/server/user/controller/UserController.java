@@ -111,10 +111,11 @@ public class UserController {
     }
 
     @PutMapping("/users/mine")
-    public ResponseEntity<?> updateMyProfile(@RequestPart(required = false) MultipartFile profileImage,
-                                             @RequestPart @Valid UserRequest.UpdateMyProfileDto request, Errors errors,
+    public ResponseEntity<?> updateMyProfile(@RequestParam(required = false) MultipartFile profileImage,
+                                             @RequestParam(required = false) String name,
+                                             @RequestParam(required = false) Long districtId,
                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
-        userService.updateMyProfile(profileImage, request, userDetails.getId());
+        userService.updateMyProfile(profileImage, name, districtId, userDetails.getId());
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 

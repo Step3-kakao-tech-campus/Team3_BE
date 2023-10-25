@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -198,18 +199,31 @@ public class UserService {
     }
 
     @Transactional
-    public void updateMyProfile(MultipartFile profileImage, UserRequest.UpdateMyProfileDto request, Long userId) {
+    public void updateMyProfile(MultipartFile profileImage, String name, Long districtId, Long userId) {
+        validCheckName(name);
+
         User user = findUserById(userId);
 
-        District district = request.districtId() == null ? null :
-                districtRepository.findById(request.districtId()).orElseThrow(
+        District district = districtId == null ? null :
+                districtRepository.findById(districtId).orElseThrow(
                         () -> new CustomException(ErrorCode.REGION_NOT_FOUND)
                 );
 
         if (profileImage == null) {
-            user.updateProfile(request.name(), district, null, null);
+            user.updateProfile(name, district, null, null);
         } else {
-            updateProfileWithImage(user, request.name(), district, profileImage);
+            updateProfileWithImage(user, name, district, profileImage);
+        }
+    }
+
+    private void validCheckName(String name) {
+        if (name != null) {
+            if (name.length() > 20) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST_DATA, "최대 20자까지 입니다." + ":name");
+            }
+            if (!Pattern.matches("[a-zA-Z0-9가-힣]*", name)) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST_DATA, "한글, 영문, 숫자만 입력 가능합니다.");
+            }
         }
     }
 

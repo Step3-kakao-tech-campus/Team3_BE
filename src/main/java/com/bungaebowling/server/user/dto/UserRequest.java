@@ -44,12 +44,4 @@ public class UserRequest {
             String token
     ) {
     }
-
-    public record UpdateMyProfileDto(
-            @Size(max = 20, message = "최대 20자까지 입니다.")
-            @Pattern(regexp = "[a-zA-Z0-9가-힣]*", message = "한글, 영문, 숫자만 입력 가능합니다.")
-            String name,
-            Long districtId
-    ) {
-    }
 }
