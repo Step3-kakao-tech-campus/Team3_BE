@@ -1,18 +1,26 @@
 package com.bungaebowling.server.city.controller;
 
+import com.bungaebowling.server.ControllerTestConfig;
+import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
+import com.epages.restdocs.apispec.Schema;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -20,17 +28,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles(value = {"test", "private", "aws"})
 @Sql(value = "classpath:test_db/teardown.sql", config = @SqlConfig(encoding = "UTF-8"))
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-class CityControllerTest {
-
-    private final MockMvc mvc;
-
-    private final ObjectMapper om;
-
+class CityControllerTest extends ControllerTestConfig {
 
     @Autowired
-    public CityControllerTest(MockMvc mvc, ObjectMapper om) {
-        this.mvc = mvc;
-        this.om = om;
+    public CityControllerTest(WebApplicationContext context, ObjectMapper om) {
+        super(context, om);
     }
 
     @Test
@@ -40,7 +42,7 @@ class CityControllerTest {
 
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .get("/api/cities")
         );
         // then
@@ -53,6 +55,28 @@ class CityControllerTest {
                 jsonPath("$.status").value(200),
                 jsonPath("$.response.cities[0].id").isNumber(),
                 jsonPath("$.response.cities[0].name").exists()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "getCities",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("시/도 조회")
+                                        .description("시/도 정보를 조회합니다.")
+                                        .requestFields()
+                                        .responseSchema(Schema.schema("시-도 조회 DTO"))
+                                        .responseFields(
+                                                fieldWithPath("status").description("응답 상태 정보"),
+                                                fieldWithPath("response").description("응답 body"),
+                                                fieldWithPath("response.cities").description("시/도(city)정보 list"),
+                                                fieldWithPath("response.cities[].id").description("시/도(city)의 ID"),
+                                                fieldWithPath("response.cities[].name").description("시/도(city)의 이름"),
+                                                fieldWithPath("errorMessage").description("에러 메시지")
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 
