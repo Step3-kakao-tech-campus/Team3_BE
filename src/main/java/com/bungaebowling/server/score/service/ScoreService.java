@@ -131,9 +131,7 @@ public class ScoreService {
     }
 
     private void updateScoreWithFile(Integer scoreNum, MultipartFile image, Long postId, User user, Score score, LocalDateTime updateTime) {
-        if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
-            awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
-        }
+        deleteImageIfFileExist(score);
 
         if (image.isEmpty()) {
             score.updateWithFile(null, updateTime, null);
@@ -168,8 +166,14 @@ public class ScoreService {
     }
 
     private void deleteScore(Score score) {
-        awsS3Service.deleteFile(score.getResultImageUrl());
+        deleteImageIfFileExist(score);
         scoreRepository.delete(score);
+    }
+
+    private void deleteImageIfFileExist(Score score) { // 기존에 파일 있으면 지워주기
+        if (score.getResultImageUrl() != null) {
+            awsS3Service.deleteFile(score.getResultImageUrl());
+        }
     }
 
     public int calculateAverage(List<Score> scores) {
