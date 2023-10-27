@@ -106,35 +106,24 @@ public class ScoreService {
 
         checkPostPermission(userId, post);
 
-        User user = findUserById(userId);
         Score score = findScoreById(scoreId);
 
-        updateScore(scoreNum, image, postId, user, score);
+        updateScore(scoreNum, image, postId, userId, score);
     }
 
-    private void updateScore(Integer scoreNum, MultipartFile image, Long postId, User user, Score score) {
-        LocalDateTime updateTime = LocalDateTime.now();
-
-        if (image == null) { // null 체크 - null인 경우
+    private void updateScore(Integer scoreNum, MultipartFile image, Long postId, Long userId, Score score) {
+        if (scoreNum != null) {
             validateScoreNum(scoreNum);
-            score.updateWithoutFile(scoreNum, updateTime); // 점수 수정 - scoreNum만 변경
-        } else {
-            checkImageExist(score);
-            updateScoreWithFile(scoreNum, image, postId, user, score, updateTime); // 이미지도 수정할 경우 (이미지 삭제 경우 제외)
+            score.updateScoreNum(scoreNum); // 점수 수정
         }
-    }
 
-    private void updateScoreWithFile(Integer scoreNum, MultipartFile image, Long postId, User user, Score score, LocalDateTime updateTime) {
-        deleteImageIfExist(score);
+        if (image != null) {
+            deleteImageIfExist(score);
 
-        String imageUrl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
-        String accessImageUrl = awsS3Service.getImageAccessUrl(imageUrl);
+            String imageUrl = awsS3Service.uploadScoreFile(userId, postId, "score", score.getCreatedAt(), image);
+            String accessImageUrl = awsS3Service.getImageAccessUrl(imageUrl);
 
-        if (scoreNum == null) { // scoreNum은 변경 안 할 경우
-            score.updateWithFile(imageUrl, updateTime, accessImageUrl);
-        } else {
-            validateScoreNum(scoreNum); // scoreNum도 변경할 경우
-            score.updateWithFileAndNum(scoreNum, imageUrl, updateTime, accessImageUrl);
+            score.updateWithFile(imageUrl, accessImageUrl);
         }
     }
 
@@ -167,11 +156,9 @@ public class ScoreService {
     }
 
     private void deleteScoreImage(Score score) {
-        LocalDateTime updateTime = LocalDateTime.now();
-
         deleteImageIfExist(score);
 
-        score.updateWithFile(null, updateTime, null);
+        score.updateWithFile(null, null);
     }
 
     @Transactional

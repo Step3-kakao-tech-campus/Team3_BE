@@ -54,21 +54,13 @@ public class Score {
         this.accessImageUrl = accessImageUrl;
     }
 
-    public void updateWithFile(String resultImageUrl, LocalDateTime updatedAt, String accessImageUrl) {
+    public void updateWithFile(String resultImageUrl, String accessImageUrl) {
         this.resultImageUrl = resultImageUrl;
-        this.createdAt = updatedAt;
+        this.createdAt = LocalDateTime.now();
         this.accessImageUrl = accessImageUrl;
     }
 
-    public void updateWithFileAndNum(Integer scoreNum, String resultImageUrl, LocalDateTime updatedAt, String accessImageUrl) {
+    public void updateScoreNum(Integer scoreNum) {
         this.scoreNum = scoreNum;
-        this.resultImageUrl = resultImageUrl;
-        this.createdAt = updatedAt;
-        this.accessImageUrl = accessImageUrl;
-    }
-
-    public void updateWithoutFile(Integer scoreNum, LocalDateTime updatedAt) {
-        this.scoreNum = scoreNum;
-        this.createdAt = updatedAt;
     }
 }
