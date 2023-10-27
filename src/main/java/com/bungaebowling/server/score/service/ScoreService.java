@@ -110,9 +110,7 @@ public class ScoreService {
     public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
 
-        if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.SCORE_UPDATE_PERMISSION_DENIED);
-        }
+        checkPostPermission(userId, post);
 
         User user = findUserById(userId);
         Score score = findScoreById(scoreId);
@@ -156,13 +154,17 @@ public class ScoreService {
     public void delete(Long userId, Long postId, Long scoreId) {
         Post post = findPostById(postId);
 
-        if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.SCORE_DELETE_PERMISSION_DENIED);
-        }
+        checkPostPermission(userId, post);
 
         Score score = findScoreById(scoreId);
 
         deleteScore(score);
+    }
+
+    private void checkPostPermission(Long userId, Post post){
+        if (!post.isMine(userId)) {
+            throw new CustomException(ErrorCode.SCORE_DELETE_PERMISSION_DENIED);
+        }
     }
 
     private void deleteScore(Score score) {
