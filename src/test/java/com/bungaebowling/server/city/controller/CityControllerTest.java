@@ -105,5 +105,26 @@ class CityControllerTest {
     @Test
     @DisplayName("행정구역 정보 조회 테스트")
     void getDistrictInfo() throws Exception {
+        // given
+        Long districtId = 1L;
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .get("/api/cities/districts/" + districtId)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.cityId").isNumber(),
+                jsonPath("$.response.cityName").exists(),
+                jsonPath("$.response.countryId").isNumber(),
+                jsonPath("$.response.countryName").exists(),
+                jsonPath("$.response.name").exists()
+        );
     }
 }
