@@ -47,13 +47,7 @@ public class ScoreService {
             throw new CustomException(ErrorCode.POST_NOT_CLOSE, "아직 점수를 등록할 수 없습니다.");
         }
 
-        if (scoreNum == null) {
-            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "점수를 입력해주세요.");
-        }
-
-        if (scoreNum < 0 || scoreNum > 300) {
-            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "0~300 사이의 숫자만 입력해주세요.");
-        }
+        validateScoreNum(scoreNum);
 
         if (image == null) { // null 체크 - null인 경우
             saveScoreWithoutImage(userId, post, scoreNum);
@@ -122,6 +116,7 @@ public class ScoreService {
         LocalDateTime updateTime = LocalDateTime.now();
 
         if (image == null) { // null 체크 - null인 경우
+            validateScoreNum(scoreNum);
             score.updateWithoutFile(scoreNum, updateTime);
         } else {
             updateScoreWithFile(scoreNum, image, postId, user, score, updateTime);
@@ -140,6 +135,7 @@ public class ScoreService {
             if (scoreNum == null) {
                 score.updateWithFile(imageUrl, updateTime, accessImageUrl);
             } else {
+                validateScoreNum(scoreNum);
                 score.updateWithFileAndNum(scoreNum, imageUrl, updateTime, accessImageUrl);
             }
         }
@@ -148,6 +144,16 @@ public class ScoreService {
     private Score findScoreById(Long scoreId) {
         return scoreRepository.findById(scoreId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCORE_NOT_FOUND));
+    }
+
+    private void validateScoreNum(Integer scoreNum) {
+        if (scoreNum == null) {
+            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "점수를 입력해주세요.");
+        }
+
+        if (scoreNum < 0 || scoreNum > 300) {
+            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "0~300 사이의 숫자만 입력해주세요.");
+        }
     }
 
     @Transactional
