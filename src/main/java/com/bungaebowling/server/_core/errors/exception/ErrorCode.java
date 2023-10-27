@@ -22,7 +22,6 @@ public enum ErrorCode {
     SCORE_UPDATE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "점수 정보에 대한 수정 권한이 없습니다."),
     SCORE_DELETE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "점수 정보에 대한 삭제 권한이 없습니다."),
     SCORE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 점수입니다."),
-    SCORE_UPDATE_FAILED(HttpStatus.BAD_REQUEST, "점수 수정에 실패하였습니다."),
     SCORE_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 점수이미지 입니다."),
 
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 모집글입니다."),
