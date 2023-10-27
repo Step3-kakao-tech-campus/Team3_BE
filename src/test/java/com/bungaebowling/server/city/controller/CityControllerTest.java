@@ -59,11 +59,47 @@ class CityControllerTest {
     @Test
     @DisplayName("시/군/구 조회 테스트")
     void getCountries() throws Exception {
+        // given
+        Long cityId = 1L;
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .get("/api/cities/" + cityId + "/countries")
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.countries[0].id").isNumber(),
+                jsonPath("$.response.countries[0].name").exists()
+        );
     }
 
     @Test
     @DisplayName("읍/면/동 조회 테스트")
     void getDistricts() throws Exception {
+        // given
+        Long countryId = 1L;
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders
+                        .get("/api/cities/countries/" + countryId + "/districts")
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.districts[0].id").isNumber(),
+                jsonPath("$.response.districts[0].name").exists()
+        );
     }
 
     @Test
