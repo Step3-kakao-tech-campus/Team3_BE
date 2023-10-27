@@ -50,6 +50,17 @@ public class ScoreController {
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 
+    @DeleteMapping("{postId}/scores/{scoreId}/image")
+    public ResponseEntity<?> deleteScoreImage(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId,
+            @PathVariable Long scoreId
+    ) {
+        scoreService.deleteImage(userDetails.getId(), postId, scoreId);
+
+        return ResponseEntity.ok(ApiUtils.success());
+    }
+
     @DeleteMapping("{postId}/scores/{scoreId}")
     public ResponseEntity<?> deleteScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,

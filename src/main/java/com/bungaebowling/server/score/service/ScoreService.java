@@ -119,7 +119,7 @@ public class ScoreService {
             validateScoreNum(scoreNum);
             score.updateWithoutFile(scoreNum, updateTime); // 점수 수정 - scoreNum만 변경
         } else {
-            updateScoreWithFile(scoreNum, image, postId, user, score, updateTime);
+            updateScoreWithFile(scoreNum, image, postId, user, score, updateTime); // 이미지도 수정할 경우 (이미지 삭제 경우 제외)
         }
     }
 
@@ -153,6 +153,25 @@ public class ScoreService {
     }
 
     @Transactional
+    public void deleteImage(Long userId, Long postId, Long scoreId) {
+        Post post = findPostById(postId);
+
+        checkPostPermission(userId, post);
+
+        Score score = findScoreById(scoreId);
+
+        deleteScoreImage(score);
+    }
+
+    private void deleteScoreImage(Score score) {
+        LocalDateTime updateTime = LocalDateTime.now();
+
+        deleteImageIfFileExist(score);
+
+        score.updateWithFile(null, updateTime, null);
+    }
+
+    @Transactional
     public void delete(Long userId, Long postId, Long scoreId) {
         Post post = findPostById(postId);
 
@@ -163,7 +182,7 @@ public class ScoreService {
         deleteScore(score);
     }
 
-    private void checkPostPermission(Long userId, Post post){
+    private void checkPostPermission(Long userId, Post post) {
         if (!post.isMine(userId)) {
             throw new CustomException(ErrorCode.SCORE_DELETE_PERMISSION_DENIED);
         }
@@ -177,6 +196,8 @@ public class ScoreService {
     private void deleteImageIfFileExist(Score score) { // 기존에 파일 있으면 지워주기
         if (score.getResultImageUrl() != null) {
             awsS3Service.deleteFile(score.getResultImageUrl());
+        } else {
+            throw new CustomException(ErrorCode.SCORE_IMAGE_NOT_FOUND);
         }
     }
 
