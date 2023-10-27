@@ -125,7 +125,7 @@ public class ScoreService {
 
     private void updateScoreWithFile(Integer scoreNum, MultipartFile image, Long postId, User user, Score score, LocalDateTime updateTime) {
         if (image.isEmpty()) { // 점수 수정 - 이미지만 삭제
-            if (score.getResultImageUrl() != null) {
+            if (score.getResultImageUrl() == null) {
                 throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "삭제할 이미지가 존재하지 않습니다.");
             }
 
