@@ -124,10 +124,15 @@ public class ScoreService {
             if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
                 awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
             }
+
             String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
             String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
-            score.updateWithFile(scoreNum, imageurl, updateTime, accessImageUrl);
+            if (scoreNum == null) {
+                score.updateWithFile(imageurl, updateTime, accessImageUrl);
+            } else {
+                score.updateWithFileAndNum(scoreNum, imageurl, updateTime, accessImageUrl);
+            }
         }
     }
 
