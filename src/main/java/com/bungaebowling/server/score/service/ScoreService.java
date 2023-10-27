@@ -116,22 +116,35 @@ public class ScoreService {
 
         User user = findUserById(userId);
         Score score = findScoreById(scoreId);
+
+        updateScore(scoreNum, image, postId, user, score);
+    }
+
+    private void updateScore(Integer scoreNum, MultipartFile image, Long postId, User user, Score score) {
         LocalDateTime updateTime = LocalDateTime.now();
 
         if (image == null) { // null 체크 - null인 경우
             score.updateWithoutFile(scoreNum, updateTime);
-        } else { // null 체크 - null이 아닌 경우
-            if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
-                awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
-            }
+        } else {
+            updateScoreWithFile(scoreNum, image, postId, user, score, updateTime);
+        }
+    }
 
-            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
-            String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
+    private void updateScoreWithFile(Integer scoreNum, MultipartFile image, Long postId, User user, Score score, LocalDateTime updateTime) {
+        if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
+            awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
+        }
+
+        if (image.isEmpty()) {
+            score.updateWithFile(null, updateTime, null);
+        } else {
+            String imageUrl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
+            String accessImageUrl = awsS3Service.getImageAccessUrl(imageUrl);
 
             if (scoreNum == null) {
-                score.updateWithFile(imageurl, updateTime, accessImageUrl);
+                score.updateWithFile(imageUrl, updateTime, accessImageUrl);
             } else {
-                score.updateWithFileAndNum(scoreNum, imageurl, updateTime, accessImageUrl);
+                score.updateWithFileAndNum(scoreNum, imageUrl, updateTime, accessImageUrl);
             }
         }
     }
