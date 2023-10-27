@@ -121,7 +121,7 @@ public class ScoreService {
         Score score = findScoreById(scoreId);
         LocalDateTime updateTime = LocalDateTime.now();
 
-        if (image.isEmpty()) { // null 체크 - null인 경우
+        if (image == null) { // null 체크 - null인 경우
             score.updateWithoutFile(scoreNumCheck, updateTime);
         } else { // null 체크 - null이 아닌 경우
             if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
