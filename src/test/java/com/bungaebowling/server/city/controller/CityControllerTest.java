@@ -1,5 +1,6 @@
 package com.bungaebowling.server.city.controller;
 
+import com.bungaebowling.server.ApiTag;
 import com.bungaebowling.server.ControllerTestConfig;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
@@ -64,6 +65,7 @@ class CityControllerTest extends ControllerTestConfig {
                                 ResourceSnippetParameters.builder()
                                         .summary("시/도 조회")
                                         .description("시/도 정보를 조회합니다.")
+                                        .tag(ApiTag.CITY.getTagName())
                                         .requestFields()
                                         .responseSchema(Schema.schema("시-도 조회 DTO"))
                                         .responseFields(
