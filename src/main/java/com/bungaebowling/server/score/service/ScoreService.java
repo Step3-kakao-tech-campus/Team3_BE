@@ -119,12 +119,13 @@ public class ScoreService {
             validateScoreNum(scoreNum);
             score.updateWithoutFile(scoreNum, updateTime); // 점수 수정 - scoreNum만 변경
         } else {
+            checkImageExist(score);
             updateScoreWithFile(scoreNum, image, postId, user, score, updateTime); // 이미지도 수정할 경우 (이미지 삭제 경우 제외)
         }
     }
 
     private void updateScoreWithFile(Integer scoreNum, MultipartFile image, Long postId, User user, Score score, LocalDateTime updateTime) {
-        deleteImageIfFileExist(score);
+        deleteImageIfExist(score);
 
         String imageUrl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
         String accessImageUrl = awsS3Service.getImageAccessUrl(imageUrl);
@@ -160,13 +161,15 @@ public class ScoreService {
 
         Score score = findScoreById(scoreId);
 
+        checkImageExist(score);
+
         deleteScoreImage(score);
     }
 
     private void deleteScoreImage(Score score) {
         LocalDateTime updateTime = LocalDateTime.now();
 
-        deleteImageIfFileExist(score);
+        deleteImageIfExist(score);
 
         score.updateWithFile(null, updateTime, null);
     }
@@ -189,14 +192,18 @@ public class ScoreService {
     }
 
     private void deleteScore(Score score) {
-        deleteImageIfFileExist(score);
+        deleteImageIfExist(score);
         scoreRepository.delete(score);
     }
 
-    private void deleteImageIfFileExist(Score score) { // 기존에 파일 있으면 지워주기
+    private void deleteImageIfExist(Score score) { // 기존에 파일 있으면 지워주기
         if (score.getResultImageUrl() != null) {
             awsS3Service.deleteFile(score.getResultImageUrl());
-        } else {
+        }
+    }
+
+    private void checkImageExist(Score score) {
+        if (score.getResultImageUrl() == null) {
             throw new CustomException(ErrorCode.SCORE_IMAGE_NOT_FOUND);
         }
     }
