@@ -114,15 +114,12 @@ public class ScoreService {
             throw new CustomException(ErrorCode.SCORE_UPDATE_PERMISSION_DENIED);
         }
 
-        Integer scoreNumCheck = Optional.ofNullable(scoreNum)
-                .orElseThrow(() -> new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "점수를 입력해주세요."));
-
         User user = findUserById(userId);
         Score score = findScoreById(scoreId);
         LocalDateTime updateTime = LocalDateTime.now();
 
         if (image == null) { // null 체크 - null인 경우
-            score.updateWithoutFile(scoreNumCheck, updateTime);
+            score.updateWithoutFile(scoreNum, updateTime);
         } else { // null 체크 - null이 아닌 경우
             if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
                 awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
@@ -130,7 +127,7 @@ public class ScoreService {
             String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
             String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
-            score.updateWithFile(scoreNumCheck, imageurl, updateTime, accessImageUrl);
+            score.updateWithFile(scoreNum, imageurl, updateTime, accessImageUrl);
         }
     }
 
