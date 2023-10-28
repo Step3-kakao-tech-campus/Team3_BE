@@ -5,6 +5,7 @@ import com.bungaebowling.server.ControllerTestConfig;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
+import com.epages.restdocs.apispec.SimpleType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -112,7 +113,11 @@ class CityControllerTest extends ControllerTestConfig {
                                         .summary("시/군/구 조회")
                                         .description("시/군/구 정보를 조회합니다.")
                                         .tag(ApiTag.CITY.getTagName())
-                                        .pathParameters(parameterWithName("cityId").description("시/도 id"))
+                                        .pathParameters(
+                                                parameterWithName("cityId")
+                                                        .type(SimpleType.NUMBER)
+                                                        .description("시/도 id")
+                                        )
                                         .requestFields()
                                         .responseSchema(Schema.schema("시-군-구 조회 DTO"))
                                         .responseFields(
@@ -159,7 +164,11 @@ class CityControllerTest extends ControllerTestConfig {
                                         .summary("읍/면/동 조회")
                                         .description("읍/면/동 정보를 조회합니다.")
                                         .tag(ApiTag.CITY.getTagName())
-                                        .pathParameters(parameterWithName("countryId").description("시/군/구 id"))
+                                        .pathParameters(
+                                                parameterWithName("countryId")
+                                                        .type(SimpleType.NUMBER)
+                                                        .description("시/군/구 id")
+                                        )
                                         .requestFields()
                                         .responseSchema(Schema.schema("읍-면-동 조회 DTO"))
                                         .responseFields(
@@ -209,7 +218,11 @@ class CityControllerTest extends ControllerTestConfig {
                                         .summary("행정 구역 정보 조회")
                                         .description("행정 구역의 정보를 조회합니다.")
                                         .tag(ApiTag.CITY.getTagName())
-                                        .pathParameters(parameterWithName("districtId").description("읍/면/동 id"))
+                                        .pathParameters(
+                                                parameterWithName("districtId")
+                                                        .type(SimpleType.NUMBER)
+                                                        .description("읍/면/동 id")
+                                        )
                                         .requestFields()
                                         .responseSchema(Schema.schema("행정 구역 정보 조회 DTO"))
                                         .responseFields(
