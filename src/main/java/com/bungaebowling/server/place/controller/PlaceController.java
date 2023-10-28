@@ -1,13 +1,11 @@
 package com.bungaebowling.server.place.controller;
 
 import com.bungaebowling.server._core.utils.ApiUtils;
+import com.bungaebowling.server.place.dto.PlaceResponse;
 import com.bungaebowling.server.place.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -16,10 +14,9 @@ public class PlaceController {
 
     private final PlaceService placeService;
 
-    @GetMapping
-    public ResponseEntity<?> getPlaceDetails(@RequestParam Double latitude,
-                                  @RequestParam Double longitude) {
-        String response = placeService.getPlaceDetails(latitude, longitude);
+    @GetMapping("/{placeId}")
+    public ResponseEntity<?> getPlaceDetails(@PathVariable Long placeId, @RequestParam String name) {
+        PlaceResponse.GetPlaceDto response = placeService.getPlaceDetails(name, placeId);
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 }
