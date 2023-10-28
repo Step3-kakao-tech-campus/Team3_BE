@@ -2,6 +2,7 @@ package com.bungaebowling.server.city.controller;
 
 import com.bungaebowling.server.ApiTag;
 import com.bungaebowling.server.ControllerTestConfig;
+import com.bungaebowling.server.GeneralApiResponseSchema;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
@@ -70,12 +71,11 @@ class CityControllerTest extends ControllerTestConfig {
                                         .requestFields()
                                         .responseSchema(Schema.schema("시-도 조회 DTO"))
                                         .responseFields(
-                                                fieldWithPath("status").description("응답 상태 정보"),
-                                                fieldWithPath("response").description("응답 body"),
-                                                fieldWithPath("response.cities").description("시/도(city)정보 list"),
-                                                fieldWithPath("response.cities[].id").description("시/도(city)의 ID"),
-                                                fieldWithPath("response.cities[].name").description("시/도(city)의 이름"),
-                                                fieldWithPath("errorMessage").description("에러 메시지")
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.cities").description("시/도(city)정보 list"),
+                                                        fieldWithPath("response.cities[].id").description("시/도(city)의 ID"),
+                                                        fieldWithPath("response.cities[].name").description("시/도(city)의 이름")
+                                                )
                                         )
                                         .build()
                         )
@@ -121,12 +121,11 @@ class CityControllerTest extends ControllerTestConfig {
                                         .requestFields()
                                         .responseSchema(Schema.schema("시-군-구 조회 DTO"))
                                         .responseFields(
-                                                fieldWithPath("status").description("응답 상태 정보"),
-                                                fieldWithPath("response").description("응답 body"),
-                                                fieldWithPath("response.countries").description("시/군/구(country)정보 list"),
-                                                fieldWithPath("response.countries[].id").description("시/군/구(country)의 ID"),
-                                                fieldWithPath("response.countries[].name").description("시/군/구(country)의 이름"),
-                                                fieldWithPath("errorMessage").description("에러 메시지")
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.countries").description("시/군/구(country)정보 list"),
+                                                        fieldWithPath("response.countries[].id").description("시/군/구(country)의 ID"),
+                                                        fieldWithPath("response.countries[].name").description("시/군/구(country)의 이름")
+                                                )
                                         )
                                         .build()
                         )
@@ -172,12 +171,11 @@ class CityControllerTest extends ControllerTestConfig {
                                         .requestFields()
                                         .responseSchema(Schema.schema("읍-면-동 조회 DTO"))
                                         .responseFields(
-                                                fieldWithPath("status").description("응답 상태 정보"),
-                                                fieldWithPath("response").description("응답 body"),
-                                                fieldWithPath("response.districts").description("읍/면/동(district)정보 list"),
-                                                fieldWithPath("response.districts[].id").description("읍/면/동(district)의 ID"),
-                                                fieldWithPath("response.districts[].name").description("읍/면/동(district)의 이름"),
-                                                fieldWithPath("errorMessage").description("에러 메시지")
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.districts").description("읍/면/동(district)정보 list"),
+                                                        fieldWithPath("response.districts[].id").description("읍/면/동(district)의 ID"),
+                                                        fieldWithPath("response.districts[].name").description("읍/면/동(district)의 이름")
+                                                )
                                         )
                                         .build()
                         )
@@ -226,14 +224,13 @@ class CityControllerTest extends ControllerTestConfig {
                                         .requestFields()
                                         .responseSchema(Schema.schema("행정 구역 정보 조회 DTO"))
                                         .responseFields(
-                                                fieldWithPath("status").description("응답 상태 정보"),
-                                                fieldWithPath("response").description("응답 body"),
-                                                fieldWithPath("response.cityId").description("시/도(city)의 ID"),
-                                                fieldWithPath("response.cityName").description("시/도(city)의 이름"),
-                                                fieldWithPath("response.countryId").description("시/군/구(country)의 ID"),
-                                                fieldWithPath("response.countryName").description("시/군/구(country)의 이름"),
-                                                fieldWithPath("response.name").description("읍/면/동(district)의 이름"),
-                                                fieldWithPath("errorMessage").description("에러 메시지")
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.cityId").description("시/도(city)의 ID"),
+                                                        fieldWithPath("response.cityName").description("시/도(city)의 이름"),
+                                                        fieldWithPath("response.countryId").description("시/군/구(country)의 ID"),
+                                                        fieldWithPath("response.countryName").description("시/군/구(country)의 이름"),
+                                                        fieldWithPath("response.name").description("읍/면/동(district)의 이름")
+                                                )
                                         )
                                         .build()
                         )
