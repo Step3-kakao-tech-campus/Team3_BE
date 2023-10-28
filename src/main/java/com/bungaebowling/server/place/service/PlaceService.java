@@ -1,5 +1,9 @@
 package com.bungaebowling.server.place.service;
 
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server.city.country.district.District;
+import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
+import com.bungaebowling.server.place.dto.PlaceResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +13,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.bungaebowling.server._core.errors.exception.ErrorCode.*;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -21,42 +30,106 @@ public class PlaceService {
 
     private final String GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json";
     private final String PLACES_API_URL = "https://maps.googleapis.com/maps/api/place/details/json";
+    private final String PHOTO_API_URL = "https://maps.googleapis.com/maps/api/place/photo";
+
+    private final DistrictRepository districtRepository;
 
     @Transactional
-    public String getPlaceDetails(Double latitude, Double longitude){
-        String placeId = getGooglePlaceId(latitude, longitude);
-        log.info("key=" + apiKey);
-        String url = String.format("%s?place_id=%s&key=%s", PLACES_API_URL, placeId, apiKey);
-
+    public PlaceResponse.GetPlaceDto getPlaceDetails(String name, Long placeId) {
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(url, String.class);
+
+        String districtName = getDistrictName(placeId);
+        String googlePlaceId = getGooglePlaceId(name, districtName);
+        String url = createPlaceUrl(googlePlaceId);
+
+        String response = restTemplate.getForObject(url, String.class);
+        log.info("detail response=" + response);
+        return extractPlaceDetails(response);
     }
 
-    private String getGooglePlaceId(Double latitude, Double longitude){
-        String url = String.format("%s?latlng=%f,%f&key=%s", GEOCODING_API_URL, latitude, longitude, apiKey);
-
+    private String getGooglePlaceId(String name, String address) {
         RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(url, String.class);
 
+        String url = createGooglePlaceIdUrl(name, address);
+        log.info("google place id url=" + url);
+
+        String response = restTemplate.getForObject(url, String.class);
+        log.info("id response=" + response);
         return extractPlaceId(response);
     }
 
-    private String extract
+    private PlaceResponse.GetPlaceDto extractPlaceDetails(String response) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            JsonNode result = objectMapper.readTree(response).path("result");
+            if (result.isEmpty()) {
+                throw new CustomException(PLACE_DETAILS_NOT_FOUND);
+            }
+
+            //볼링장 이름, 주소, 전화번호
+            String name = result.path("name").asText();
+            String address = result.path("formatted_address").asText();
+            String phoneNumber = result.path("formatted_phone_number").asText();
+
+            //볼링장 사진
+            List<String> images = new ArrayList<>();
+            JsonNode photoNode = result.path("photos");
+            for (int i = 0; i < photoNode.size(); i++) {
+                String photoReference = photoNode.get(i).path("photo_reference").asText();
+                String imageUrl = createImageUrl(photoReference);
+                images.add(imageUrl);
+            }
+
+            //볼링장 영업 시간
+            List<String> operationTimes = new ArrayList<>();
+            JsonNode weekdayTextNode = result.path("opening_hours").path("weekday_text");
+            for (int i = 0; i < weekdayTextNode.size(); i++) {
+                String operationTime = weekdayTextNode.get(i).asText();
+                operationTimes.add(operationTime);
+            }
+
+            return new PlaceResponse.GetPlaceDto(name, images, address, phoneNumber, operationTimes);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(PLACE_DETAILS_CONVERSION_ERROR);
+        }
+    }
 
     private String extractPlaceId(String response) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            JsonNode rootNode = objectMapper.readTree(response);
-            JsonNode resultsNode = rootNode.path("results");
-            if (resultsNode.isArray() && resultsNode.size() > 0) {
-                JsonNode firstResult = resultsNode.get(0);
-                return firstResult.path("place_id").asText();
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e); //TODO: 수정
-        }
+            JsonNode results = objectMapper.readTree(response).path("results");
 
-        return null;
+            if (results.size() == 0) {
+                throw new CustomException(PLACE_DETAILS_NOT_FOUND);
+            }
+
+            return results.get(0).path("place_id").asText();
+        } catch (JsonProcessingException e) {
+            throw new CustomException(PLACE_DETAILS_CONVERSION_ERROR);
+        }
+    }
+
+    private String createPlaceUrl(String placeId) {
+        return PLACES_API_URL + "?language=ko&place_id=" + placeId + "&key=" + apiKey;
+    }
+
+    private String createGooglePlaceIdUrl(String name, String districtName) {
+        String address = (name != null ? name : "")
+                + (name != null && districtName != null ? "," : "")
+                + (districtName != null ? districtName : "");
+        return GEOCODING_API_URL + "?language=ko&address=" + address + "&key=" + apiKey;
+    }
+
+    private String createImageUrl(String photoReference) {
+        return PHOTO_API_URL + "?photoreference=" + photoReference + "&key=" + apiKey;
+    }
+
+    private String getDistrictName(Long placeId) {
+        District district = districtRepository.findById(placeId).orElseThrow(() -> new CustomException(REGION_NOT_FOUND));
+        return district.getCountry().getCity().getName() + " " +
+                district.getCountry().getName() + " " +
+                district.getName();
     }
 }
