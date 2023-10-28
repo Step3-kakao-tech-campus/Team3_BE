@@ -7,14 +7,14 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 
 public enum GeneralApiResponseSchema {
     SUCCESS(
-            "성공 DTO",
+            "성공 응답 DTO",
             new FieldDescriptors(
                     fieldWithPath("status").type(SimpleType.NUMBER).description("응답 상태 정보"),
                     fieldWithPath("response").type(SimpleType.STRING).optional().description("응답 body"),
                     fieldWithPath("errorMessage").type(SimpleType.STRING).optional().description("에러 메시지")
             )
     ),
-    FAIL("실패 DTO",
+    FAIL("실패 응답 DTO",
             new FieldDescriptors(
                     fieldWithPath("status").type(SimpleType.NUMBER).description("응답 상태 정보"),
                     fieldWithPath("response").type(SimpleType.STRING).description("에러 코드"),

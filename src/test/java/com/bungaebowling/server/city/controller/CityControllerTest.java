@@ -69,7 +69,7 @@ class CityControllerTest extends ControllerTestConfig {
                                         .description("시/도 정보를 조회합니다.")
                                         .tag(ApiTag.CITY.getTagName())
                                         .requestFields()
-                                        .responseSchema(Schema.schema("시-도 조회 DTO"))
+                                        .responseSchema(Schema.schema("시-도 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
                                                         fieldWithPath("response.cities").description("시/도(city)정보 list"),
@@ -119,7 +119,7 @@ class CityControllerTest extends ControllerTestConfig {
                                                         .description("시/도 id")
                                         )
                                         .requestFields()
-                                        .responseSchema(Schema.schema("시-군-구 조회 DTO"))
+                                        .responseSchema(Schema.schema("시-군-구 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
                                                         fieldWithPath("response.countries").description("시/군/구(country)정보 list"),
@@ -169,7 +169,7 @@ class CityControllerTest extends ControllerTestConfig {
                                                         .description("시/군/구 id")
                                         )
                                         .requestFields()
-                                        .responseSchema(Schema.schema("읍-면-동 조회 DTO"))
+                                        .responseSchema(Schema.schema("읍-면-동 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
                                                         fieldWithPath("response.districts").description("읍/면/동(district)정보 list"),
@@ -222,7 +222,7 @@ class CityControllerTest extends ControllerTestConfig {
                                                         .description("읍/면/동 id")
                                         )
                                         .requestFields()
-                                        .responseSchema(Schema.schema("행정 구역 정보 조회 DTO"))
+                                        .responseSchema(Schema.schema("행정 구역 정보 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
                                                         fieldWithPath("response.cityId").description("시/도(city)의 ID"),
