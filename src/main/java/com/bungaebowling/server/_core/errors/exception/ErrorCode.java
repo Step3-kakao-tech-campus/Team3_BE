@@ -18,10 +18,11 @@ public enum ErrorCode {
     INVALID_FILE_UPLOAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 파일 업로드 요청입니다."),
     INVALID_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),
 
-    SCORE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "점수 등록에 실패했습니다."),
+    SCORE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "점수 등록에 실패하였습니다."),
     SCORE_UPDATE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "점수 정보에 대한 수정 권한이 없습니다."),
     SCORE_DELETE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "점수 정보에 대한 삭제 권한이 없습니다."),
     SCORE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 점수입니다."),
+    SCORE_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 점수이미지 입니다."),
 
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 모집글입니다."),
     POST_NOT_CLOSE(HttpStatus.FORBIDDEN, "모집글이 마감되지 않았습니다."),
