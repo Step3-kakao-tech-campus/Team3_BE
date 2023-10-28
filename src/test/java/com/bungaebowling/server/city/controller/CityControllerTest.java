@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -89,8 +90,8 @@ class CityControllerTest extends ControllerTestConfig {
         Long cityId = 1L;
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
-                        .get("/api/cities/" + cityId + "/countries")
+                RestDocumentationRequestBuilders
+                        .get("/api/cities/{cityId}/countries", cityId)
         );
         // then
         var responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -102,6 +103,30 @@ class CityControllerTest extends ControllerTestConfig {
                 jsonPath("$.status").value(200),
                 jsonPath("$.response.countries[0].id").isNumber(),
                 jsonPath("$.response.countries[0].name").exists()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "getCountries",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("시/군/구 조회")
+                                        .description("시/군/구 정보를 조회합니다.")
+                                        .tag(ApiTag.CITY.getTagName())
+                                        .pathParameters(parameterWithName("cityId").description("시/도 id"))
+                                        .requestFields()
+                                        .responseSchema(Schema.schema("시-군-구 조회 DTO"))
+                                        .responseFields(
+                                                fieldWithPath("status").description("응답 상태 정보"),
+                                                fieldWithPath("response").description("응답 body"),
+                                                fieldWithPath("response.countries").description("시/군/구(country)정보 list"),
+                                                fieldWithPath("response.countries[].id").description("시/군/구(country)의 ID"),
+                                                fieldWithPath("response.countries[].name").description("시/군/구(country)의 이름"),
+                                                fieldWithPath("errorMessage").description("에러 메시지")
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 
