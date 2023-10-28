@@ -137,8 +137,8 @@ class CityControllerTest extends ControllerTestConfig {
         Long countryId = 1L;
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
-                        .get("/api/cities/countries/" + countryId + "/districts")
+                RestDocumentationRequestBuilders
+                        .get("/api/cities/countries/{countryId}/districts", countryId)
         );
         // then
         var responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -150,6 +150,30 @@ class CityControllerTest extends ControllerTestConfig {
                 jsonPath("$.status").value(200),
                 jsonPath("$.response.districts[0].id").isNumber(),
                 jsonPath("$.response.districts[0].name").exists()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "getDistricts",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("읍/면/동 조회")
+                                        .description("읍/면/동 정보를 조회합니다.")
+                                        .tag(ApiTag.CITY.getTagName())
+                                        .pathParameters(parameterWithName("countryId").description("시/군/구 id"))
+                                        .requestFields()
+                                        .responseSchema(Schema.schema("읍-면-동 조회 DTO"))
+                                        .responseFields(
+                                                fieldWithPath("status").description("응답 상태 정보"),
+                                                fieldWithPath("response").description("응답 body"),
+                                                fieldWithPath("response.districts").description("읍/면/동(district)정보 list"),
+                                                fieldWithPath("response.districts[].id").description("읍/면/동(district)의 ID"),
+                                                fieldWithPath("response.districts[].name").description("읍/면/동(district)의 이름"),
+                                                fieldWithPath("errorMessage").description("에러 메시지")
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 
