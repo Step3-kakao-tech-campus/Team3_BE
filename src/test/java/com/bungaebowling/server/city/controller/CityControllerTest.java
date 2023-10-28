@@ -16,7 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
@@ -178,14 +177,14 @@ class CityControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    @DisplayName("행정구역 정보 조회 테스트")
+    @DisplayName("행정 구역 정보 조회 테스트")
     void getDistrictInfo() throws Exception {
         // given
         Long districtId = 1L;
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
-                        .get("/api/cities/districts/" + districtId)
+                RestDocumentationRequestBuilders
+                        .get("/api/cities/districts/{districtId}", districtId)
         );
         // then
         var responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -200,6 +199,32 @@ class CityControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.countryId").isNumber(),
                 jsonPath("$.response.countryName").exists(),
                 jsonPath("$.response.name").exists()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "getDistrictInfo",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("행정 구역 정보 조회")
+                                        .description("행정 구역의 정보를 조회합니다.")
+                                        .tag(ApiTag.CITY.getTagName())
+                                        .pathParameters(parameterWithName("districtId").description("읍/면/동 id"))
+                                        .requestFields()
+                                        .responseSchema(Schema.schema("행정 구역 정보 조회 DTO"))
+                                        .responseFields(
+                                                fieldWithPath("status").description("응답 상태 정보"),
+                                                fieldWithPath("response").description("응답 body"),
+                                                fieldWithPath("response.cityId").description("시/도(city)의 ID"),
+                                                fieldWithPath("response.cityName").description("시/도(city)의 이름"),
+                                                fieldWithPath("response.countryId").description("시/군/구(country)의 ID"),
+                                                fieldWithPath("response.countryName").description("시/군/구(country)의 이름"),
+                                                fieldWithPath("response.name").description("읍/면/동(district)의 이름"),
+                                                fieldWithPath("errorMessage").description("에러 메시지")
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 }
