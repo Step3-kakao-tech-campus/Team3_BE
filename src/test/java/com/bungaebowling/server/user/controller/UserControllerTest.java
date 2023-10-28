@@ -1,6 +1,7 @@
 package com.bungaebowling.server.user.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.User;
@@ -30,9 +31,9 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -46,11 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles(value = {"test", "private", "aws"})
 @Sql(value = "classpath:test_db/teardown.sql", config = @SqlConfig(encoding = "UTF-8"))
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-class UserControllerTest {
+class UserControllerTest extends ControllerTestConfig {
 
-    private final MockMvc mvc;
-
-    private final ObjectMapper om;
 
     private final UserRepository userRepository;
 
@@ -67,9 +65,8 @@ class UserControllerTest {
     private AmazonS3 amazonS3Client;
 
     @Autowired
-    public UserControllerTest(MockMvc mvc, ObjectMapper om, UserRepository userRepository) {
-        this.mvc = mvc;
-        this.om = om;
+    public UserControllerTest(WebApplicationContext context, ObjectMapper om, UserRepository userRepository) {
+        super(context, om);
         this.userRepository = userRepository;
     }
 
