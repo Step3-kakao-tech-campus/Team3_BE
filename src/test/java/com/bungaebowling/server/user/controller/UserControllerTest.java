@@ -9,9 +9,7 @@ import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.repository.UserRepository;
-import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
-import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.epages.restdocs.apispec.Schema;
+import com.epages.restdocs.apispec.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Assertions;
@@ -100,6 +98,7 @@ class UserControllerTest extends ControllerTestConfig {
         Object json = om.readValue(responseBody, Object.class);
         System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
 
+        var fields = new ConstrainedFields(UserRequest.JoinDto.class);
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
@@ -114,7 +113,13 @@ class UserControllerTest extends ControllerTestConfig {
                                         .description("새로 회원으로 가입합니다.\n" +
                                                 "추가적으로 메일 인증 필요")
                                         .tag(ApiTag.AUTHORIZATION.getTagName())
-                                        .requestFields()
+                                        .requestSchema(Schema.schema("회원가입 요청 DTO"))
+                                        .requestFields(
+                                                fields.withPath("name").type(SimpleType.STRING).description("닉네임"),
+                                                fields.withPath("email").type(SimpleType.STRING).description("이메일"),
+                                                fields.withPath("password").type(SimpleType.STRING).description("비밀번호"),
+                                                fields.withPath("districtId").type(SimpleType.NUMBER).description("행정 구역 ID")
+                                        )
                                         .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
                                         .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
                                         .build()
