@@ -131,7 +131,7 @@ class UserControllerTest extends ControllerTestConfig {
                                         )
                                         .responseHeaders(
                                                 headerWithName(HttpHeaders.SET_COOKIE).description("""
-                                                        refresh token
+                                                        refresh token(http-only cookie)
 
                                                         (e.g.)refreshToken={jwt_refresh_token}"""),
                                                 headerWithName(HttpHeaders.AUTHORIZATION).description("""
@@ -159,7 +159,7 @@ class UserControllerTest extends ControllerTestConfig {
 
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .post("/api/login")
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -172,6 +172,58 @@ class UserControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "login",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("로그인")
+                                        .description("""
+                                                 로그인 진행 시 액세스 토큰과 리프레시 토큰을 전달합니다.
+                                                                                                 
+                                                 액세스 토큰의 구조는 아래와 같습니다.
+                                                                                                 
+                                                 ```json
+                                                {
+                                                  "sub": "2",
+                                                  "role": "ROLE_USER",
+                                                 "type": "access",
+                                                  "exp": 1695633312
+                                                }
+                                                 ```
+                                                 
+                                                 | 항목 | description                                               |
+                                                 |------|-----------------------------------------------------------|
+                                                 | sub  | 유저의 ID(PK)                                             |
+                                                 | role | 권한(이메일 인증 시 ROLE_USER / 인증 안한 경우 ROLE_PENDING) |
+                                                 | exp  | 유효기간                                                  |
+                                                 | type | 토큰의 종류(access, refresh, email-verfication 등이 존재)   |
+                                                  
+                                                 """)
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestSchema(Schema.schema("로그인 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("email").type(SimpleType.STRING).description("로그인 이메일"),
+                                                fieldWithPath("password").type(SimpleType.STRING).description("로그인 비밀번호")
+
+                                        )
+                                        .responseHeaders(
+                                                headerWithName(HttpHeaders.SET_COOKIE).description("""
+                                                        refresh token(http-only cookie)
+
+                                                        (e.g.)refreshToken={jwt_refresh_token}"""),
+                                                headerWithName(HttpHeaders.AUTHORIZATION).description("""
+                                                        access token
+
+                                                        (e.g.)Bearer {jwt_access_token}""")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
