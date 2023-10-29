@@ -112,24 +112,47 @@ public class PlaceService {
     }
 
     private String createPlaceUrl(String placeId) {
-        return PLACES_API_URL + "?language=ko&place_id=" + placeId + "&key=" + apiKey;
+        return new StringBuilder(PLACES_API_URL)
+                .append("?language=ko")
+                .append("&place_id=").append(placeId)
+                .append("&key=").append(apiKey)
+                .toString();
     }
 
     private String createGooglePlaceIdUrl(String name, String districtName) {
-        String address = (name != null ? name : "")
-                + (name != null && districtName != null ? "," : "")
-                + (districtName != null ? districtName : "");
-        return GEOCODING_API_URL + "?language=ko&address=" + address + "&key=" + apiKey;
+        StringBuilder addressBuilder = new StringBuilder();
+
+        if (name != null) {
+            addressBuilder.append(name);
+        }
+
+        if (name != null && districtName != null) {
+            addressBuilder.append(",");
+        }
+
+        if (districtName != null) {
+            addressBuilder.append(districtName);
+        }
+
+        return new StringBuilder(GEOCODING_API_URL)
+                .append("?language=ko")
+                .append("&address=").append(addressBuilder)
+                .append("&key=").append(apiKey)
+                .toString();
     }
 
     private String createImageUrl(String photoReference) {
-        return PHOTO_API_URL + "?photoreference=" + photoReference + "&key=" + apiKey;
+        return new StringBuilder(PHOTO_API_URL)
+                .append("?photoreference=").append(photoReference)
+                .append("&key=").append(apiKey)
+                .toString();
     }
 
     private String getDistrictName(Long placeId) {
         District district = districtRepository.findById(placeId).orElseThrow(() -> new CustomException(REGION_NOT_FOUND));
-        return district.getCountry().getCity().getName() + " " +
-                district.getCountry().getName() + " " +
-                district.getName();
+        return new StringBuilder(district.getCountry().getCity().getName()).append(" ")
+                .append(district.getCountry().getName()).append(" ")
+                .append(district.getName())
+                .toString();
     }
 }
