@@ -7,6 +7,7 @@ import com.bungaebowling.server.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.repository.UserRepository;
@@ -277,16 +278,25 @@ class UserControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    @WithUserDetails(value = "김볼링")
     @DisplayName("로그아웃 테스트")
     void logout() throws Exception {
         // given
         BDDMockito.given(redisTemplate.delete(Mockito.anyString())).willReturn(null);
 
+        var userId = 1L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .post("/api/logout")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
         );
         // then
         var responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -296,6 +306,22 @@ class UserControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] logout",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("로그아웃")
+                                        .description("서버에 저장된 리프레시 토큰의 정보를 만료시킵니다.")
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
