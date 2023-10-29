@@ -9,7 +9,10 @@ import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.repository.UserRepository;
-import com.epages.restdocs.apispec.*;
+import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
+import com.epages.restdocs.apispec.Schema;
+import com.epages.restdocs.apispec.SimpleType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Assertions;
@@ -25,6 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -42,10 +46,12 @@ import org.springframework.web.context.WebApplicationContext;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.everyItem;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -98,7 +104,6 @@ class UserControllerTest extends ControllerTestConfig {
         Object json = om.readValue(responseBody, Object.class);
         System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
 
-        var fields = new ConstrainedFields(UserRequest.JoinDto.class);
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
@@ -110,15 +115,29 @@ class UserControllerTest extends ControllerTestConfig {
                         resource(
                                 ResourceSnippetParameters.builder()
                                         .summary("회원가입")
-                                        .description("새로 회원으로 가입합니다.\n" +
-                                                "추가적으로 메일 인증 필요")
+                                        .description("""
+                                                유저로 회원가입합니다.
+                                                                                                
+                                                회원가입 성공 시, 로그인과 똑같이 액세스 토큰과 리프레시 토큰을 전달합니다.
+
+                                                - 가입 후 메일 인증 필요""")
                                         .tag(ApiTag.AUTHORIZATION.getTagName())
                                         .requestSchema(Schema.schema("회원가입 요청 DTO"))
                                         .requestFields(
-                                                fields.withPath("name").type(SimpleType.STRING).description("닉네임"),
-                                                fields.withPath("email").type(SimpleType.STRING).description("이메일"),
-                                                fields.withPath("password").type(SimpleType.STRING).description("비밀번호"),
-                                                fields.withPath("districtId").type(SimpleType.NUMBER).description("행정 구역 ID")
+                                                fieldWithPath("name").type(SimpleType.STRING).description("닉네임 | 한글, 영문, 숫자만 가능/ 최대 20글자"),
+                                                fieldWithPath("email").type(SimpleType.STRING).description("이메일 | 이메일(^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$) 최대 100자"),
+                                                fieldWithPath("password").type(SimpleType.STRING).description("비밀번호 | 영문,숫자, 특수문자가 모두 포함 / 8자에서 64자 이내"),
+                                                fieldWithPath("districtId").type(SimpleType.NUMBER).description("행정 구역 ID")
+                                        )
+                                        .responseHeaders(
+                                                headerWithName(HttpHeaders.SET_COOKIE).description("""
+                                                        refresh token
+
+                                                        (e.g.)refreshToken={jwt_refresh_token}"""),
+                                                headerWithName(HttpHeaders.AUTHORIZATION).description("""
+                                                        access token
+
+                                                        (e.g.)Bearer {jwt_access_token}""")
                                         )
                                         .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
                                         .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())

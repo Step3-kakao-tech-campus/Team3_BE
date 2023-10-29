@@ -1,7 +1,7 @@
 package com.bungaebowling.server;
 
 public enum ApiTag {
-    AUTHORIZATION("회원 가입/로그인/인증"),
+    AUTHORIZATION("회원가입 로그인 인증"),
     CITY("행정 구역"),
     POST("모집글"),
     APPLICANT("신청"),
