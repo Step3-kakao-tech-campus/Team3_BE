@@ -34,10 +34,11 @@ public class PlaceService {
 
     private final DistrictRepository districtRepository;
 
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Transactional
     public PlaceResponse.GetPlaceDto getPlaceDetails(String name, Long placeId) {
-        RestTemplate restTemplate = new RestTemplate();
-
         String districtName = getDistrictName(placeId);
         String googlePlaceId = getGooglePlaceId(name, districtName);
         String url = createPlaceUrl(googlePlaceId);
@@ -48,8 +49,6 @@ public class PlaceService {
     }
 
     private String getGooglePlaceId(String name, String address) {
-        RestTemplate restTemplate = new RestTemplate();
-
         String url = createGooglePlaceIdUrl(name, address);
         log.info("google place id url=" + url);
 
@@ -59,8 +58,6 @@ public class PlaceService {
     }
 
     private PlaceResponse.GetPlaceDto extractPlaceDetails(String response) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
             JsonNode result = objectMapper.readTree(response).path("result");
             if (result.isEmpty()) {
@@ -96,8 +93,6 @@ public class PlaceService {
     }
 
     private String extractPlaceId(String response) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
             JsonNode results = objectMapper.readTree(response).path("results");
 
