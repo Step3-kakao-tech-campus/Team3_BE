@@ -138,7 +138,8 @@ public class PlaceService {
 
     private String createImageUrl(String photoReference) {
         return new StringBuilder(PHOTO_API_URL)
-                .append("?photoreference=").append(photoReference)
+                .append("?maxwidth=400")
+                .append("&photoreference=").append(photoReference)
                 .append("&key=").append(apiKey)
                 .toString();
     }
