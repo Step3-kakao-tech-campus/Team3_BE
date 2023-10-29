@@ -110,7 +110,7 @@ class UserControllerTest extends ControllerTestConfig {
                 jsonPath("$.status").value(200)
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
-                        "join",
+                        "[user] join",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(
@@ -175,7 +175,7 @@ class UserControllerTest extends ControllerTestConfig {
                 jsonPath("$.status").value(200)
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
-                        "login",
+                        "[user] login",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(
@@ -256,7 +256,7 @@ class UserControllerTest extends ControllerTestConfig {
                 jsonPath("$.response").value(ErrorCode.LOGIN_FAILED.toString())
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
-                        "loginFail",
+                        "[user] login - fail",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(

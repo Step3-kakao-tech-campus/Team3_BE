@@ -60,7 +60,7 @@ class CityControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.cities[0].name").exists()
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
-                        "getCities",
+                        "[city] getCities",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(
@@ -105,7 +105,7 @@ class CityControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.countries[0].name").exists()
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
-                        "getCountries",
+                        "[city] getCountries",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(
@@ -155,7 +155,7 @@ class CityControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.districts[0].name").exists()
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
-                        "getDistricts",
+                        "[city] getDistricts",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(
@@ -208,7 +208,7 @@ class CityControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.name").exists()
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
-                        "getDistrictInfo",
+                        "[city] getDistrictInfo",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(
