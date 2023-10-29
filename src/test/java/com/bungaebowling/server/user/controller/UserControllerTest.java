@@ -1,11 +1,18 @@
 package com.bungaebowling.server.user.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.bungaebowling.server.ApiTag;
+import com.bungaebowling.server.ControllerTestConfig;
+import com.bungaebowling.server.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.repository.UserRepository;
+import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
+import com.epages.restdocs.apispec.Schema;
+import com.epages.restdocs.apispec.SimpleType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Assertions;
@@ -21,24 +28,30 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockPart;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.everyItem;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,11 +59,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles(value = {"test", "private", "aws"})
 @Sql(value = "classpath:test_db/teardown.sql", config = @SqlConfig(encoding = "UTF-8"))
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-class UserControllerTest {
+class UserControllerTest extends ControllerTestConfig {
 
-    private final MockMvc mvc;
-
-    private final ObjectMapper om;
 
     private final UserRepository userRepository;
 
@@ -67,9 +77,8 @@ class UserControllerTest {
     private AmazonS3 amazonS3Client;
 
     @Autowired
-    public UserControllerTest(MockMvc mvc, ObjectMapper om, UserRepository userRepository) {
-        this.mvc = mvc;
-        this.om = om;
+    public UserControllerTest(WebApplicationContext context, ObjectMapper om, UserRepository userRepository) {
+        super(context, om);
         this.userRepository = userRepository;
     }
 
@@ -85,7 +94,7 @@ class UserControllerTest {
 
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .post("/api/join")
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -98,6 +107,43 @@ class UserControllerTest {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "join",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("회원가입")
+                                        .description("""
+                                                유저로 회원가입합니다.
+                                                                                                
+                                                회원가입 성공 시, 로그인과 똑같이 액세스 토큰과 리프레시 토큰을 전달합니다.
+
+                                                - 가입 후 메일 인증 필요""")
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestSchema(Schema.schema("회원가입 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("name").type(SimpleType.STRING).description("닉네임 | 한글, 영문, 숫자만 가능/ 최대 20글자"),
+                                                fieldWithPath("email").type(SimpleType.STRING).description("이메일 | 이메일(^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$) 최대 100자"),
+                                                fieldWithPath("password").type(SimpleType.STRING).description("비밀번호 | 영문,숫자, 특수문자가 모두 포함 / 8자에서 64자 이내"),
+                                                fieldWithPath("districtId").type(SimpleType.NUMBER).description("행정 구역 ID")
+                                        )
+                                        .responseHeaders(
+                                                headerWithName(HttpHeaders.SET_COOKIE).description("""
+                                                        refresh token
+
+                                                        (e.g.)refreshToken={jwt_refresh_token}"""),
+                                                headerWithName(HttpHeaders.AUTHORIZATION).description("""
+                                                        access token
+
+                                                        (e.g.)Bearer {jwt_access_token}""")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
