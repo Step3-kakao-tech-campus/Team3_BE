@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.bungaebowling.server.ApiTag;
 import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server.GeneralApiResponseSchema;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.User;
@@ -221,6 +222,54 @@ class UserControllerTest extends ControllerTestConfig {
                                         )
                                         .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
                                         .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("로그인 테스트 - 없는 Email 혹은 틀린 PW")
+    void loginFail() throws Exception {
+        //given
+        UserRequest.LoginDto loginDto = new UserRequest.LoginDto("test@test.com", "test12");
+
+        String requestBody = om.writeValueAsString(loginDto);
+
+        BDDMockito.given(redisTemplate.opsForValue()).willReturn(valueOperations);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/login")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value(400),
+                jsonPath("$.response").value(ErrorCode.LOGIN_FAILED.toString())
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "loginFail",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestSchema(Schema.schema("로그인 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("email").type(SimpleType.STRING).description("로그인 이메일"),
+                                                fieldWithPath("password").type(SimpleType.STRING).description("로그인 비밀번호")
+
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.FAIL.getName()))
+                                        .responseFields(GeneralApiResponseSchema.FAIL.getResponseDescriptor())
                                         .build()
                         )
                 )
