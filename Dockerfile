@@ -29,7 +29,7 @@ COPY --from=builder /home/gradle/project/build/libs/server-0.0.1.jar .
 ENV DATABASE_URL=jdbc:mysql://mysql/bungaebowling_db
 
 # yml 선택
-ENV PROFILE prod,aws,private
+ENV PROFILE deploy
 
 # 빌드 결과 jar 파일을 실행
 CMD ["java", "-jar", "-Dspring.profiles.active=${PROFILE}", "server-0.0.1.jar"]
