@@ -2,8 +2,6 @@ spring:
   profiles:
     active:
       - local
-      - private
-      - aws
 
 springdoc:
   default-consumes-media-type: application/json:charset=UTF-8

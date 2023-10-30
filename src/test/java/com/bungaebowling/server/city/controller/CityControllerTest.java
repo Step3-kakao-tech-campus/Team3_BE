@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
-@ActiveProfiles(value = {"test", "private", "aws"})
+@ActiveProfiles(value = {"test"})
 @Sql(value = "classpath:test_db/teardown.sql", config = @SqlConfig(encoding = "UTF-8"))
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class CityControllerTest extends ControllerTestConfig {

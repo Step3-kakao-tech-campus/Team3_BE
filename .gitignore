@@ -112,3 +112,5 @@ src/main/resources/keystore.p12
 .mysql_env
 
 open-api-3.0.1.json
+
+.env
