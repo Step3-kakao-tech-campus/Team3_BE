@@ -31,6 +31,9 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockPart;
@@ -75,6 +78,9 @@ class UserControllerTest extends ControllerTestConfig {
 
     @MockBean
     private AmazonS3 amazonS3Client;
+
+    @MockBean
+    JavaMailSender javaMailSender;
 
     @Autowired
     public UserControllerTest(WebApplicationContext context, ObjectMapper om, UserRepository userRepository) {
@@ -386,26 +392,66 @@ class UserControllerTest extends ControllerTestConfig {
         );
     }
 
-//    @Test
-//    @WithUserDetails(value = "최볼링")
-//    @DisplayName("인증 메일 발송 테스트")
-//    void sendVerification() throws Exception {
-//        // when
-//        ResultActions resultActions = mvc.perform(
-//                MockMvcRequestBuilders
-//                        .post("/api/email-verification")
-//        );
-//
-//        // then
-//        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
-//        Object json = om.readValue(responseBody, Object.class);
-//        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
-//
-//        resultActions.andExpectAll(
-//                status().isOk(),
-//                jsonPath("$.status").value(200)
-//        );
-//    }
+    @Test
+    @DisplayName("인증 메일 발송 테스트")
+    void sendVerification() throws Exception {
+        // given
+
+        var userId = 2L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 최볼링
+
+        JavaMailSender javaMailSenderImpl = new JavaMailSenderImpl();
+
+        BDDMockito.given(javaMailSender.createMimeMessage()).willReturn(javaMailSenderImpl.createMimeMessage());
+        BDDMockito.willAnswer(invocation -> {
+            return null;
+        }).given(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/email-verification")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] sendVerification",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("인증 메일 발송")
+                                        .description("""
+                                                계정 정보의 email로 인증 메일을 보냅니다. email에는 url이 삽입되어 보내집니다.
+
+                                                (e.g.) https://bungaebowling.com/email-verification?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwicm9sZSI6IlJPTEVfVVNFUiIsInR5cGUiOiJlbWFpbC12ZXJpZmljYXRpb24iLCJleHAiOjE2OTU2MzU5MDh9.3AWusXvtgBiQN0GoegjKJw-fnaYSGVO1Ue0sSrtuWCVOQwzfIwh6KELN2NHOOXIO6MK-D11PndbtwcHetibZVQ
+                                                                                                
+                                                인증을 위해서 이 토큰 값을 그대로 /api/email-confirm의 데이터로 요청 보내주시길 바랍니다.
+                                                """)
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
+    }
 
     @Test
     @DisplayName("메일 인증 테스트")
