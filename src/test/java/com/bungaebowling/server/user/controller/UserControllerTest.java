@@ -5,7 +5,6 @@ import com.bungaebowling.server.ApiTag;
 import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.errors.exception.ErrorCode;
-import com.bungaebowling.server._core.security.CustomUserDetails;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
@@ -16,7 +15,6 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.epages.restdocs.apispec.SimpleType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,10 +31,10 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockPart;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -326,19 +324,26 @@ class UserControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    @WithUserDetails(value = "김볼링")
     @DisplayName("토큰 재발급 테스트")
     void reIssueTokens() throws Exception {
         //given
-        var userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        var refreshToken = JwtProvider.createRefresh(userDetails.user());
 
-        var refreshCookie = new Cookie("refreshToken", refreshToken);
+        var userId = 1L;
+
+        var refreshToken = JwtProvider.createRefresh(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+
+        var refreshCookie = new MockCookie("refreshToken", refreshToken);
 
         BDDMockito.given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        BDDMockito.given(redisTemplate.opsForValue().get(Mockito.any())).willReturn(refreshToken);
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .post("/api/authentication")
                         .cookie(refreshCookie)
         );
@@ -350,6 +355,34 @@ class UserControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] reIssueTokens",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("토큰 재발급")
+                                        .description("""
+                                                http-only cookie의 refresh 토큰을 사용하여 access token과 refresh 토큰을 재발급합니다.
+
+                                                Request COOKIE: refreshToken={jwt_refresh_token}""")
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .responseHeaders(
+                                                headerWithName(HttpHeaders.SET_COOKIE).description("""
+                                                        refresh token(http-only cookie)
+
+                                                        (e.g.)refreshToken={jwt_refresh_token}"""),
+                                                headerWithName(HttpHeaders.AUTHORIZATION).description("""
+                                                        access token
+
+                                                        (e.g.)Bearer {jwt_access_token}""")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
