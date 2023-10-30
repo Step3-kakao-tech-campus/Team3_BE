@@ -115,4 +115,5 @@ open-api-3.0.1.json
 
 .env
 
-k8s/secret.yaml
+groom.manifest
+
