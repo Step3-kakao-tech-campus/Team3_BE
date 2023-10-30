@@ -4,6 +4,13 @@ server:
       charset: utf-8
       force: true
   port: 8080
+  # https ssl config
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: ${SSL_KEY_PASSWORD}
+    key-store-type: PKCS12
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
