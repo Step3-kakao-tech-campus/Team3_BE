@@ -46,7 +46,30 @@ logging:
         extract: TRACE
         bind: TRACE
 
+# jwt token config
 bungaebowling:
   token_exp:
     access: 172800
     refresh: 2592000
+  secret: ${TOKEN_SECRET}
+  domain: ${DOMAIN}
+
+# gmail smtp config
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: ${GMAIL_USERNAME}
+  password: ${GMAIL_APPLICATION_PASSWORD}
+
+# aws s3 config
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    s3:
+      bucket: bungaebowling-img-s3
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
