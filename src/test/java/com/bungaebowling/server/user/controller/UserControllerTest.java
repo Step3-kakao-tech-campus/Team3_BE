@@ -468,7 +468,7 @@ class UserControllerTest extends ControllerTestConfig {
 
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .post("/api/email-confirm")
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -482,6 +482,25 @@ class UserControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] confirmEmail",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("메일 인증")
+                                        .description("""
+                                                이메일로 받은 토큰을 사용하여 메일 인증을 수행합니다. 유저의 권한이 상승됩니다.
+                                                """)
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestSchema(Schema.schema("메일 인증 요청 DTO"))
+                                        .requestFields(fieldWithPath("token").type(SimpleType.STRING).description("이메일로 제공 받은 인증 토큰"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
