@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          # 여러분의 backend image 주소를 입력해주세요.
+          # 여러분의 backend image 주소를 입력해주세요. -> 빌드 시키고 빌드 시킨 이미지로 수정하기
           image: krmp-d2hub-idock.9rum.cc/dev-test/repo_202081021795
           ports:
             - containerPort: 8080
