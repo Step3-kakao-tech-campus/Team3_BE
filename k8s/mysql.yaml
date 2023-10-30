@@ -20,11 +20,8 @@ spec:
           env:
             - name: TZ
               value: Asia/Seoul
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_PASSWORD
+              value: ${MYSQL_PASSWORD}
             - name: MYSQL_DATABASE
               value: bungaebowling_db
             - name: MYSQL_DISABLE_UPGRADE_BACKUP

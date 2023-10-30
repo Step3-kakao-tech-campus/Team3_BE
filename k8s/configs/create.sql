@@ -2,8 +2,7 @@ CREATE SCHEMA IF NOT EXISTS `bungaebowling_db` DEFAULT CHARACTER SET utf8mb4;
 
 USE `bungaebowling_db`;
 
-DROP TABLE IF EXISTS `user_tb`;
-CREATE TABLE user_tb
+CREATE TABLE IF NOT EXISTS user_tb
 (
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
     name             VARCHAR(20)  NOT NULL UNIQUE,
@@ -16,8 +15,7 @@ CREATE TABLE user_tb
     created_at       TIMESTAMP   DEFAULT now()
 );
 
-DROP TABLE IF EXISTS `post_tb`;
-CREATE TABLE post_tb
+CREATE TABLE IF NOT EXISTS post_tb
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     title       VARCHAR(100) NOT NULL,
@@ -32,8 +30,7 @@ CREATE TABLE post_tb
     created_at  TIMESTAMP DEFAULT now()
 );
 
-DROP TABLE IF EXISTS `comment_tb`;
-CREATE TABLE comment_tb
+CREATE TABLE IF NOT EXISTS comment_tb
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id    BIGINT NOT NULL,
@@ -44,8 +41,7 @@ CREATE TABLE comment_tb
     created_at TIMESTAMP DEFAULT now()
 );
 
-DROP TABLE IF EXISTS `applicant_tb`;
-CREATE TABLE applicant_tb
+CREATE TABLE IF NOT EXISTS applicant_tb
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id    BIGINT NOT NULL,
@@ -55,8 +51,7 @@ CREATE TABLE applicant_tb
     UNIQUE (post_id, user_id)
 );
 
-DROP TABLE IF EXISTS `score_tb`;
-CREATE TABLE score_tb
+CREATE TABLE IF NOT EXISTS score_tb
 (
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id          BIGINT NOT NULL,
@@ -67,8 +62,7 @@ CREATE TABLE score_tb
     created_at       TIMESTAMP DEFAULT now()
 );
 
-DROP TABLE IF EXISTS `user_rate_tb`;
-CREATE TABLE user_rate_tb
+CREATE TABLE IF NOT EXISTS user_rate_tb
 (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id      BIGINT NOT NULL,
@@ -77,8 +71,7 @@ CREATE TABLE user_rate_tb
     created_at   TIMESTAMP DEFAULT now()
 );
 
-DROP TABLE IF EXISTS `message_tb`;
-CREATE TABLE message_tb
+CREATE TABLE IF NOT EXISTS message_tb
 (
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id          BIGINT  NOT NULL,
@@ -89,15 +82,13 @@ CREATE TABLE message_tb
     created_at       TIMESTAMP DEFAULT now()
 );
 
-DROP TABLE IF EXISTS `city_tb`;
-CREATE TABLE city_tb
+CREATE TABLE IF NOT EXISTS city_tb
 (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
-DROP TABLE IF EXISTS `country_tb`;
-CREATE TABLE country_tb
+CREATE TABLE IF NOT EXISTS country_tb
 (
     id      BIGINT AUTO_INCREMENT PRIMARY KEY,
     city_id BIGINT      NOT NULL,
@@ -105,8 +96,7 @@ CREATE TABLE country_tb
     UNIQUE (city_id, name)
 );
 
-DROP TABLE IF EXISTS `district_tb`;
-CREATE TABLE district_tb
+CREATE TABLE IF NOT EXISTS district_tb
 (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
     statutory_code BIGINT      NOT NULL,
