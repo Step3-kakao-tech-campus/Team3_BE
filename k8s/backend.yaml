@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: backend
-          # 여러분의 backend image 주소를 입력해주세요. -> 빌드 시키고 빌드 시킨 이미지로 수정하기
-          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_202081021795
+          # 여러분의 backend image 주소를 입력해주세요.
+          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_b71af597b547
           ports:
             - containerPort: 8080
           env:
@@ -23,6 +23,31 @@ spec:
               value: Asia/Seoul
             - name: DATABASE_URL
               value: jdbc:mysql://mysql:3306/bungaebowling_db
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: private-secret
+                  key: USERNAME
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: private-secret
+                  key: PASSWORD
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-secret
+                  key: AWS_SECRET_ACCESS_KEY
           resources:
             requests:
               memory: 1Gi
