@@ -49,8 +49,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
-import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.everyItem;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
@@ -511,7 +510,7 @@ class UserControllerTest extends ControllerTestConfig {
 
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .get("/api/users")
         );
 
@@ -528,6 +527,30 @@ class UserControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.users[0].name").exists(),
                 jsonPath("$.response.users[0].rating").isNumber(),
                 jsonPath("$.response.users[0].profileImage").hasJsonPath()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] getUsers",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("사용자 목록 조회")
+                                        .description("""
+                                                검색어를 포함하는 사용자를 모두 조회합니다.
+                                                """)
+                                        .tag(ApiTag.USER.getTagName())
+                                        .responseSchema(Schema.schema("사용자 목록 조회 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.NEXT_CURSOR.getResponseDescriptor().and(
+                                                        fieldWithPath("response.users[].id").description("사용자의 ID(PK)"),
+                                                        fieldWithPath("response.users[].name").description("이름"),
+                                                        fieldWithPath("response.users[].rating").description("사용자의 별점"),
+                                                        fieldWithPath("response.users[].profileImage").description("사용자의 프로필 이미지 링크")
+                                                )
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 
@@ -535,10 +558,10 @@ class UserControllerTest extends ControllerTestConfig {
     @DisplayName("사용자 목록 조회 테스트 - name 검색")
     void getUsersWithName() throws Exception {
         // given
-        String searchName = "볼링";
+        String searchName = "이볼";
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .get("/api/users")
                         .param("name", searchName)
         );
@@ -550,6 +573,27 @@ class UserControllerTest extends ControllerTestConfig {
 
         resultActions.andExpect(
                 jsonPath("$.response.users[*].name", everyItem(containsString(searchName)))
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] getUsersWithName",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(ApiTag.USER.getTagName())
+                                        .queryParameters(parameterWithName("name").optional().description("검색할 유저의 별명"))
+                                        .responseSchema(Schema.schema("사용자 목록 조회 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.NEXT_CURSOR.getResponseDescriptor().and(
+                                                        fieldWithPath("response.users[].id").description("사용자의 ID(PK)"),
+                                                        fieldWithPath("response.users[].name").description("이름"),
+                                                        fieldWithPath("response.users[].rating").description("사용자의 별점"),
+                                                        fieldWithPath("response.users[].profileImage").description("사용자의 프로필 이미지 링크")
+                                                )
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 
