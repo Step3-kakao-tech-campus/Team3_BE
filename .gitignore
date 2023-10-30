@@ -114,3 +114,5 @@ src/main/resources/keystore.p12
 open-api-3.0.1.json
 
 .env
+
+k8s/secret.yaml

@@ -2,10 +2,15 @@ spring:
   profiles:
     active:
       - local
+  mvc:
+    static-path-pattern: /api/**
 
 springdoc:
   default-consumes-media-type: application/json:charset=UTF-8
   default-produces-media-type: application/json:charset=UTF-8
   swagger-ui:
-    url: /docs/open-api-3.0.1.json
-    path: /docs/swagger
+    url: /api/docs/open-api-3.0.1.json
+    path: /api/docs/swagger
+  api-docs:
+    path: /api/v3/api-docs
+
