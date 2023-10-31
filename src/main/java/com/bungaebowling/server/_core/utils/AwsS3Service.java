@@ -141,7 +141,7 @@ public class AwsS3Service {
         ) {
             return caseInSensitiveFileName;
         } else {
-            throw new CustomException(ErrorCode.INVALID_FILE_EXTENTION);
+            throw new CustomException(ErrorCode.INVALID_FILE_EXTENSION);
         }
     }
 }
