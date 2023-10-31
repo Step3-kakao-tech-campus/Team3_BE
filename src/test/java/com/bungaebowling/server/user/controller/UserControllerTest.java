@@ -42,7 +42,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -913,8 +912,8 @@ class UserControllerTest extends ControllerTestConfig {
         Long userId = 1L;
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
-                        .get("/api/users/" + userId + "/records")
+                RestDocumentationRequestBuilders
+                        .get("/api/users/{userId}/records", userId)
         );
 
         // then
@@ -930,6 +929,32 @@ class UserControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.average").isNumber(),
                 jsonPath("$.response.maximum").isNumber(),
                 jsonPath("$.response.minimum").isNumber()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] getUserRecords",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("사용자 기록(경기수, 평균점수) 조회")
+                                        .description("""
+                                                사용자의 경기 기록을 조회합니다.
+                                                 """)
+                                        .tag(ApiTag.USER.getTagName())
+                                        .pathParameters(parameterWithName("userId").type(SimpleType.NUMBER).description("사용자 id"))
+                                        .responseSchema(Schema.schema("사용자 기록(경기수, 평균점수) 조회 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.name").description("사용자의 이름(닉네임)"),
+                                                        fieldWithPath("response.game").description("참여 게임 수"),
+                                                        fieldWithPath("response.average").description("볼링 게임 평균 점수(참여 기록 없을 시 0)"),
+                                                        fieldWithPath("response.maximum").description("볼링 게임 최고 점수(참여 기록 없을 시 0)"),
+                                                        fieldWithPath("response.minimum").description("볼링 게임 최저 점수(참여 기록 없을 시 0)")
+                                                )
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 }
