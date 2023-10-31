@@ -73,3 +73,9 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+
+# google map api config
+google:
+  api:
+    places:
+      key: ${GOOGLE_MAP_API_KEY}

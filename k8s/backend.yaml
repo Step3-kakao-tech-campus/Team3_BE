@@ -56,7 +56,12 @@ spec:
               valueFrom: 
                 secretKeyRef: 
                   name: secrets
-                  key: MYSQL_PASSWORD 
+                  key: MYSQL_PASSWORD
+            - name: GOOGLE_MAP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: GOOGLE_MAP_API_KEY
           ports:
             - containerPort: 8080
           resources:
