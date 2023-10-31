@@ -653,15 +653,23 @@ class UserControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    @WithUserDetails(value = "김볼링")
     @DisplayName("자신의 프로필 조회 테스트")
     void getMyProfile() throws Exception {
         // given
+        var userId = 1L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
 
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
+                RestDocumentationRequestBuilders
                         .get("/api/users/mine")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
         );
 
         // then
@@ -681,6 +689,35 @@ class UserControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.districtId").isNumber(),
                 jsonPath("$.response.address").exists(),
                 jsonPath("$.response.profileImage").hasJsonPath()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] getMyProfile",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("자신의 프로필 조회")
+                                        .description("""
+                                                자신의 프로필 정보를 조회합니다.
+                                                 """)
+                                        .tag(ApiTag.USER.getTagName())
+                                        .responseSchema(Schema.schema("사용자 상세 조회 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.id").description("사용자의 id(PK)"),
+                                                        fieldWithPath("response.name").description("사용자의 이름(닉네임)"),
+                                                        fieldWithPath("response.email").description("사용자의 이메일"),
+                                                        fieldWithPath("response.verification").description("이메일 인증 여부"),
+                                                        fieldWithPath("response.averageScore").description("볼링 게임 평균 점수"),
+                                                        fieldWithPath("response.rating").description("별점(매너 점수) | 별점 받은 적 없는 경우 0"),
+                                                        fieldWithPath("response.districtId").description("사용자가 설정한 기본 지역(행정구역 id)"),
+                                                        fieldWithPath("response.address").description("설정한 기본 지역의 전체 명칭"),
+                                                        fieldWithPath("response.profileImage").type(SimpleType.STRING).optional().description("사용자의 프로필 이미지 링크 | 이미지 설정 안한 경우 null")
+                                                )
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 
