@@ -29,21 +29,21 @@ import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.mock.web.MockCookie;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockPart;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URL;
@@ -701,6 +701,7 @@ class UserControllerTest extends ControllerTestConfig {
                                                 자신의 프로필 정보를 조회합니다.
                                                  """)
                                         .tag(ApiTag.USER.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
                                         .responseSchema(Schema.schema("사용자 상세 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
@@ -722,10 +723,18 @@ class UserControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    @WithUserDetails(value = "김볼링")
     @DisplayName("자신의 프로필 수정 테스트")
     void updateMyProfile() throws Exception {
         // given
+        var userId = 1L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+
         String newName = "김볼링싫어";
         long newDistrictId = 15L;
         MockMultipartFile file = new MockMultipartFile("profileImage", "image.png", MediaType.IMAGE_PNG_VALUE, "mockImageData".getBytes());
@@ -736,12 +745,22 @@ class UserControllerTest extends ControllerTestConfig {
         BDDMockito.given(amazonS3Client.getUrl(Mockito.any(), Mockito.any())).willReturn(new URL(imageUrl));
 
         // when
+        var builder = RestDocumentationRequestBuilders
+                .multipart("/api/users/mine");
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
-                        .multipart(HttpMethod.PUT, "/api/users/mine")
+                builder
                         .file(file)
                         .part(new MockPart("name", newName.getBytes(StandardCharsets.UTF_8)))
                         .part(new MockPart("districtId", Long.toString(newDistrictId).getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
         );
 
         // then
@@ -759,20 +778,65 @@ class UserControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] updateMyProfile",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("자신의 프로필 수정")
+                                        .description("""
+                                                자신의 프로필 정보를 수정합니다.
+                                                                                                
+                                                현재 사용 플러그인이 multipart/form-data의 파라미터에 대한 문서화가 지원되지 않습니다. (try it out 불가능)
+                                                                                                
+                                                아래 파라미터 중 변경 할 요소만 포함하여 보내면 됩니다.
+                                                                                                
+                                                | Part         | Type   | Description            |
+                                                |--------------|--------|------------------------|
+                                                | name         | String | 변경할 이름(닉네임)      |
+                                                | districtId   | String | 변경할 기본 설정 지역 id |
+                                                | profileImage | Binary | 변경할 프로필 이미지 파일 |
+                                                                                                
+                                                 """)
+                                        .tag(ApiTag.USER.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
     @Test
-    @WithUserDetails(value = "김볼링")
     @DisplayName("자신의 프로필 수정 테스트 - 이름만 변경")
     void updateMyProfileOnlyName() throws Exception {
         // given
+        var userId = 1L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
         String newName = "김볼링싫어";
         // when
+        var builder = RestDocumentationRequestBuilders
+                .multipart("/api/users/mine");
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
-                        .multipart(HttpMethod.PUT, "/api/users/mine")
+                builder
                         .part(new MockPart("name", newName.getBytes(StandardCharsets.UTF_8)))
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
         );
 
         // then
@@ -792,10 +856,17 @@ class UserControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    @WithUserDetails(value = "김볼링")
     @DisplayName("자신의 프로필 수정 테스트 - 프로필 이미지만 변경")
     void updateMyProfileOnlyProfileImage() throws Exception {
         // given
+        var userId = 1L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
         MockMultipartFile file = new MockMultipartFile("profileImage", "image.png", MediaType.IMAGE_PNG_VALUE, "mockImageData".getBytes());
 
         String imageUrl = "https://kakao.com";
@@ -804,10 +875,19 @@ class UserControllerTest extends ControllerTestConfig {
         BDDMockito.given(amazonS3Client.getUrl(Mockito.any(), Mockito.any())).willReturn(new URL(imageUrl));
 
         // when
+        var builder = RestDocumentationRequestBuilders
+                .multipart("/api/users/mine");
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
-                        .multipart(HttpMethod.PUT, "/api/users/mine")
+                builder
                         .file(file)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
         );
 
         // then
