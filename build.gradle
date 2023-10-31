@@ -1,5 +1,6 @@
 buildscript {
 	ext {
+		apiServerUrl = System.getenv("API_SERVER_URL")
 		new File('.env').getText('UTF-8').splitEachLine(/=/) {
 			if (it[0] == "API_SERVER_URL") {
 				apiServerUrl = it[1].replaceAll('"', '')
