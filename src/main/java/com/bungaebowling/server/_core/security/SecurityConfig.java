@@ -98,7 +98,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE (Javascript 요청 허용)
-        configuration.setAllowedOrigins(Configs.CORS);
+        configuration.setAllowedOrigins(Configs.getFullCORS());
         configuration.setAllowCredentials(true); // 클라이언트에서 쿠키 요청 허용
         configuration.addExposedHeader("Authorization"); // 헤더로 Authorization
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

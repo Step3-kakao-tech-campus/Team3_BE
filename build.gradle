@@ -1,3 +1,13 @@
+buildscript {
+	ext {
+		new File('.env').getText('UTF-8').splitEachLine(/=/) {
+			if (it[0] == "API_SERVER_URL") {
+				apiServerUrl = it[1].replaceAll('"', '')
+			}
+		}
+	}
+}
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.3'
@@ -75,7 +85,7 @@ bootJar {
 
 openapi3 {
 	servers = [
-			{ url = "https://bungae.jagaldol.dev" },
+			{ url = apiServerUrl },
 			{ url = "http://localhost:8080" }
 	]
 	title = "번개볼링 API Documents"
