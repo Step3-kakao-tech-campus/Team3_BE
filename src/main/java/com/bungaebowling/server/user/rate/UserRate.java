@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name="user_rate_tb")
+@Table(name = "user_rate_tb")
 public class UserRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,7 @@
 package com.bungaebowling.server.city.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server.city.City;
 import com.bungaebowling.server.city.country.Country;
 import com.bungaebowling.server.city.country.district.District;
@@ -44,7 +45,7 @@ public class CityService {
     }
 
     public CityResponse.GetDistrictInfoDto getDistrictInfo(Long districtId) {
-        District district = districtRepository.findByIdJoinAll(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정구역입니다."));
+        District district = districtRepository.findByIdJoinAll(districtId).orElseThrow(() -> new CustomException(ErrorCode.REGION_NOT_FOUND));
         return new CityResponse.GetDistrictInfoDto(district);
     }
 }

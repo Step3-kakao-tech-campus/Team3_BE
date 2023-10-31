@@ -29,7 +29,7 @@ public class PostController {
             @RequestParam(value = "districtId", required = false) Long districtId,
             @RequestParam(value = "all", defaultValue = "true") Boolean all
     ) {
-        PostResponse.GetPostsDto response = postService.readPosts(cursorRequest,cityId, countryId, districtId, all);
+        PostResponse.GetPostsDto response = postService.readPosts(cursorRequest, cityId, countryId, districtId, all);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
@@ -55,7 +55,6 @@ public class PostController {
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
-    // ToDo : 모집글 등록 response에 모집글 id 반환하기
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}) // json 타입만 처리 가능
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -100,5 +99,4 @@ public class PostController {
 
         return ResponseEntity.ok().body(ApiUtils.success());
     }
-
 }

@@ -5,10 +5,7 @@ import com.bungaebowling.server.city.country.Country;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.user.User;
-import jakarta.persistence.criteria.Fetch;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -18,22 +15,28 @@ import java.time.format.DateTimeFormatter;
 public class PostSpecification {
 
     public static final LocalDateTime START_TIME = LocalDateTime.now().minusMonths(3);
-    public static final LocalDateTime END_TIME = LocalDateTime.now();
 
     public static Specification<Post> conditionEqual(String condition, Long userId) {
         return (root, query, criteriaBuilder) -> {
             Join<Post, User> userJoin = root.join("user", JoinType.LEFT);
-            Join<Post, Applicant> applicantJoin = root.join("applicants", JoinType.LEFT);
-            Join<Applicant, User> applicantUserJoin = applicantJoin.join("user", JoinType.LEFT);
             Fetch<Post, District> districtFetch = root.fetch("district", JoinType.LEFT);
             Fetch<District, Country> countryFetch = districtFetch.fetch("country", JoinType.LEFT);
             countryFetch.fetch("city", JoinType.LEFT);
-            root.fetch("applicants", JoinType.LEFT);
+
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<Applicant> applicantRoot = subquery.from(Applicant.class);
+            Join<Applicant, Post> applicantPostJoin = applicantRoot.join("post", JoinType.INNER);
+            subquery.select(applicantPostJoin.get("id"))
+                    .where(
+                            criteriaBuilder.and(
+                                    criteriaBuilder.isTrue(applicantRoot.get("status")),
+                                    criteriaBuilder.equal(applicantRoot.get("user").get("id"), userId)
+                            )
+                    );
 
             Predicate createdPredicate = criteriaBuilder.equal(userJoin.get("id"), userId);
             Predicate participatedPredicate = criteriaBuilder.and(
-                    criteriaBuilder.isTrue(applicantJoin.get("status")),
-                    criteriaBuilder.equal(applicantUserJoin.get("id"), userId),
+                    root.get("id").in(subquery),
                     criteriaBuilder.notEqual(userJoin.get("id"), userId)
             );
 
@@ -69,12 +72,17 @@ public class PostSpecification {
         return (root, query, criteriaBuilder) -> {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDateTime startDate = start == null ? START_TIME : LocalDate.parse(start, formatter).atStartOfDay();
-            LocalDateTime endDate = end == null ? END_TIME : LocalDate.parse(end, formatter).plusDays(1).atStartOfDay();
-            return criteriaBuilder.between(root.get("startTime"), startDate, endDate);
+
+            if (end == null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("startTime"), startDate);
+            } else {
+                LocalDateTime endDate = LocalDate.parse(end, formatter).plusDays(1).atStartOfDay();
+                return criteriaBuilder.between(root.get("startTime"), startDate, endDate);
+            }
         };
     }
 
     public static Specification<Post> postIdLessThan(Long postId) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.lessThan(root.get("postId"), postId);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.lessThan(root.get("id"), postId);
     }
 }

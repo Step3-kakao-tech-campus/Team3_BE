@@ -1,4 +1,5 @@
 package com.bungaebowling.server.message;
+
 import com.bungaebowling.server.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -7,8 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
-import java.time.LocalDateTime;
 
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -35,7 +36,7 @@ public class Message {
     @ColumnDefault(value = "false")
     private Boolean isRead;
 
-    @Column(name = "content",columnDefinition = "TEXT", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @Column(name = "created_at")
@@ -45,14 +46,15 @@ public class Message {
 
     @Builder
     public Message(User user, User opponentUser, Boolean isReceive, Boolean isRead, String content, LocalDateTime createdAt) {
-        this.user=user;
+        this.user = user;
         this.opponentUser = opponentUser;
         this.isReceive = isReceive;
         this.isRead = isRead;
         this.content = content;
         this.createdAt = createdAt;
     }
-    public void read(){
+
+    public void read() {
         this.isRead = true;
     }
 }

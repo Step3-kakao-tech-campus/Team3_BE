@@ -9,7 +9,8 @@ public class ApplicantRequest {
     public record UpdateDto(
             @NotNull
             Boolean status
-    ){}
+    ) {
+    }
 
     public record RateDto(
             @NotNull

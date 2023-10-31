@@ -1,8 +1,7 @@
 package com.bungaebowling.server.score.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception400;
-import com.bungaebowling.server._core.errors.exception.client.Exception403;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.utils.AwsS3Service;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.repository.PostRepository;
@@ -14,7 +13,6 @@ import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -45,19 +43,19 @@ public class ScoreService {
     public void create(Long userId, Long postId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
 
-        if(!post.getIsClose()) {
-            throw new Exception400("아직 점수를 등록할 수 없습니다.");
+        if (!post.getIsClose()) {
+            throw new CustomException(ErrorCode.POST_NOT_CLOSE, "아직 점수를 등록할 수 없습니다.");
         }
 
-        if(scoreNum == null) {
-            throw new Exception400("점수를 입력해주세요.");
+        if (scoreNum == null) {
+            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "점수를 입력해주세요.");
         }
 
-        if (image.getSize() > 1) {
-            throw new Exception400("점수는 1개씩 등록해주세요.");
+        if (scoreNum < 0 || scoreNum > 300) {
+            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "0~300 사이의 숫자만 입력해주세요.");
         }
 
-        if(image.isEmpty()) { // null 체크 - null인 경우
+        if (image == null) { // null 체크 - null인 경우
             saveScoreWithoutImage(userId, post, scoreNum);
         } else { // null 체크 - null이 아닌 경우
             saveScoreWithImage(userId, post, scoreNum, image);
@@ -66,12 +64,12 @@ public class ScoreService {
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     private Post findPostById(Long postId) {
         return postRepository.findById(postId)
-                .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
     }
 
     private void saveScoreWithoutImage(Long userId, Post post, Integer scoreNum) {
@@ -94,7 +92,7 @@ public class ScoreService {
         User user = findUserById(userId);
         LocalDateTime createTime = LocalDateTime.now();
 
-        String imageUrl = awsS3Service.uploadScoreFile(user.getId(), post.getId(),"score", createTime, image);
+        String imageUrl = awsS3Service.uploadScoreFile(user.getId(), post.getId(), "score", createTime, image);
 
         Score score = Score.builder()
                 .scoreNum(scoreNum)
@@ -112,24 +110,24 @@ public class ScoreService {
     public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
 
-        if(!post.isMine(userId)) {
-            throw new Exception403("점수 정보에 대한 수정 권한이 없습니다.");
+        if (!post.isMine(userId)) {
+            throw new CustomException(ErrorCode.SCORE_UPDATE_PERMISSION_DENIED);
         }
 
         Integer scoreNumCheck = Optional.ofNullable(scoreNum)
-                .orElseThrow(() -> new Exception400("점수를 입력해주세요."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "점수를 입력해주세요."));
 
         User user = findUserById(userId);
         Score score = findScoreById(scoreId);
         LocalDateTime updateTime = LocalDateTime.now();
 
-        if(image.isEmpty()) { // null 체크 - null인 경우
+        if (image.isEmpty()) { // null 체크 - null인 경우
             score.updateWithoutFile(scoreNumCheck, updateTime);
         } else { // null 체크 - null이 아닌 경우
             if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
                 awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
             }
-            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId,"score", updateTime, image);
+            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
             String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
 
             score.updateWithFile(scoreNumCheck, imageurl, updateTime, accessImageUrl);
@@ -138,15 +136,15 @@ public class ScoreService {
 
     private Score findScoreById(Long scoreId) {
         return scoreRepository.findById(scoreId)
-                .orElseThrow(() -> new Exception404("점수 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCORE_NOT_FOUND));
     }
 
     @Transactional
     public void delete(Long userId, Long postId, Long scoreId) {
         Post post = findPostById(postId);
 
-        if(!post.isMine(userId)) {
-            throw new Exception403("점수 정보에 대한 삭제 권한이 없습니다.");
+        if (!post.isMine(userId)) {
+            throw new CustomException(ErrorCode.SCORE_DELETE_PERMISSION_DENIED);
         }
 
         Score score = findScoreById(scoreId);
@@ -159,4 +157,24 @@ public class ScoreService {
         scoreRepository.delete(score);
     }
 
+    public int calculateAverage(List<Score> scores) {
+        return (int) scores.stream()
+                .mapToInt(Score::getScoreNum)
+                .average()
+                .orElse(0.0);
+    }
+
+    public int findMaxScore(List<Score> scores) {
+        return scores.stream()
+                .mapToInt(Score::getScoreNum)
+                .max()
+                .orElse(0);
+    }
+
+    public int findMinScore(List<Score> scores) {
+        return scores.stream()
+                .mapToInt(Score::getScoreNum)
+                .min()
+                .orElse(0);
+    }
 }

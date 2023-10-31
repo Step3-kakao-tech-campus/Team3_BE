@@ -13,11 +13,22 @@ import java.util.Map;
 public class PostResponse {
 
     public record GetPostsDto(
-        CursorRequest nextCursorRequest,
-        List<PostDto> posts
+            CursorRequest nextCursorRequest,
+            List<PostDto> posts
     ) {
-        public static GetPostsDto of(CursorRequest nextCursorRequest, List<Post> posts) {
-            return new GetPostsDto(nextCursorRequest, posts.stream().map(PostDto::new).toList());
+        public static GetPostsDto of(
+                CursorRequest nextCursorRequest,
+                List<Post> posts,
+                Map<Long, Long> currentNumberMap
+        ) {
+            return new GetPostsDto(
+                    nextCursorRequest,
+                    posts.stream().map(post ->
+                            new PostDto(
+                                    post,
+                                    currentNumberMap.get(post.getId()))
+                    ).toList()
+            );
         }
 
         public record PostDto(
@@ -31,7 +42,7 @@ public class PostResponse {
                 Long currentNumber,
                 Boolean isClose
         ) {
-            public PostDto(Post post) {
+            public PostDto(Post post, Long currentNumber) {
                 this(
                         post.getId(),
                         post.getTitle(),
@@ -40,7 +51,7 @@ public class PostResponse {
                         post.getStartTime(),
                         post.getUserName(),
                         post.getProfilePath(),
-                        post.getCurrentNumber(),
+                        currentNumber,
                         post.getIsClose()
                 );
             }
@@ -50,9 +61,10 @@ public class PostResponse {
     public record GetPostDto(
             PostDto post
     ) {
-        public GetPostDto(Post post) {
-            this(new PostDto(post));
+        public GetPostDto(Post post, Long currentNumber) {
+            this(new PostDto(post, currentNumber));
         }
+
         public record PostDto(
                 Long id,
                 String title,
@@ -69,7 +81,7 @@ public class PostResponse {
                 LocalDateTime editedAt,
                 Boolean isClose
         ) {
-            public PostDto(Post post) {
+            public PostDto(Post post, Long currentNumber) {
                 this(
                         post.getId(),
                         post.getTitle(),
@@ -77,7 +89,7 @@ public class PostResponse {
                         post.getUserName(),
                         post.getProfilePath(),
                         post.getDistrictName(),
-                        post.getCurrentNumber(),
+                        currentNumber,
                         post.getContent(),
                         post.getStartTime(),
                         post.getDueTime(),
@@ -94,8 +106,15 @@ public class PostResponse {
             CursorRequest nextCursorRequest,
             List<PostDto> posts
     ) {
-        public static GetParticipationRecordsDto of(CursorRequest nextCursorRequest, List<Post> posts, Map<Long, List<Score>> scores,
-                                                    Map<Long, List<User>> members, Map<Long, List<UserRate>> rates, Map<Long, Long> applicantIdMap) {
+        public static GetParticipationRecordsDto of(
+                CursorRequest nextCursorRequest,
+                List<Post> posts,
+                Map<Long, List<Score>> scores,
+                Map<Long, List<User>> members,
+                Map<Long, List<UserRate>> rates,
+                Map<Long, Long> applicantIdMap,
+                Map<Long, Long> currentNumberMap
+        ) {
             return new GetParticipationRecordsDto(
                     nextCursorRequest,
                     posts.stream().map(post ->
@@ -104,7 +123,8 @@ public class PostResponse {
                                     scores.get(post.getId()),
                                     members.get(post.getId()),
                                     rates.get(post.getId()),
-                                    applicantIdMap.get(post.getId())
+                                    applicantIdMap.get(post.getId()),
+                                    currentNumberMap.get(post.getId())
                             )).toList()
             );
         }
@@ -121,7 +141,7 @@ public class PostResponse {
                 List<ScoreDto> scores,
                 List<MemberDto> members
         ) {
-            public PostDto(Post post, List<Score> scores, List<User> users, List<UserRate> rates, Long applicantId) {
+            public PostDto(Post post, List<Score> scores, List<User> users, List<UserRate> rates, Long applicantId, Long currentNumber) {
                 this(
                         post.getId(),
                         applicantId,
@@ -129,7 +149,7 @@ public class PostResponse {
                         post.getDueTime(),
                         post.getDistrictName(),
                         post.getStartTime(),
-                        post.getCurrentNumber(),
+                        currentNumber,
                         post.getIsClose(),
                         scores.stream().map(ScoreDto::new).toList(),
                         users.stream().map(user -> new MemberDto(user, rates)).toList()
@@ -168,8 +188,7 @@ public class PostResponse {
         }
     }
 
-    public record GetPostPostDto( // Post시 postId 반환용
-            Long id
-    ) {
+    // Post시 postId 반환용
+    public record GetPostPostDto(Long id) {
     }
 }

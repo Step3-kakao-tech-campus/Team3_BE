@@ -1,7 +1,7 @@
 package com.bungaebowling.server.post.service;
 
-import com.bungaebowling.server._core.errors.exception.client.Exception403;
-import com.bungaebowling.server._core.errors.exception.client.Exception404;
+import com.bungaebowling.server._core.errors.exception.CustomException;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
@@ -53,23 +53,21 @@ public class PostService {
         User user = findUserById(userId);
 
         Long districtId = request.districtId();
-        
+
         var savedPost = savePost(user, districtId, request);
 
         saveApplicant(savedPost, user);
 
         return new PostResponse.GetPostPostDto(savedPost.getId());
-
     }
 
     private Post savePost(User user, Long districtId, PostRequest.CreatePostDto request) {
 
-        District district = districtRepository.findById(districtId).orElseThrow(() -> new Exception404("존재하지 않는 행정 구역입니다."));
+        District district = districtRepository.findById(districtId).orElseThrow(() -> new CustomException(ErrorCode.REGION_NOT_FOUND));
 
         Post post = request.toEntity(user, district);
 
         return postRepository.save(post);
-
     }
 
     private void saveApplicant(Post post, User user) {
@@ -84,17 +82,19 @@ public class PostService {
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional
     public PostResponse.GetPostDto read(Long postId) {
 
-        Post post = postRepository.findByIdJoinFetch(postId).orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다.")); // post 찾는 코드 빼서 함수화
+        Post post = postRepository.findByIdJoinFetch(postId).orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND)); // post 찾는 코드 빼서 함수화
 
         post.addViewCount(); // 조회수 1 증가
 
-        return new PostResponse.GetPostDto(post);
+        Long currentNumber = (long) applicantRepository.findAllByPostIdAndStatusTrueOrderByUserIdDesc(post.getId()).size();
+
+        return new PostResponse.GetPostDto(post, currentNumber);
 
     }
 
@@ -104,8 +104,10 @@ public class PostService {
 
         Long lastKey = getLastKey(posts);
 
-        return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts);
+        Map<Long, List<Applicant>> applicantMap = getApplicantMap(posts);
+        Map<Long, Long> currentNumberMap = getCurrentNumberMap(posts, applicantMap);
 
+        return PostResponse.GetPostsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, currentNumberMap);
     }
 
     private List<Post> findPosts(CursorRequest cursorRequest, Long cityId, Long countryId, Long districtId, Boolean all) {
@@ -114,7 +116,7 @@ public class PostService {
 
         Pageable pageable = PageRequest.of(0, size);
 
-        if(!cursorRequest.hasKey()) {
+        if (!cursorRequest.hasKey()) {
 
             if (districtId != null)
                 return all ? postRepository.findAllByDistrictIdOrderByIdDesc(districtId, pageable) : postRepository.findAllByDistrictIdWithCloseFalseOrderByIdDesc(districtId, pageable);
@@ -133,7 +135,6 @@ public class PostService {
             return all ? postRepository.findAllByCityIdAndIdLessThanOrderByIdDesc(cityId, cursorRequest.key(), pageable) : postRepository.findAllByCityIdAndIdLessThanWithCloseFalseOrderByIdDesc(cityId, cursorRequest.key(), pageable);
 
         return all ? postRepository.findAllByIdLessThanOrderByIdDesc(cursorRequest.key(), pageable) : postRepository.findAllByIdLessThanWithCloseFalseOrderByIdDesc(cursorRequest.key(), pageable);
-
     }
 
     @Transactional
@@ -142,7 +143,7 @@ public class PostService {
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
         if (!post.isMine(userId)) {
-            throw new Exception403("모집글에 대한 수정 권한이 없습니다.");
+            throw new CustomException(ErrorCode.POST_UPDATE_PERMISSION_DENIED);
         }
 
         LocalDateTime editedAt = LocalDateTime.now();
@@ -154,7 +155,6 @@ public class PostService {
                 request.dueTime(),
                 editedAt
         );
-
     }
 
     @Transactional
@@ -163,11 +163,10 @@ public class PostService {
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
 
         if (!post.isMine(userId)) {
-            throw new Exception403("모집글에 대한 삭제 권한이 없습니다.");
+            throw new CustomException(ErrorCode.POST_DELETE_PERMISSION_DENIED);
         }
 
         deletePost(post);
-
     }
 
     @Transactional
@@ -175,7 +174,7 @@ public class PostService {
         Post post = findById(postId);
 
         if (!post.isMine(userId)) {
-            throw new Exception403("모집글에 대한 마감 권한이 없습니다.");
+            throw new CustomException(ErrorCode.POST_CLOSE_PERMISSION_DENIED);
         }
 
         post.updateIsClose(request.isClose());
@@ -187,12 +186,21 @@ public class PostService {
 
         Map<Long, List<Score>> scoreMap = getScoreMap(userId, posts);
         Map<Long, List<Applicant>> applicantMap = getApplicantMap(posts);
-        Map<Long, List<User>> memberMap = getMemberMap(userId, posts, applicantMap);
+        Map<Long, List<User>> memberMap = getMemberMap(posts, applicantMap);
         Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts, applicantMap);
         Map<Long, Long> applicantIdMap = getApplicantIdMap(userId, posts, applicantMap);
+        Map<Long, Long> currentNumberMap = getCurrentNumberMap(posts, applicantMap);
 
         Long lastKey = getLastKey(posts);
-        return PostResponse.GetParticipationRecordsDto.of(cursorRequest.next(lastKey, DEFAULT_SIZE), posts, scoreMap, memberMap, rateMap, applicantIdMap);
+        return PostResponse.GetParticipationRecordsDto.of(
+                cursorRequest.next(lastKey, DEFAULT_SIZE),
+                posts,
+                scoreMap,
+                memberMap,
+                rateMap,
+                applicantIdMap,
+                currentNumberMap
+        );
     }
 
     private List<Post> loadPosts(CursorRequest cursorRequest, Long userId, String condition, String status, Long cityId, String start, String end) {
@@ -204,17 +212,10 @@ public class PostService {
                 .and(cityIdEqual(cityId))
                 .and(createdAtBetween(start, end));
 
-        if(cursorRequest.hasKey()){
+        if (cursorRequest.hasKey()) {
             spec = spec.and(postIdLessThan(cursorRequest.key()));
         }
         return postRepository.findAll(spec, pageable).getContent();
-    }
-
-    private Map<Long, List<Applicant>> getApplicantMap(List<Post> posts) {
-        return posts.stream().collect(Collectors.toMap(
-                Post::getId,
-                post -> applicantRepository.findAllByPostIdAndStatusTrueOrderByUserIdDesc(post.getId())
-        ));
     }
 
     private Map<Long, List<Score>> getScoreMap(Long userId, List<Post> posts) {
@@ -224,23 +225,18 @@ public class PostService {
         ));
     }
 
-    private Map<Long, Long> getApplicantIdMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+    private Map<Long, List<Applicant>> getApplicantMap(List<Post> posts) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
-                post -> applicantMap.get(post.getId()).stream()
-                        .filter(applicant -> userId.equals(applicant.getUser().getId()))
-                        .map(Applicant::getId)
-                        .findFirst()
-                        .orElseThrow(() -> new Exception404("존재하지 않는 신청입니다."))
+                post -> applicantRepository.findAllByPostIdAndStatusTrueOrderByUserIdDesc(post.getId())
         ));
     }
 
-    private Map<Long, List<User>> getMemberMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+    private Map<Long, List<User>> getMemberMap(List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
                 post -> applicantMap.get(post.getId()).stream()
                         .map(Applicant::getUser)
-                        .filter(user -> !user.getId().equals(userId))
                         .toList()
         ));
     }
@@ -260,17 +256,34 @@ public class PostService {
         ));
     }
 
+    private Map<Long, Long> getApplicantIdMap(Long userId, List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> applicantMap.get(post.getId()).stream()
+                        .filter(applicant -> userId.equals(applicant.getUser().getId()))
+                        .map(Applicant::getId)
+                        .findFirst()
+                        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND))
+        ));
+    }
+
+    private Map<Long, Long> getCurrentNumberMap(List<Post> posts, Map<Long, List<Applicant>> applicantMap) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> (long) applicantMap.get(post.getId()).size()
+        ));
+    }
+
     private void deletePost(Post post) { // 삭제 로직 따로 분리
         postRepository.delete(post);
     }
 
     private Post findById(Long postId) { // id로 post 찾는 로직 따로 분리
         return postRepository.findById(postId)
-                .orElseThrow(() -> new Exception404("모집글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
     }
 
     private static Long getLastKey(List<Post> posts) {
         return posts.isEmpty() ? CursorRequest.NONE_KEY : posts.get(posts.size() - 1).getId();
     }
-
 }
