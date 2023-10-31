@@ -54,7 +54,7 @@ bungaebowling:
     refresh: 2592000
   secret: bungaebowling
   domain: http://localhost:3000
-  api_server_api: http://localhost:8080
+  api_server_url: http://localhost:8080
 
 # gmail smtp config
 mail:
