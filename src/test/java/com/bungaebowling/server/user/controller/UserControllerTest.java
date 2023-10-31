@@ -545,7 +545,7 @@ class UserControllerTest extends ControllerTestConfig {
                                                         fieldWithPath("response.users[].id").description("사용자의 ID(PK)"),
                                                         fieldWithPath("response.users[].name").description("이름"),
                                                         fieldWithPath("response.users[].rating").description("사용자의 별점"),
-                                                        fieldWithPath("response.users[].profileImage").description("사용자의 프로필 이미지 링크")
+                                                        fieldWithPath("response.users[].profileImage").type(SimpleType.STRING).optional().description("사용자의 프로필 이미지 링크 | 이미지 설정 안한 경우 null")
                                                 )
                                         )
                                         .build()
@@ -581,14 +581,14 @@ class UserControllerTest extends ControllerTestConfig {
                         resource(
                                 ResourceSnippetParameters.builder()
                                         .tag(ApiTag.USER.getTagName())
-                                        .queryParameters(parameterWithName("name").optional().description("검색할 유저의 별명"))
+                                        .queryParameters(parameterWithName("name").optional().description("검색할 유저의 이름(닉네임)"))
                                         .responseSchema(Schema.schema("사용자 목록 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.NEXT_CURSOR.getResponseDescriptor().and(
                                                         fieldWithPath("response.users[].id").description("사용자의 ID(PK)"),
-                                                        fieldWithPath("response.users[].name").description("이름"),
+                                                        fieldWithPath("response.users[].name").description("이름(닉네임)"),
                                                         fieldWithPath("response.users[].rating").description("사용자의 별점"),
-                                                        fieldWithPath("response.users[].profileImage").description("사용자의 프로필 이미지 링크")
+                                                        fieldWithPath("response.users[].profileImage").type(SimpleType.STRING).optional().description("사용자의 프로필 이미지 링크 | 이미지 설정 안한 경우 null")
                                                 )
                                         )
                                         .build()
@@ -604,8 +604,8 @@ class UserControllerTest extends ControllerTestConfig {
         long userId = 1L;
         // when
         ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders
-                        .get("/api/users/" + userId)
+                RestDocumentationRequestBuilders
+                        .get("/api/users/{userId}", userId)
         );
 
         // then
@@ -621,6 +621,34 @@ class UserControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.rating").isNumber(),
                 jsonPath("$.response.address").exists(),
                 jsonPath("$.response.profileImage").hasJsonPath()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] getUser",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("사용자 상세 조회")
+                                        .description("""
+                                                특정 사용자의 상세 정보를 확인합니다.
+                                                 """)
+                                        .tag(ApiTag.USER.getTagName())
+                                        .pathParameters(
+                                                parameterWithName("userId").type(SimpleType.NUMBER).description("사용자 id")
+                                        )
+                                        .responseSchema(Schema.schema("사용자 상세 조회 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.name").description("사용자의 이름(닉네임)"),
+                                                        fieldWithPath("response.averageScore").description("볼링 게임 평균 점수"),
+                                                        fieldWithPath("response.rating").description("별점(매너 점수) | 별점 받은 적 없는 경우 0"),
+                                                        fieldWithPath("response.address").description("사용자의 별점"),
+                                                        fieldWithPath("response.profileImage").type(SimpleType.STRING).optional().description("사용자의 프로필 이미지 링크 | 이미지 설정 안한 경우 null")
+                                                )
+                                        )
+                                        .build()
+                        )
+                )
         );
     }
 
