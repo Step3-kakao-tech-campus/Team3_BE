@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -36,6 +37,7 @@ public abstract class ControllerTestConfig {
     void setUp(final RestDocumentationContextProvider restDocumentationContextProvider) {
         mvc = MockMvcBuilders.webAppContextSetup((context))
                 .apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentationContextProvider))
+                .apply(SecurityMockMvcConfigurers.springSecurity())
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))
                 .alwaysDo(MockMvcResultHandlers.print())
                 .build();

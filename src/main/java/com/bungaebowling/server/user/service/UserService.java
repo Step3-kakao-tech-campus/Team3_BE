@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -111,6 +112,9 @@ public class UserService {
 
     public UserResponse.TokensDto reIssueTokens(String refreshToken) {
         var decodedRefreshToken = JwtProvider.verify(refreshToken, JwtProvider.TYPE_REFRESH);
+
+        if (!Objects.equals(redisTemplate.opsForValue().get(decodedRefreshToken.getSubject()), refreshToken))
+            throw new CustomException(ErrorCode.INVALID_TOKEN, "유효하지 않은 refresh 토큰입니다.");
 
         var user = userRepository.findById(Long.valueOf(decodedRefreshToken.getSubject())).orElseThrow(() ->
                 new CustomException(ErrorCode.UNKNOWN_SERVER_ERROR, "재발급 과정에서 오류가 발생했습니다."));
