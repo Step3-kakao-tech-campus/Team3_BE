@@ -10,15 +10,7 @@ import java.util.List;
 public class Configs {
 
     @Getter
-    private static String apiServerUrl;
-
-    @Getter
     private static String domain;
-
-    @Value("${bungaebowling.api_server_url}")
-    private void setApiServerUrl(String value) {
-        apiServerUrl = value;
-    }
 
     @Value("${bungaebowling.domain}")
     private void setDomain(String value) {
@@ -33,7 +25,6 @@ public class Configs {
 
     public static List<String> getFullCORS() {
         List<String> fullCORS = new ArrayList<>(CORS);
-        fullCORS.add(apiServerUrl);
         fullCORS.add(domain);
         return fullCORS;
     }
