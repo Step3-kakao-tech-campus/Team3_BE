@@ -39,6 +39,16 @@ public class UserRequest {
         }
     }
 
+    public record UpdatePasswordDto(
+            @NotEmpty
+            @NotEmpty @Size(max = 64, message = "최대 64자까지 입력 가능합니다.")
+            String password,
+            @NotEmpty @Size(min = 8, max = 64, message = "8자에서 64자 이내여야 합니다.")
+            @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&!])[a-zA-Z\\d@#$%^&!]+$", message = "영문, 숫자, 특수문자가 포함되어야 합니다.")
+            String newPassword
+    ) {
+    }
+
     public record ConfirmEmailDto(
             @NotEmpty
             String token

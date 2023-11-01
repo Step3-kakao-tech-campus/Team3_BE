@@ -274,4 +274,13 @@ public class UserService {
     private Long getLastKey(List<User> users) {
         return users.isEmpty() ? CursorRequest.NONE_KEY : users.get(users.size() - 1).getId();
     }
+
+    @Transactional
+    public void updatePassword(Long userId, UserRequest.UpdatePasswordDto requestDto) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        if (!passwordEncoder.matches(requestDto.password(), user.getPassword())) {
+            throw new CustomException(ErrorCode.WRONG_PASSWORD);
+        }
+        user.updatePassword(passwordEncoder.encode(requestDto.newPassword()));
+    }
 }
