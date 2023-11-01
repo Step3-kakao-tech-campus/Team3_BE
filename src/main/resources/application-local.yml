@@ -53,6 +53,7 @@ bungaebowling:
     refresh: 2592000
   secret: ${TOKEN_SECRET}
   domain: ${DOMAIN}
+  api_server_url: ${API_SERVER_URL}
 
 # gmail smtp config
 mail:

@@ -62,6 +62,11 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: GOOGLE_MAP_API_KEY
+            - name: API_SERVER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: API_SERVER_URL
           ports:
             - containerPort: 8080
           resources:

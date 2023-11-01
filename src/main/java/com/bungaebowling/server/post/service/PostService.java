@@ -48,7 +48,7 @@ public class PostService {
     public static final int DEFAULT_SIZE = 20;
 
     @Transactional
-    public PostResponse.GetPostPostDto createPostWithApplicant(Long userId, PostRequest.CreatePostDto request) {
+    public PostResponse.CreateDto createPostWithApplicant(Long userId, PostRequest.CreatePostDto request) {
 
         User user = findUserById(userId);
 
@@ -58,7 +58,7 @@ public class PostService {
 
         saveApplicant(savedPost, user);
 
-        return new PostResponse.GetPostPostDto(savedPost.getId());
+        return new PostResponse.CreateDto(savedPost.getId());
     }
 
     private Post savePost(User user, Long districtId, PostRequest.CreatePostDto request) {
