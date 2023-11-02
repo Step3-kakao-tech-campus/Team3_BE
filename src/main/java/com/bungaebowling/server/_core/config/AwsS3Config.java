@@ -35,15 +35,15 @@ public class AwsS3Config {
     public AmazonS3 amazonS3Client() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-        //ClientConfiguration clientConfiguration = new ClientConfiguration();
-        //clientConfiguration.setProxyHost(proxyHost);
-        //clientConfiguration.setProxyPort(proxyPort);
+        ClientConfiguration clientConfiguration = new ClientConfiguration();
+        clientConfiguration.setProxyHost(proxyHost);
+        clientConfiguration.setProxyPort(proxyPort);
         //clientConfiguration.setSignerOverride("S3SignerType");
 
         return AmazonS3ClientBuilder
                 .standard()
                 //.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
-                //.withClientConfiguration(clientConfiguration)
+                .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(region)
                 .build();
