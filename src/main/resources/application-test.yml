@@ -70,6 +70,7 @@ cloud:
       access-key: aws-access-key
       secret-key: aws-secret-key
     s3:
+      endpoint: ${AWS_S3_END_POINT}
       bucket: bungaebowling-img-s3
     region:
       static: ap-northeast-2
