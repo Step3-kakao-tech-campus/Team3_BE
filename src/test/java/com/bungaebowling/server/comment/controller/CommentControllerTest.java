@@ -490,5 +490,111 @@ class CommentControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("댓글 삭제 테스트")
     void delete() throws Exception {
+        // given
+        var postId = 1L;
+
+        var commentId = 2L;
+
+        var userId = 1L; // 김볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .delete("/api/posts/{postId}/comments/{commentId}", postId, commentId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[comment] delete",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("댓글 삭제")
+                                        .description("""
+                                                댓글을 삭제합니다.(대댓글의 경우도 commentId를 사용하여 해당 api를 사용합니다.)
+                                                """)
+                                        .tag(ApiTag.COMMENT.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("postId").description("댓글을 삭제할 모집글 id"),
+                                                parameterWithName("commentId").description("삭제할 댓글 id")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("댓글 수정 테스트 - 자신의 댓글이 아님")
+    void deleteNotMyComment() throws Exception {
+        // given
+        var postId = 1L;
+
+        var commentId = 3L;
+
+        var userId = 1L; // 김볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .delete("/api/posts/{postId}/comments/{commentId}", postId, commentId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+
+        resultActions.andExpectAll(
+                status().isForbidden(),
+                jsonPath("$.status").value(403),
+                jsonPath("$.response").value(ErrorCode.COMMENT_DELETE_PERMISSION_DENIED.toString())
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[comment] editNotMyComment",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(ApiTag.COMMENT.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("postId").description("댓글을 삭제할 모집글 id"),
+                                                parameterWithName("commentId").description("삭제할 댓글 id")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.FAIL.getName()))
+                                        .responseFields(GeneralApiResponseSchema.FAIL.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 }
