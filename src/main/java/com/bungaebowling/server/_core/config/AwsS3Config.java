@@ -3,6 +3,7 @@ package com.bungaebowling.server._core.config;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AwsS3Config {
+    @Value("${cloud.aws.s3.endpoint}")
+    private String endpoint;
+
     @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
 
@@ -26,8 +30,8 @@ public class AwsS3Config {
 
         return AmazonS3ClientBuilder
                 .standard()
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(region)
                 .build();
     }
 }
