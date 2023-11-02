@@ -74,7 +74,7 @@ cloud:
       bucket: bungaebowling-img-s3-private
       proxy:
         host: proxy-host
-        port: proxy-port
+        port: 80
     region:
       static: ap-northeast-2
     stack:
