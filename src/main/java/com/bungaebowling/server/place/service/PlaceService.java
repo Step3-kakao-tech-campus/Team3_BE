@@ -53,7 +53,7 @@ public class PlaceService {
         String googlePlaceId = getGooglePlaceId(name, districtName);
         String url = createPlaceUrl(googlePlaceId);
         String response = restTemplate.getForObject(url, String.class);
-        return extractPlaceDetails(response);
+        return extractPlaceDetails(response, name);
     }
 
     private String getGooglePlaceId(String name, String address) {
@@ -62,15 +62,20 @@ public class PlaceService {
         return extractPlaceId(response);
     }
 
-    private PlaceResponse.GetPlaceDto extractPlaceDetails(String response) {
+    private PlaceResponse.GetPlaceDto extractPlaceDetails(String response, String placeName) {
         try {
             JsonNode result = objectMapper.readTree(response).path("result");
             if (result.isEmpty()) {
                 throw new CustomException(PLACE_DETAILS_NOT_FOUND);
             }
 
-            //볼링장 이름, 주소, 전화번호
+            //볼링장 이름
             String name = result.path("name").asText();
+            if (!placeName.equals(name)) {
+                throw new CustomException(PLACE_DETAILS_NOT_FOUND);
+            }
+
+            //볼링장 주소, 전화번호
             String address = result.path("formatted_address").asText();
             String phoneNumber = result.path("formatted_phone_number").asText();
 
