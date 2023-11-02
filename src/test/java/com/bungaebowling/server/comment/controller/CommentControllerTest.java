@@ -85,6 +85,14 @@ class CommentControllerTest extends ControllerTestConfig {
                                         .summary("댓글 조회")
                                         .description("""
                                                 모집글의 댓글들을 조회합니다.
+                                                                                                
+                                                기본적으로 **삭제된 댓글은 보이지 않**습니다.
+                                                                                                
+                                                삭제된 댓글이 대댓글을 가지고 있는 경우만 출력이 되며 이때 댓글은 아래와 같이 응답되게 됩니다.
+                                                - userId, userName -> null
+                                                - content -> "삭제된 댓글입니다."
+                                                                                                
+                                                size에는 삭제된 댓글의 수가 함께 집계되기 때문에 응답에는 없지만 개수로 포함될 수 있습니다. 따라서 **설정한 size 수(default 20)보다 적은 수의 댓글이 응답될 수** 있습니다.
                                                 """)
                                         .tag(ApiTag.COMMENT.getTagName())
                                         .pathParameters(parameterWithName("postId").description("조회할 댓글들의 모집글 id"))
