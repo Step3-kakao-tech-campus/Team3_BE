@@ -47,18 +47,13 @@ public class PlaceService {
         String districtName = getDistrictName(placeId);
         String googlePlaceId = getGooglePlaceId(name, districtName);
         String url = createPlaceUrl(googlePlaceId);
-
         String response = restTemplate.getForObject(url, String.class);
-        log.info("detail response=" + response);
         return extractPlaceDetails(response);
     }
 
     private String getGooglePlaceId(String name, String address) {
         String url = createGooglePlaceIdUrl(name, address);
-        log.info("google place id url=" + url);
-
         String response = restTemplate.getForObject(url, String.class);
-        log.info("id response=" + response);
         return extractPlaceId(response);
     }
 
