@@ -1,8 +1,8 @@
 package com.bungaebowling.server.comment.controller;
 
-import com.bungaebowling.server.ApiTag;
 import com.bungaebowling.server.ControllerTestConfig;
-import com.bungaebowling.server.GeneralApiResponseSchema;
+import com.bungaebowling.server._core.commons.ApiTag;
+import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;

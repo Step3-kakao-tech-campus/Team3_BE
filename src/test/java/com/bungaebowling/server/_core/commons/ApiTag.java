@@ -1,4 +1,4 @@
-package com.bungaebowling.server;
+package com.bungaebowling.server._core.commons;
 
 public enum ApiTag {
     AUTHORIZATION("회원가입 로그인 인증"),
