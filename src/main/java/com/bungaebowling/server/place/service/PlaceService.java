@@ -10,11 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,7 +80,8 @@ public class PlaceService {
             for (int i = 0; i < photoNode.size(); i++) {
                 String photoReference = photoNode.get(i).path("photo_reference").asText();
                 String imageUrl = createImageUrl(photoReference);
-                images.add(imageUrl);
+                String redirectedUrl = getRedirectedUrl(imageUrl);
+                images.add(redirectedUrl);
             }
 
             //볼링장 영업 시간
@@ -91,6 +96,18 @@ public class PlaceService {
         } catch (JsonProcessingException e) {
             throw new CustomException(PLACE_DETAILS_CONVERSION_ERROR);
         }
+    }
+
+    private String getRedirectedUrl(String originalUrl) {
+        RestTemplate restTemplateRedirect = new RestTemplate(new SimpleClientHttpRequestFactory() {
+            @Override
+            protected void prepareConnection(HttpURLConnection connection, String httpMethod) {
+                connection.setInstanceFollowRedirects(false);
+            }
+        });
+
+        ResponseEntity<String> response = restTemplateRedirect.exchange(originalUrl, HttpMethod.GET, null, String.class);
+        return response.getHeaders().getLocation() == null ? "" : response.getHeaders().getLocation().toString();
     }
 
     private String extractPlaceId(String response) {
