@@ -73,8 +73,8 @@ cloud:
       endpoint: aws-s3-endpoint
       bucket: bungaebowling-img-s3-private
       proxy:
-        host: proxy-host
-        port: 80
+        host: krmp-proxy.9rum.cc
+        port: 3128
     region:
       static: ap-northeast-2
     stack:
