@@ -4,6 +4,7 @@ import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server._core.commons.ApiTag;
 import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.commons.GeneralParameters;
+import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.comment.dto.CommentRequest;
 import com.bungaebowling.server.user.Role;
@@ -238,6 +239,83 @@ class CommentControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("대댓글 등록 테스트")
     void createReply() throws Exception {
+        // given
+        var postId = 1L;
+
+        var parentCommentId = 3L;
+
+        var userId = 1L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+
+        var requestDto = new CommentRequest.CreateDto("확인 해볼게요!");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/posts/{postId}/comments/{commentId}/reply", postId, parentCommentId)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.id").isNumber()
+        );
+    }
+
+    @Test
+    @DisplayName("대댓글 등록 테스트 - 삭제된 댓글에 시도")
+    void createReplyAtDeleted() throws Exception {
+        // given
+        var postId = 1L;
+
+        var parentCommentId = 1L;
+
+        var userId = 1L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+
+        var requestDto = new CommentRequest.CreateDto("확인 해볼게요!");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/posts/{postId}/comments/{commentId}/reply", postId, parentCommentId)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+
+        resultActions.andExpectAll(
+                status().isNotFound(),
+                jsonPath("$.status").value(404),
+                jsonPath("$.response").value(ErrorCode.COMMENT_NOT_FOUND.toString())
+        );
     }
 
     @Test
