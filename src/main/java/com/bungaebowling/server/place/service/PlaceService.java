@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,10 +108,11 @@ public class PlaceService {
     }
 
     private String createPlaceUrl(String placeId) {
-        return new StringBuilder(PLACES_API_URL)
-                .append("?language=ko")
-                .append("&place_id=").append(placeId)
-                .append("&key=").append(apiKey)
+        return UriComponentsBuilder.fromHttpUrl(PLACES_API_URL)
+                .queryParam("language", "ko")
+                .queryParam("place_id", placeId)
+                .queryParam("key", apiKey)
+                .build()
                 .toString();
     }
 
@@ -129,18 +131,20 @@ public class PlaceService {
             addressBuilder.append(districtName);
         }
 
-        return new StringBuilder(GEOCODING_API_URL)
-                .append("?language=ko")
-                .append("&address=").append(addressBuilder)
-                .append("&key=").append(apiKey)
+        return UriComponentsBuilder.fromHttpUrl(GEOCODING_API_URL)
+                .queryParam("language", "ko")
+                .queryParam("address", addressBuilder)
+                .queryParam("key", apiKey)
+                .build()
                 .toString();
     }
 
     private String createImageUrl(String photoReference) {
-        return new StringBuilder(PHOTO_API_URL)
-                .append("?maxwidth=400")
-                .append("&photoreference=").append(photoReference)
-                .append("&key=").append(apiKey)
+        return UriComponentsBuilder.fromHttpUrl(PHOTO_API_URL)
+                .queryParam("maxwidth", 400)
+                .queryParam("photoreference", photoReference)
+                .queryParam("key", apiKey)
+                .build()
                 .toString();
     }
 
