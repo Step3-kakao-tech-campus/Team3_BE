@@ -725,7 +725,8 @@ INSERT INTO user_tb (name, email, password, district_id, role)
 VALUES ('김볼링', 'test@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
        ('최볼링', 'chlqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_PENDING'),
        ('이볼링', 'dlqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
-       ('박볼링', 'qkrqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER');
+       ('박볼링', 'qkrqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('신볼링', 'tlsqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER');
 
 INSERT INTO post_tb (title, user_id, district_id, start_time, due_time, content, is_close)
 VALUES ('불금 볼링 점수 내기 하실 분~', 1, 1, '2023-12-01', '2023-11-29', '볼링 점수 내기합시다.', true),
@@ -774,9 +775,15 @@ VALUES (1, 1, true),
        (3, 2, true),
        (4, 1, true);
 
-INSERT INTO comment_tb (post_id, user_id, parent_id, content)
-VALUES (1, 2, null, '저 해도 되나요?'),
-       (1, 1, 1, '신청해주세요~');
+INSERT INTO comment_tb (id, parent_id, post_id, user_id, content)
+VALUES (1, null, 1, null, '삭제된 댓글입니다.'),
+       (2, 1, 1, 1, '신청해주세요~'),
+       (3, null, 1, 3, '저 신청했어요!'),
+       (4, null, 1, 3, '확인부탁드립니다!'),
+       (5, 4, 1, 4, '이사람 조심하세요 ㄷㄷㄷ'),
+       (6, 4, 1, 4, '저번에 신청하고 날랐습니다'),
+       (7, null, 1, 5, '아직 자리 있나요?'),
+       (8, 7, 1, 1, '네 있습니다');
 
 -- 해당 post에 신청 수락되어야함 / 모집완료(is_close)되고 start가 지난 post에만 score 등록 /
 INSERT INTO score_tb (user_id, post_id, score_num)
