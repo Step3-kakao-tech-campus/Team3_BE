@@ -115,6 +115,58 @@ class CommentControllerTest extends ControllerTestConfig {
     }
 
     @Test
+    @DisplayName("댓글 조회 테스트 - key, size 검색")
+    void getCommentsWithPage() throws Exception {
+        // given
+        Long postId = 1L;
+        int size = 2;
+        int key = 1;
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .get("/api/posts/{postId}/comments", postId)
+                        .param("key", Integer.toString(key))
+                        .param("size", Integer.toString(size))
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.comments[0].id").value(greaterThan(key)),
+                jsonPath("$.response.comments").value(hasSize(lessThanOrEqualTo(size)))
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[comment] getCommentsWithPage",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(ApiTag.COMMENT.getTagName())
+                                        .pathParameters(parameterWithName("postId").description("조회할 댓글들의 모집글 id"))
+                                        .queryParameters(
+                                                parameterWithName("key").optional().type(SimpleType.NUMBER)
+                                                        .description("""
+                                                                검색 기준 id
+                                                                                                                
+                                                                처음 요청 시 key 없이 요청 | 2번째 요청부터는 response.nextCursorRequest.key 값으로 요청
+                                                                                                                
+                                                                더이상 가져올 값이 없을 시 nextCursorRequest.key로 -1 응답
+                                                                """),
+                                                parameterWithName("size").optional().type(SimpleType.NUMBER).defaultValue(20).description("한번에 가져올 크기")
+                                        )
+                                        .build()
+                        )
+                )
+        );
+    }
+
+    @Test
     @DisplayName("댓글 등록 테스트")
     void create() throws Exception {
     }
