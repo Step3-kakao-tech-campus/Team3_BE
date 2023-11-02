@@ -274,6 +274,30 @@ class CommentControllerTest extends ControllerTestConfig {
                 status().isOk(),
                 jsonPath("$.status").value(200),
                 jsonPath("$.response.id").isNumber()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[comment] createReply",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("대댓글 등록")
+                                        .description("""
+                                                댓글에 대댓글을 등록합니다.
+                                                """)
+                                        .tag(ApiTag.COMMENT.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("postId").description("대댓글을 등록할 모집글 id"),
+                                                parameterWithName("commentId").description("대댓글을 등록할 댓글 id")
+                                        )
+                                        .requestSchema(Schema.schema("댓글 등록 요청 DTO"))
+                                        .requestFields(fieldWithPath("content").description("등록할 댓글 내용"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.CREATED.getName()))
+                                        .responseFields(GeneralApiResponseSchema.CREATED.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
@@ -315,6 +339,26 @@ class CommentControllerTest extends ControllerTestConfig {
                 status().isNotFound(),
                 jsonPath("$.status").value(404),
                 jsonPath("$.response").value(ErrorCode.COMMENT_NOT_FOUND.toString())
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[comment] createReplyAtDeleted",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(ApiTag.COMMENT.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("postId").description("대댓글을 등록할 모집글 id"),
+                                                parameterWithName("commentId").description("대댓글을 등록할 댓글 id")
+                                        )
+                                        .requestSchema(Schema.schema("댓글 등록 요청 DTO"))
+                                        .requestFields(fieldWithPath("content").description("등록할 댓글 내용"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.FAIL.getName()))
+                                        .responseFields(GeneralApiResponseSchema.FAIL.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
