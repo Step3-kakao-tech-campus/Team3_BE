@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok()
                 .header(JwtProvider.HEADER, responseDto.access())
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                .body(ApiUtils.success());
+                .body(ApiUtils.success(new UserResponse.CreateDto(responseDto.savedId())));
     }
 
     @PostMapping("/login")

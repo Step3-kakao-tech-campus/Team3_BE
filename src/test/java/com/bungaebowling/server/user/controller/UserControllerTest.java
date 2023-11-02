@@ -110,7 +110,8 @@ class UserControllerTest extends ControllerTestConfig {
 
         resultActions.andExpectAll(
                 status().isOk(),
-                jsonPath("$.status").value(200)
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.id").isNumber()
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
                         "[user] join",
@@ -143,8 +144,8 @@ class UserControllerTest extends ControllerTestConfig {
 
                                                         (e.g.)Bearer {jwt_access_token}""")
                                         )
-                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
-                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.CREATED.getName()))
+                                        .responseFields(GeneralApiResponseSchema.CREATED.getResponseDescriptor())
                                         .build()
                         )
                 )
