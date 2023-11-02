@@ -39,7 +39,12 @@ public class PlaceService {
 
     private final DistrictRepository districtRepository;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate(new SimpleClientHttpRequestFactory() {
+        @Override
+        protected void prepareConnection(HttpURLConnection connection, String httpMethod) {
+            connection.setInstanceFollowRedirects(false);
+        }
+    });
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -94,14 +99,7 @@ public class PlaceService {
     }
 
     private String getRedirectedUrl(String originalUrl) {
-        RestTemplate restTemplateRedirect = new RestTemplate(new SimpleClientHttpRequestFactory() {
-            @Override
-            protected void prepareConnection(HttpURLConnection connection, String httpMethod) {
-                connection.setInstanceFollowRedirects(false);
-            }
-        });
-
-        ResponseEntity<String> response = restTemplateRedirect.exchange(originalUrl, HttpMethod.GET, null, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(originalUrl, HttpMethod.GET, null, String.class);
         return response.getHeaders().getLocation() == null ? "" : response.getHeaders().getLocation().toString();
     }
 
