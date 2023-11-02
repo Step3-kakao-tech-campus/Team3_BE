@@ -54,4 +54,18 @@ public class UserRequest {
             String token
     ) {
     }
+
+    public record ConfirmEmailAndSendTempPasswordDto(
+            @NotEmpty
+            String token
+    ) {
+    }
+
+    public record SendVerificationMailForPasswordResetDto(
+            @NotEmpty @Size(max = 100, message = "최대 100자까지 입니다.")
+            @Pattern(regexp = "^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$", message = "이메일 형식이 아닙니다.")
+            String email
+    ) {
+    }
+
 }
