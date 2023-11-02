@@ -365,6 +365,65 @@ class CommentControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("댓글 수정 테스트")
     void edit() throws Exception {
+        // given
+        var postId = 1L;
+
+        var commentId = 3L;
+
+        var userId = 3L; // 이볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        var requestDto = new CommentRequest.EditDto("아 그냥 취소할게요");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .put("/api/posts/{postId}/comments/{commentId}", postId, commentId)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[comment] edit",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("댓글 수정")
+                                        .description("""
+                                                댓글을 수정합니다.(대댓글의 경우도 commentId를 사용하여 해당 api를 사용합니다.)
+                                                """)
+                                        .tag(ApiTag.COMMENT.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("postId").description("댓글을 수정할 모집글 id"),
+                                                parameterWithName("commentId").description("수정할 댓글 id")
+                                        )
+                                        .requestSchema(Schema.schema("댓글 수정 요청 DTO"))
+                                        .requestFields(fieldWithPath("content").description("수정할 댓글 내용"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 
     @Test
