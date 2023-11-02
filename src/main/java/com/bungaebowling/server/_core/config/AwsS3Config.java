@@ -1,5 +1,6 @@
 package com.bungaebowling.server._core.config;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -24,13 +25,24 @@ public class AwsS3Config {
     @Value("${cloud.aws.region.static}")
     private String region;
 
+    @Value("${cloud.aws.proxy.host}")
+    private String proxyHost;
+
+    @Value("${cloud.aws.proxy.port}")
+    private int proxyPort;
+
     @Bean
     public AmazonS3 amazonS3Client() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
+        ClientConfiguration clientConfiguration = new ClientConfiguration();
+        clientConfiguration.setProxyHost(proxyHost);
+        clientConfiguration.setProxyPort(proxyPort);
+
         return AmazonS3ClientBuilder
                 .standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+                .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .build();
     }
