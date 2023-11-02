@@ -64,7 +64,7 @@ cloud:
       secret-key: ${AWS_SECRET_KEY}
     s3:
       endpoint: ${AWS_S3_END_POINT}
-      bucket: bungaebowling-img-s3-private
+      bucket: bungaebowling-img-s3
       proxy:
         host: krmp-proxy.9rum.cc
         port: 3128
