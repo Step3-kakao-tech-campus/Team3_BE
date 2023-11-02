@@ -71,6 +71,9 @@ cloud:
     s3:
       endpoint: ${AWS_S3_END_POINT}
       bucket: bungaebowling-img-s3-private
+      proxy:
+        host: ${PROXY_HOST}
+        port: ${PROXY_PORT}
     region:
       static: ap-northeast-2
     stack:
