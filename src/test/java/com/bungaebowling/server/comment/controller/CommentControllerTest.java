@@ -427,6 +427,67 @@ class CommentControllerTest extends ControllerTestConfig {
     }
 
     @Test
+    @DisplayName("댓글 수정 테스트 - 자신의 댓글이 아님")
+    void editNotMyComment() throws Exception {
+        // given
+        var postId = 1L;
+
+        var commentId = 2L;
+
+        var userId = 3L; // 이볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        var requestDto = new CommentRequest.EditDto("아 그냥 취소할게요");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .put("/api/posts/{postId}/comments/{commentId}", postId, commentId)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+
+        resultActions.andExpectAll(
+                status().isForbidden(),
+                jsonPath("$.status").value(403),
+                jsonPath("$.response").value(ErrorCode.COMMENT_UPDATE_PERMISSION_DENIED.toString())
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[comment] editNotMyComment",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(ApiTag.COMMENT.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("postId").description("댓글을 수정할 모집글 id"),
+                                                parameterWithName("commentId").description("수정할 댓글 id")
+                                        )
+                                        .requestSchema(Schema.schema("댓글 수정 요청 DTO"))
+                                        .requestFields(fieldWithPath("content").description("수정할 댓글 내용"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.FAIL.getName()))
+                                        .responseFields(GeneralApiResponseSchema.FAIL.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
+    }
+
+    @Test
     @DisplayName("댓글 삭제 테스트")
     void delete() throws Exception {
     }
