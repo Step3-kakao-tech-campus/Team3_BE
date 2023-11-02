@@ -10,10 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +39,12 @@ public class PlaceService {
 
     private final DistrictRepository districtRepository;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate(new SimpleClientHttpRequestFactory() {
+        @Override
+        protected void prepareConnection(HttpURLConnection connection, String httpMethod) {
+            connection.setInstanceFollowRedirects(false);
+        }
+    });
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -42,30 +52,30 @@ public class PlaceService {
         String districtName = getDistrictName(placeId);
         String googlePlaceId = getGooglePlaceId(name, districtName);
         String url = createPlaceUrl(googlePlaceId);
-
         String response = restTemplate.getForObject(url, String.class);
-        log.info("detail response=" + response);
-        return extractPlaceDetails(response);
+        return extractPlaceDetails(response, name);
     }
 
     private String getGooglePlaceId(String name, String address) {
         String url = createGooglePlaceIdUrl(name, address);
-        log.info("google place id url=" + url);
-
         String response = restTemplate.getForObject(url, String.class);
-        log.info("id response=" + response);
         return extractPlaceId(response);
     }
 
-    private PlaceResponse.GetPlaceDto extractPlaceDetails(String response) {
+    private PlaceResponse.GetPlaceDto extractPlaceDetails(String response, String placeName) {
         try {
             JsonNode result = objectMapper.readTree(response).path("result");
             if (result.isEmpty()) {
                 throw new CustomException(PLACE_DETAILS_NOT_FOUND);
             }
 
-            //볼링장 이름, 주소, 전화번호
+            //볼링장 이름
             String name = result.path("name").asText();
+            if (!placeName.equals(name)) {
+                throw new CustomException(PLACE_DETAILS_NOT_FOUND);
+            }
+
+            //볼링장 주소, 전화번호
             String address = result.path("formatted_address").asText();
             String phoneNumber = result.path("formatted_phone_number").asText();
 
@@ -75,7 +85,8 @@ public class PlaceService {
             for (int i = 0; i < photoNode.size(); i++) {
                 String photoReference = photoNode.get(i).path("photo_reference").asText();
                 String imageUrl = createImageUrl(photoReference);
-                images.add(imageUrl);
+                String redirectedUrl = getRedirectedUrl(imageUrl);
+                images.add(redirectedUrl);
             }
 
             //볼링장 영업 시간
@@ -90,6 +101,11 @@ public class PlaceService {
         } catch (JsonProcessingException e) {
             throw new CustomException(PLACE_DETAILS_CONVERSION_ERROR);
         }
+    }
+
+    private String getRedirectedUrl(String originalUrl) {
+        ResponseEntity<String> response = restTemplate.exchange(originalUrl, HttpMethod.GET, null, String.class);
+        return response.getHeaders().getLocation() == null ? "" : response.getHeaders().getLocation().toString();
     }
 
     private String extractPlaceId(String response) {
@@ -107,10 +123,11 @@ public class PlaceService {
     }
 
     private String createPlaceUrl(String placeId) {
-        return new StringBuilder(PLACES_API_URL)
-                .append("?language=ko")
-                .append("&place_id=").append(placeId)
-                .append("&key=").append(apiKey)
+        return UriComponentsBuilder.fromHttpUrl(PLACES_API_URL)
+                .queryParam("language", "ko")
+                .queryParam("place_id", placeId)
+                .queryParam("key", apiKey)
+                .build()
                 .toString();
     }
 
@@ -129,18 +146,20 @@ public class PlaceService {
             addressBuilder.append(districtName);
         }
 
-        return new StringBuilder(GEOCODING_API_URL)
-                .append("?language=ko")
-                .append("&address=").append(addressBuilder)
-                .append("&key=").append(apiKey)
+        return UriComponentsBuilder.fromHttpUrl(GEOCODING_API_URL)
+                .queryParam("language", "ko")
+                .queryParam("address", addressBuilder)
+                .queryParam("key", apiKey)
+                .build()
                 .toString();
     }
 
     private String createImageUrl(String photoReference) {
-        return new StringBuilder(PHOTO_API_URL)
-                .append("?maxwidth=400")
-                .append("&photoreference=").append(photoReference)
-                .append("&key=").append(apiKey)
+        return UriComponentsBuilder.fromHttpUrl(PHOTO_API_URL)
+                .queryParam("maxwidth", 400)
+                .queryParam("photoreference", photoReference)
+                .queryParam("key", apiKey)
+                .build()
                 .toString();
     }
 
