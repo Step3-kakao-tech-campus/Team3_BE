@@ -1,4 +1,4 @@
-package com.bungaebowling.server;
+package com.bungaebowling.server._core.commons;
 
 import com.epages.restdocs.apispec.FieldDescriptors;
 import com.epages.restdocs.apispec.SimpleType;

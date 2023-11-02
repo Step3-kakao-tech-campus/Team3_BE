@@ -1,9 +1,10 @@
 package com.bungaebowling.server.user.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.bungaebowling.server.ApiTag;
 import com.bungaebowling.server.ControllerTestConfig;
-import com.bungaebowling.server.GeneralApiResponseSchema;
+import com.bungaebowling.server._core.commons.ApiTag;
+import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
+import com.bungaebowling.server._core.commons.GeneralParameters;
 import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.user.Role;
@@ -49,8 +50,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -589,6 +589,49 @@ class UserControllerTest extends ControllerTestConfig {
                                                         fieldWithPath("response.users[].rating").description("사용자의 별점"),
                                                         fieldWithPath("response.users[].profileImage").type(SimpleType.STRING).optional().description("사용자의 프로필 이미지 링크 | 이미지 설정 안한 경우 null")
                                                 )
+                                        )
+                                        .build()
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("사용자 목록 조회 테스트 - 다음 페이지 검색")
+    void getUsersNextPage() throws Exception {
+        // given
+        int key = 25;
+        int size = 20;
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .get("/api/users")
+                        .param("key", Integer.toString(key))
+                        .param("size", Integer.toString(size))
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.users[0].id").value(lessThan(key)),
+                jsonPath("$.response.users").value(hasSize(lessThanOrEqualTo(size)))
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] getUsersNextPage",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(ApiTag.USER.getTagName())
+                                        .queryParameters(
+                                                GeneralParameters.CURSOR_KEY.getParameterDescriptorWithType(),
+                                                GeneralParameters.SIZE.getParameterDescriptorWithType()
                                         )
                                         .build()
                         )
