@@ -30,6 +30,15 @@ public enum GeneralApiResponseSchema {
                     fieldWithPath("response.nextCursorRequest.key").description("다음 요청 cursor의 key"),
                     fieldWithPath("response.nextCursorRequest.size").description("다음 요청 cursor의 size")
             )
+    ),
+    CREATED(
+            "생성 응답 DTO",
+            new FieldDescriptors(
+                    fieldWithPath("status").type(SimpleType.NUMBER).description("응답 상태 정보"),
+                    fieldWithPath("response").type(SimpleType.STRING).optional().description("응답 body"),
+                    fieldWithPath("errorMessage").type(SimpleType.STRING).optional().description("에러 메시지"),
+                    fieldWithPath("response.id").type(SimpleType.NUMBER).description("생성된 데이터의 id")
+            )
     );
 
     private final String name;
