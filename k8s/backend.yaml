@@ -37,6 +37,11 @@ spec:
                 secretKeyRef: 
                   name: secrets
                   key: GMAIL_APPLICATION_PASSWORD
+            - name: PROXY_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: PROXY_HOST
             - name: AWS_S3_END_POINT
               valueFrom:
                 secretKeyRef:
