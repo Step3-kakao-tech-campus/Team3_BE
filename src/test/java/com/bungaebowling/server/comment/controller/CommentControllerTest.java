@@ -4,6 +4,10 @@ import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server._core.commons.ApiTag;
 import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.commons.GeneralParameters;
+import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.comment.dto.CommentRequest;
+import com.bungaebowling.server.user.Role;
+import com.bungaebowling.server.user.User;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
@@ -14,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -171,6 +177,40 @@ class CommentControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("댓글 등록 테스트")
     void create() throws Exception {
+        // given
+        Long postId = 1L;
+
+        var userId = 1L;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+
+        var requestDto = new CommentRequest.CreateDto("안녕하세요");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/posts/{postId}/comments", postId)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.id").isNumber()
+        );
     }
 
     @Test
