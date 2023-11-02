@@ -27,8 +27,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
-import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -210,6 +209,29 @@ class CommentControllerTest extends ControllerTestConfig {
                 status().isOk(),
                 jsonPath("$.status").value(200),
                 jsonPath("$.response.id").isNumber()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[comment] create",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("댓글 등록")
+                                        .description("""
+                                                모집글에 새로운 댓글을 등록합니다.
+                                                                                                
+                                                대댓글 등록은 별개의 api를 사용해주세요.
+                                                """)
+                                        .tag(ApiTag.COMMENT.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(parameterWithName("postId").description("댓글을 등록할 모집글 id"))
+                                        .requestSchema(Schema.schema("댓글 등록 요청 DTO"))
+                                        .requestFields(fieldWithPath("content").description("등록할 댓글 내용"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.CREATED.getName()))
+                                        .responseFields(GeneralApiResponseSchema.CREATED.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
