@@ -38,7 +38,7 @@ public class AwsS3Config {
         ClientConfiguration clientConfiguration = new ClientConfiguration();
         clientConfiguration.setProxyHost(proxyHost);
         clientConfiguration.setProxyPort(proxyPort);
-        clientConfiguration.setSignerOverride("S3SignerType");
+        //clientConfiguration.setSignerOverride("S3SignerType");
 
         return AmazonS3ClientBuilder
                 .standard()
