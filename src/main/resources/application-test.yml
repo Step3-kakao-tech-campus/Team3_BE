@@ -71,7 +71,7 @@ cloud:
       secret-key: aws-secret-key
     s3:
       endpoint: aws-s3-endpoint
-      bucket: bungaebowling-img-s3
+      bucket: bungaebowling-img-s3-private
     region:
       static: ap-northeast-2
     stack:
