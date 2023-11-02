@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 @Table(name = "comment_tb")
 public class Comment {
 
+    public static final String DELETED_COMMENT_CONTENT = "삭제된 댓글입니다.";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -65,7 +67,7 @@ public class Comment {
     }
 
     public void delete() {
-        this.content = "삭제된 댓글입니다.";
+        this.content = DELETED_COMMENT_CONTENT;
         this.user = null;
     }
 }

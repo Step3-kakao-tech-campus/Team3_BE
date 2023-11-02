@@ -6,7 +6,9 @@ import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.commons.GeneralParameters;
 import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.comment.Comment;
 import com.bungaebowling.server.comment.dto.CommentRequest;
+import com.bungaebowling.server.comment.repository.CommentRepository;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
@@ -14,6 +16,7 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.epages.restdocs.apispec.SimpleType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +44,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class CommentControllerTest extends ControllerTestConfig {
 
+    private final CommentRepository commentRepository;
+
     @Autowired
-    public CommentControllerTest(WebApplicationContext context, ObjectMapper om) {
+    public CommentControllerTest(WebApplicationContext context, ObjectMapper om, CommentRepository commentRepository) {
         super(context, om);
+        this.commentRepository = commentRepository;
     }
 
     @Test
@@ -96,10 +102,10 @@ class CommentControllerTest extends ControllerTestConfig {
                                                                                                 
                                                 삭제된 댓글이 대댓글을 가지고 있는 경우만 출력이 되며 이때 댓글은 아래와 같이 응답되게 됩니다.
                                                 - userId, userName -> null
-                                                - content -> "삭제된 댓글입니다."
+                                                - content -> "%s"
                                                                                                 
                                                 size에는 삭제된 댓글의 수가 함께 집계되기 때문에 응답에는 없지만 개수로 포함될 수 있습니다. 따라서 **설정한 size 수(default 20)보다 적은 수의 댓글이 응답될 수** 있습니다.
-                                                """)
+                                                """.formatted(Comment.DELETED_COMMENT_CONTENT))
                                         .tag(ApiTag.COMMENT.getTagName())
                                         .pathParameters(parameterWithName("postId").description("조회할 댓글들의 모집글 id"))
                                         .responseSchema(Schema.schema("댓글 조회 응답 DTO"))
@@ -110,7 +116,7 @@ class CommentControllerTest extends ControllerTestConfig {
                                                         fieldWithPath("response.comments[].userId").optional().type(SimpleType.NUMBER).description("댓글 작성자의 ID(PK) | 삭제된 댓글의 경우 null"),
                                                         fieldWithPath("response.comments[].userName").optional().type(SimpleType.STRING).description("댓글 작성자의 닉네임 | 삭제된 댓글의 경우 null"),
                                                         fieldWithPath("response.comments[].profileImage").optional().type(SimpleType.STRING).description("댓글 작성자 프로필 이미지 경로"),
-                                                        fieldWithPath("response.comments[].content").description("댓글 내용 | 삭제된 댓글의 경우 '삭제된 댓글입니다.'"),
+                                                        fieldWithPath("response.comments[].content").description("댓글 내용 | 삭제된 댓글의 경우 '%s'".formatted(Comment.DELETED_COMMENT_CONTENT)),
                                                         fieldWithPath("response.comments[].createdAt").description("댓글 생성 시간"),
                                                         fieldWithPath("response.comments[].editedAt").description("댓글 마지막 수정 시간"),
                                                         fieldWithPath("response.comments[].childComments").description("대댓글"),
@@ -379,7 +385,9 @@ class CommentControllerTest extends ControllerTestConfig {
                         .build()
         );
 
-        var requestDto = new CommentRequest.EditDto("아 그냥 취소할게요");
+        var content = "아 그냥 취소할게요";
+
+        var requestDto = new CommentRequest.EditDto(content);
         String requestBody = om.writeValueAsString(requestDto);
 
         // when
@@ -395,6 +403,11 @@ class CommentControllerTest extends ControllerTestConfig {
         Object json = om.readValue(responseBody, Object.class);
         System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
 
+        var modifiedComment = commentRepository.findById(commentId).orElse(null);
+
+        Assertions.assertNotNull(modifiedComment);
+        Assertions.assertEquals(modifiedComment.getUser().getId(), userId);
+        Assertions.assertEquals(modifiedComment.getContent(), content);
 
         resultActions.andExpectAll(
                 status().isOk(),
@@ -515,6 +528,12 @@ class CommentControllerTest extends ControllerTestConfig {
         Object json = om.readValue(responseBody, Object.class);
         System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
 
+        var modifiedComment = commentRepository.findById(commentId).orElse(null);
+
+        Assertions.assertNotNull(modifiedComment);
+        Assertions.assertNull(modifiedComment.getUser());
+        Assertions.assertEquals(modifiedComment.getContent(), Comment.DELETED_COMMENT_CONTENT);
+
 
         resultActions.andExpectAll(
                 status().isOk(),
@@ -529,6 +548,10 @@ class CommentControllerTest extends ControllerTestConfig {
                                         .summary("댓글 삭제")
                                         .description("""
                                                 댓글을 삭제합니다.(대댓글의 경우도 commentId를 사용하여 해당 api를 사용합니다.)
+                                                                                                
+                                                삭제된 댓글이 대댓글을 가지고 있던 경우, 댓글 조회 api 호출 시 내용과 작성자가 지워진 채로 조회가 됩니다.
+                                                - userId, userName -> null
+                                                - content -> "%s"
                                                 """)
                                         .tag(ApiTag.COMMENT.getTagName())
                                         .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
@@ -545,7 +568,7 @@ class CommentControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    @DisplayName("댓글 수정 테스트 - 자신의 댓글이 아님")
+    @DisplayName("댓글 삭제 테스트 - 자신의 댓글이 아님")
     void deleteNotMyComment() throws Exception {
         // given
         var postId = 1L;
