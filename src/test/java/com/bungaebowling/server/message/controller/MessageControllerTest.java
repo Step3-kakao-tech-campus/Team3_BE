@@ -66,5 +66,40 @@ public class MessageControllerTest extends ControllerTestConfig {
         );
     }
 
+    @Test
+    @DisplayName("일대일 대화방 쪽지 조회 테스트")
+    void getMessagesAndUpdateToRead() throws Exception {
+        // given
+        Long userId = 1L;
+        Long opponentUserId = 3L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .get("/api/messages/opponents/{opponentUserId}", opponentUserId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.opponentUserName").exists(),
+                jsonPath("$.response.messages[0].id").exists(),
+                jsonPath("$.response.messages[0].content").exists(),
+                jsonPath("$.response.messages[0].time").exists(),
+                jsonPath("$.response.messages[0].isRead").isBoolean(),
+                jsonPath("$.response.messages[0].isReceive").isBoolean()
+        );
+    }
+
 
 }
