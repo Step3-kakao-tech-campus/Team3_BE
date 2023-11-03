@@ -2,6 +2,7 @@ package com.bungaebowling.server.message.controller;
 
 import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.message.dto.MessageRequest;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -98,6 +100,40 @@ public class MessageControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.messages[0].time").exists(),
                 jsonPath("$.response.messages[0].isRead").isBoolean(),
                 jsonPath("$.response.messages[0].isReceive").isBoolean()
+        );
+    }
+
+    @Test
+    @DisplayName("쪽지 보내기 테스트")
+    void sendMessage() throws Exception {
+        // given
+        Long userId = 1L;
+        Long opponentUserId = 3L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        MessageRequest.SendMessageDto requestDto = new MessageRequest.SendMessageDto("쪽지보내기 테스트");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/messages/opponents/{opponentUserId}", opponentUserId)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
         );
     }
 
