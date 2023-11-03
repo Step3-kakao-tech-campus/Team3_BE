@@ -167,5 +167,34 @@ public class MessageControllerTest extends ControllerTestConfig {
         );
     }
 
+    @Test
+    @DisplayName("쪽지 개별 삭제")
+    void deleteMessageById() throws Exception {
+        // given
+        Long userId = 1L;
+        Long messageId = 1L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .delete("/api/messages/{messageId}", messageId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
+    }
 
 }
