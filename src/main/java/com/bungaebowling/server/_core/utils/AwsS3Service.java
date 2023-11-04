@@ -112,6 +112,10 @@ public class AwsS3Service {
         objectMetadata.setContentType(multipartFile.getContentType());
         objectMetadata.setContentLength(multipartFile.getSize());
 
+        log.info("bucket: "+bucketName);
+        log.info("s3client: "+amazonS3Client);
+        log.info("s3client: "+amazonS3Client.getBucketLocation(bucketName));
+
         try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(
                     new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
