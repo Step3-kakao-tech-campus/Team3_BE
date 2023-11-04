@@ -46,6 +46,7 @@ public class AwsS3Config {
                     .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                     .withClientConfiguration(clientConfiguration)
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withRegion(region)
                     .build();
         }
 
