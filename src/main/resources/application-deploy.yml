@@ -5,8 +5,8 @@ server:
       force: true
   port: 8080
 
-proxy:
-  target:
+http:
+  proxy:
     host: krmp-proxy.9rum.cc
     port: 3128
 
