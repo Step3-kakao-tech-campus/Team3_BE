@@ -35,17 +35,24 @@ public class AwsS3Config {
     public AmazonS3 amazonS3Client() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-        ClientConfiguration clientConfiguration = new ClientConfiguration();
-        clientConfiguration.setProxyHost(proxyHost);
-        clientConfiguration.setProxyPort(proxyPort);
-        //clientConfiguration.setSignerOverride("S3SignerType");
+        if ("deploy".equals(System.getProperty("spring.profiles.active"))) {
+            ClientConfiguration clientConfiguration = new ClientConfiguration();
+            clientConfiguration.setProxyHost(proxyHost);
+            clientConfiguration.setProxyPort(proxyPort);
+            //clientConfiguration.setSignerOverride("S3SignerType");
+
+            return AmazonS3ClientBuilder
+                    .standard()
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+                    .withClientConfiguration(clientConfiguration)
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .build();
+        }
 
         return AmazonS3ClientBuilder
                 .standard()
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
-                .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                //.withRegion(region)
+                .withRegion(region)
                 .build();
     }
 }
