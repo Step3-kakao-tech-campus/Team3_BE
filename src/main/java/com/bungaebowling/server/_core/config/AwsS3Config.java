@@ -25,10 +25,10 @@ public class AwsS3Config {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    @Value("${cloud.aws.s3.proxy.host}")
+    @Value("${proxy.target.host}")
     private String proxyHost;
 
-    @Value("${cloud.aws.s3.proxy.port}")
+    @Value("${proxy.target.host}")
     private int proxyPort;
 
     @Bean
