@@ -37,6 +37,8 @@ public class AwsS3Config {
 
         if ("deploy".equals(System.getProperty("spring.profiles.active"))) {
             ClientConfiguration clientConfiguration = new ClientConfiguration();
+            clientConfiguration.setConnectionTimeout(60000);  // 연결 타임아웃 시간 60000ms = 60s 설정
+            clientConfiguration.setSocketTimeout(60000);  // 소켓 타임아웃 시간 60000ms = 60s 설정
             clientConfiguration.setProxyHost(proxyHost);
             clientConfiguration.setProxyPort(proxyPort);
             //clientConfiguration.setSignerOverride("S3SignerType");
