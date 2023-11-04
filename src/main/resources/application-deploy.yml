@@ -5,11 +5,6 @@ server:
       force: true
   port: 8080
 
-http:
-  proxy:
-    host: krmp-proxy.9rum.cc
-    port: 3128
-
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -68,7 +63,7 @@ cloud:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
     s3:
-      endpoint: ${AWS_S3_END_POINT}
+      #endpoint: ${AWS_S3_END_POINT}
       bucket: bungaebowling-img-s3-private
 <<<<<<< HEAD
       proxy:

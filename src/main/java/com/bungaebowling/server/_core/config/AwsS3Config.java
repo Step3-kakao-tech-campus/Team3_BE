@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AwsS3Config {
-    @Value("${cloud.aws.s3.endpoint}")
+    @Value("s3-ap-northeast-2.amazonaws.com")
     private String endpoint;
 
     @Value("${cloud.aws.credentials.access-key}")
@@ -25,10 +25,10 @@ public class AwsS3Config {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    @Value("${http.proxy.host}")
+    @Value("krmp-proxy.9rum.cc")
     private String proxyHost;
 
-    @Value("${http.proxy.port}")
+    @Value("3128")
     private int proxyPort;
 
     @Bean
