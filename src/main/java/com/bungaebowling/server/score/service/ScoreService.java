@@ -11,6 +11,7 @@ import com.bungaebowling.server.score.repository.ScoreRepository;
 import com.bungaebowling.server.user.User;
 import com.bungaebowling.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Service
 public class ScoreService {
 
@@ -29,6 +30,14 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+
+    @Autowired
+    public ScoreService(AwsS3Service awsS3Service, ScoreRepository scoreRepository, UserRepository userRepository, PostRepository postRepository) {
+        this.awsS3Service = awsS3Service;
+        this.scoreRepository = scoreRepository;
+        this.userRepository = userRepository;
+        this.postRepository = postRepository;
+    }
 
     public ScoreResponse.GetScoresDto readScores(Long postId) {
         List<Score> scores = findScores(postId);
