@@ -7,11 +7,13 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+@Slf4j
 @Configuration
 public class AwsS3Config {
     @Value("${cloud.aws.s3.endpoint}")
@@ -38,6 +40,7 @@ public class AwsS3Config {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
         System.out.println("region: "+ region);
+        log.info("region: "+region);
 
         return AmazonS3ClientBuilder
                 .standard()
@@ -54,6 +57,9 @@ public class AwsS3Config {
         System.out.println("deploy region: "+ region);
         System.out.println("endpoint: "+ endpoint);
 
+        log.info("deploy region: "+ region);
+        log.info("endpoint: "+ endpoint);
+
         ClientConfiguration clientConfiguration = new ClientConfiguration();
         clientConfiguration.setConnectionTimeout(60000);  // 연결 타임아웃 시간 60000ms = 60s 설정
         clientConfiguration.setSocketTimeout(60000);  // 소켓 타임아웃 시간 60000ms = 60s 설정
@@ -63,6 +69,7 @@ public class AwsS3Config {
 
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, region);
         System.out.println("endpoint config: "+ endpointConfiguration);
+        log.info("endpoint config: "+ endpointConfiguration);
 
         return AmazonS3ClientBuilder
                 .standard()

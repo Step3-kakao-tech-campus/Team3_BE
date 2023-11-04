@@ -25,6 +25,9 @@ import java.util.Objects;
 public class AwsS3Service {
     private final AmazonS3 amazonS3Client;
 
+    @Value("${cloud.aws.s3.endpoint}")
+    private String endpoint;
+
     @Autowired
     public AwsS3Service(AmazonS3 amazonS3Client) {
         this.amazonS3Client = amazonS3Client;
@@ -115,6 +118,8 @@ public class AwsS3Service {
         log.info("bucket: "+bucketName);
         log.info("s3client: "+amazonS3Client);
         log.info("s3client: "+amazonS3Client.getBucketLocation(bucketName));
+
+        log.info("endpoint: "+ endpoint);
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(
