@@ -25,7 +25,8 @@ public class ScoreController {
     }
 
     // multipart/form-data를 처리하고 json을 반환
-    @PostMapping(value = "/{postId}/scores", produces = "application/json", consumes = "multipart/form-data")
+    //@PostMapping(value = "/{postId}/scores", produces = "application/json", consumes = "multipart/form-data")
+    @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> createScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
@@ -37,7 +38,8 @@ public class ScoreController {
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 
-    @PutMapping(value = "/{postId}/scores/{scoreId}", produces = "application/json", consumes = "multipart/form-data")
+    //@PutMapping(value = "/{postId}/scores/{scoreId}", produces = "application/json", consumes = "multipart/form-data")
+    @PutMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> updateScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,

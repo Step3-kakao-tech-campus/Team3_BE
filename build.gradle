@@ -62,7 +62,7 @@ dependencies {
 	implementation group: 'com.auth0', name: 'java-jwt', version: '4.3.0'
 
 	// aws
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	implementation group: 'io.awspring.cloud', name: 'spring-cloud-starter-aws', version: '2.4.4'
 }
 
 test {
