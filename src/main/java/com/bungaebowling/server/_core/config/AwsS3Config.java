@@ -25,10 +25,10 @@ public class AwsS3Config {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    @Value("${proxy.target.host}")
+    @Value("${http.proxy.host}")
     private String proxyHost;
 
-    @Value("${proxy.target.port}")
+    @Value("${http.proxy.port}")
     private int proxyPort;
 
     @Bean
@@ -42,10 +42,10 @@ public class AwsS3Config {
 
         return AmazonS3ClientBuilder
                 .standard()
-                //.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(region)
+                //.withRegion(region)
                 .build();
     }
 }
