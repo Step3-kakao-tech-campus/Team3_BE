@@ -26,12 +26,12 @@ public class ScoreController {
 
     // multipart/form-data를 처리하고 json을 반환
     //@PostMapping(value = "/{postId}/scores", produces = "application/json", consumes = "multipart/form-data")
-    @PostMapping(value = "/{postId}/scores", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/{postId}/scores", produces = "application/json", consumes = {"multipart/form-data"})
     public ResponseEntity<?> createScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
-            @RequestParam(name = "score") Integer scoreNum,
-            @RequestParam(name = "image", required = false) MultipartFile image
+            @RequestPart(name = "score") Integer scoreNum,
+            @RequestPart(name = "image", required = false) MultipartFile image
     ) {
         scoreService.create(userDetails.getId(), postId, scoreNum, image);
 
@@ -39,13 +39,13 @@ public class ScoreController {
     }
 
     //@PutMapping(value = "/{postId}/scores/{scoreId}", produces = "application/json", consumes = "multipart/form-data")
-    @PutMapping(value = "/{postId}/scores/{scoreId}", consumes = {"multipart/form-data"})
+    @PutMapping(value = "/{postId}/scores/{scoreId}", produces = "application/json", consumes = {"multipart/form-data"})
     public ResponseEntity<?> updateScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
             @PathVariable Long scoreId,
-            @RequestParam(name = "score", required = false) Integer scoreNum,
-            @RequestParam(name = "image", required = false) MultipartFile image
+            @RequestPart(name = "score", required = false) Integer scoreNum,
+            @RequestPart(name = "image", required = false) MultipartFile image
     ) {
         scoreService.update(userDetails.getId(), postId, scoreId, scoreNum, image);
 
