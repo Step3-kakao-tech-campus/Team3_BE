@@ -4,6 +4,12 @@ server:
       charset: utf-8
       force: true
   port: 8080
+
+proxy:
+  target:
+    host: krmp-proxy.9rum.cc
+    port: 3128
+
 spring:
   datasource:
     url: jdbc:h2:mem:test;MODE=MySQL
