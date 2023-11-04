@@ -30,8 +30,8 @@ public class ScoreController {
     public ResponseEntity<?> createScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
-            @RequestPart(name = "score") Integer scoreNum,
-            @RequestPart(name = "image", required = false) MultipartFile image
+            @RequestParam(name = "score") Integer scoreNum,
+            @RequestParam(name = "image", required = false) MultipartFile image
     ) {
         scoreService.create(userDetails.getId(), postId, scoreNum, image);
 
@@ -44,8 +44,8 @@ public class ScoreController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
             @PathVariable Long scoreId,
-            @RequestPart(name = "score", required = false) Integer scoreNum,
-            @RequestPart(name = "image", required = false) MultipartFile image
+            @RequestParam(name = "score", required = false) Integer scoreNum,
+            @RequestParam(name = "image", required = false) MultipartFile image
     ) {
         scoreService.update(userDetails.getId(), postId, scoreId, scoreNum, image);
 
