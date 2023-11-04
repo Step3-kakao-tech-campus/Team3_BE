@@ -37,11 +37,11 @@ spec:
                 secretKeyRef: 
                   name: secrets
                   key: GMAIL_APPLICATION_PASSWORD
-            #- name: AWS_S3_END_POINT
-            #  valueFrom:
-            #    secretKeyRef:
-            #      name: secrets
-            #      key: AWS_S3_END_POINT
+            - name: AWS_S3_END_POINT
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: AWS_S3_END_POINT
             - name: AWS_ACCESS_KEY
               valueFrom: 
                 secretKeyRef: 

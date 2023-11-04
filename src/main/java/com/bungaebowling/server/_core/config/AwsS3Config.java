@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 public class AwsS3Config {
-    @Value("s3-ap-northeast-2.amazonaws.com")
+    @Value("${cloud.aws.s3.endpoint}")
     private String endpoint;
 
     @Value("${cloud.aws.credentials.access-key}")
@@ -58,7 +58,7 @@ public class AwsS3Config {
 
         return AmazonS3ClientBuilder
                 .standard()
-                //.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(region)
