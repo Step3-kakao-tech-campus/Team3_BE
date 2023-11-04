@@ -5,17 +5,23 @@ import com.bungaebowling.server._core.utils.ApiUtils;
 import com.bungaebowling.server.score.dto.ScoreResponse;
 import com.bungaebowling.server.score.service.ScoreService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/posts")
 public class ScoreController {
 
     private final ScoreService scoreService;
+
+    @Autowired
+    public ScoreController(ScoreService scoreService) {
+        this.scoreService = scoreService;
+    }
 
     @GetMapping("/{postId}/scores")
     public ResponseEntity<?> getScores(
