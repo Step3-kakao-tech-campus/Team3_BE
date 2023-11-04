@@ -7,8 +7,8 @@ server:
 
 proxy:
   target:
-    host: ${PROXY_HOST}
-    port: ${PROXY_PORT}
+    host: krmp-proxy.9rum.cc
+    port: 3128
 
 spring:
   datasource:
