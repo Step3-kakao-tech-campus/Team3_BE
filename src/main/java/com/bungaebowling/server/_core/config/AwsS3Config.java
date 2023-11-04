@@ -28,7 +28,7 @@ public class AwsS3Config {
     @Value("${proxy.target.host}")
     private String proxyHost;
 
-    @Value("${proxy.target.host}")
+    @Value("${proxy.target.port}")
     private int proxyPort;
 
     @Bean
