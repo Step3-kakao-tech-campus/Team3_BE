@@ -10,6 +10,12 @@ COPY . .
 # gradle 빌드 시 proxy 설정을 gradle.properties에 추가
 RUN echo "systemProp.http.proxyHost=krmp-proxy.9rum.cc\nsystemProp.http.proxyPort=3128\nsystemProp.https.proxyHost=krmp-proxy.9rum.cc\nsystemProp.https.proxyPort=3128" > /root/.gradle/gradle.properties
 
+# 패키지 목록을 업데이트하고 python3-pip를 설치합니다.
+RUN apt-get update && apt-get install -y python3-pip
+
+# AWS CLI를 설치합니다.
+RUN pip3 install --upgrade awscli
+
 # gradle 초기화
 RUN gradle init
 
