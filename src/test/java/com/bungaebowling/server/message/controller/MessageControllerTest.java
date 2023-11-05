@@ -10,7 +10,6 @@ import com.bungaebowling.server.user.User;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
-import com.epages.restdocs.apispec.SimpleType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,8 +88,8 @@ public class MessageControllerTest extends ControllerTestConfig {
                                         .responseSchema(Schema.schema("대화방 목록 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.NEXT_CURSOR.getResponseDescriptor().and(
-                                                        fieldWithPath("response.messages[].opponentUserId").optional().description("쪽지 상대 유저 ID"),
-                                                        fieldWithPath("response.messages[].opponentUserName").optional().type(SimpleType.STRING).description("쪽지 상대 유저 이름"),
+                                                        fieldWithPath("response.messages[].opponentUserId").description("쪽지 상대 유저 ID"),
+                                                        fieldWithPath("response.messages[].opponentUserName").description("쪽지 상대 유저 이름"),
                                                         fieldWithPath("response.messages[].opponentUserProfileImage").description("상대 프로필 사진 경로 | 사진이 없을 경우 null"),
                                                         fieldWithPath("response.messages[].recentMessage").description("쪽지 상대와의 가장 최근 메시지 내용"),
                                                         fieldWithPath("response.messages[].recentTime").description("쪽지 상대와의 가장 최근 송수신 시각"),
