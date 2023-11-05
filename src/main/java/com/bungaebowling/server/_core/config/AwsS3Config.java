@@ -1,6 +1,7 @@
 package com.bungaebowling.server._core.config;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -64,7 +65,10 @@ public class AwsS3Config {
         clientConfiguration.setSocketTimeout(60000);  // 소켓 타임아웃 시간 60000ms = 60s 설정
         clientConfiguration.setProxyHost(proxyHost);
         clientConfiguration.setProxyPort(proxyPort);
+        clientConfiguration.setProxyProtocol(Protocol.HTTP);
         //clientConfiguration.setSignerOverride("S3SignerType");
+
+        log.info("clientConfiguration: "+ clientConfiguration);
 
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, null);
         //System.out.println("endpoint config: "+ endpointConfiguration);
@@ -73,8 +77,8 @@ public class AwsS3Config {
         return AmazonS3ClientBuilder
                 .standard()
                 //.withEndpointConfiguration(endpointConfiguration)
-                .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withClientConfiguration(clientConfiguration)
                 .withRegion(region)
                 .build();
     }
