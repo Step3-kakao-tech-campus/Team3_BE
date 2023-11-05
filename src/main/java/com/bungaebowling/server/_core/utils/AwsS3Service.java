@@ -186,7 +186,9 @@ public class AwsS3Service {
     // multipartFile을 File로 변환
     private File convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {
         File convertFile = new File(System.getProperty("java.io.tmpdir") + "/" + multipartFile.getOriginalFilename());
-        multipartFile.transferTo(convertFile);
+        try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+            fos.write(multipartFile.getBytes());
+        }
 
         return convertFile;
     }
