@@ -80,6 +80,7 @@ public class UserController {
                 .body(response);
     }
 
+
     @PostMapping("/email-verification")
     public ResponseEntity<?> sendVerification(@AuthenticationPrincipal CustomUserDetails userDetails) {
         userService.sendVerificationMail(userDetails.getId());
@@ -125,6 +126,25 @@ public class UserController {
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
+    @PatchMapping("/users/password")
+    public ResponseEntity<?> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UserRequest.UpdatePasswordDto requestDto) {
+        userService.updatePassword(userDetails.getId(), requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+    @PostMapping("/password/email-verification")
+    public ResponseEntity<?> sendVerificationMailForPasswordReset(@RequestBody UserRequest.SendVerificationMailForPasswordResetDto requestDto) {
+        userService.sendVerificationMailForPasswordReset(requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+
+    @PostMapping("/password/email-confirm")
+    public ResponseEntity<?> confirmEmailAndSendTempPassword(@RequestBody UserRequest.ConfirmEmailAndSendTempPasswordDto requestDto, Errors errors) {
+        userService.confirmEmailAndSendTempPassword(requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
     private static ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true) // javascript 접근 방지
@@ -133,4 +153,6 @@ public class UserController {
                 .maxAge(JwtProvider.getRefreshExpSecond())
                 .build();
     }
+
+
 }
