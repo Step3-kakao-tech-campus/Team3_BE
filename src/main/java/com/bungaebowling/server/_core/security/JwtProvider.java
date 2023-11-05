@@ -24,6 +24,8 @@ public class JwtProvider {
     public static final String TYPE_REFRESH = "refresh";
     public static final String TYPE_EMAIL_VERIFICATION = "email-verification";
 
+    public static final String TYPE_EMAIL_VERIFICATION_PASSWORD = "email-verification-password";
+
     @Getter
     private static Long accessExpSecond;
     @Getter
@@ -79,6 +81,18 @@ public class JwtProvider {
                 .withExpiresAt(Timestamp.valueOf(expired))
                 .sign(Algorithm.HMAC512(secret));
     }
+
+    public static String createEmailVerificationForPassword(User user) {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime expired = now.plusDays(1); // 하루동안 유효
+        return JWT.create()
+                .withSubject(user.getId().toString())
+                .withClaim("type", TYPE_EMAIL_VERIFICATION_PASSWORD)
+                .withExpiresAt(Timestamp.valueOf(expired))
+                .sign(Algorithm.HMAC512(secret));
+    }
+
 
     public static DecodedJWT verify(String jwt, String type) {
         try {

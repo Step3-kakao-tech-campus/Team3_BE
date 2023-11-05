@@ -1,5 +1,6 @@
 package com.bungaebowling.server.user.service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bungaebowling.server._core.errors.exception.CustomException;
 import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import com.bungaebowling.server._core.security.JwtProvider;
@@ -31,9 +32,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -66,7 +70,7 @@ public class UserService {
         try {
             districtId = Long.parseLong(requestDto.districtId());
         } catch (NumberFormatException e) {
-            throw new CustomException(ErrorCode.INVALID_RUQUEST_DATA, "숫자만 가능합니다.:districtId");
+            throw new CustomException(ErrorCode.INVALID_REQUEST_DATA, "숫자만 가능합니다.:districtId");
         }
 
         if (userRepository.findByEmail(requestDto.email()).isPresent())
@@ -110,6 +114,9 @@ public class UserService {
 
     public UserResponse.TokensDto reIssueTokens(String refreshToken) {
         var decodedRefreshToken = JwtProvider.verify(refreshToken, JwtProvider.TYPE_REFRESH);
+
+        if (!Objects.equals(redisTemplate.opsForValue().get(decodedRefreshToken.getSubject()), refreshToken))
+            throw new CustomException(ErrorCode.INVALID_TOKEN, "유효하지 않은 refresh 토큰입니다.");
 
         var user = userRepository.findById(Long.valueOf(decodedRefreshToken.getSubject())).orElseThrow(() ->
                 new CustomException(ErrorCode.UNKNOWN_SERVER_ERROR, "재발급 과정에서 오류가 발생했습니다."));
@@ -162,7 +169,8 @@ public class UserService {
     }
 
     public UserResponse.GetUsersDto getUsers(CursorRequest cursorRequest, String name) {
-        List<User> users = loadUsers(cursorRequest, name);
+        String searchName = name != null ? name : "";
+        List<User> users = loadUsers(cursorRequest, searchName);
         List<Double> ratings = users.stream()
                 .map(user -> getRating(user.getId()))
                 .toList();
@@ -197,18 +205,31 @@ public class UserService {
     }
 
     @Transactional
-    public void updateMyProfile(MultipartFile profileImage, UserRequest.UpdateMyProfileDto request, Long userId) {
+    public void updateMyProfile(MultipartFile profileImage, String name, Long districtId, Long userId) {
+        validCheckName(name);
+
         User user = findUserById(userId);
 
-        District district = request.districtId() == null ? null :
-                districtRepository.findById(request.districtId()).orElseThrow(
+        District district = districtId == null ? null :
+                districtRepository.findById(districtId).orElseThrow(
                         () -> new CustomException(ErrorCode.REGION_NOT_FOUND)
                 );
 
         if (profileImage == null) {
-            user.updateProfile(request.name(), district, null, null);
+            user.updateProfile(name, district, null, null);
         } else {
-            updateProfileWithImage(user, request.name(), district, profileImage);
+            updateProfileWithImage(user, name, district, profileImage);
+        }
+    }
+
+    private void validCheckName(String name) {
+        if (name != null) {
+            if (name.length() > 20) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST_DATA, "최대 20자까지 입니다." + ":name");
+            }
+            if (!Pattern.matches("[a-zA-Z0-9가-힣]*", name)) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST_DATA, "한글, 영문, 숫자만 입력 가능합니다.");
+            }
         }
     }
 
@@ -222,6 +243,59 @@ public class UserService {
         String accessImageUrl = awsS3Service.getImageAccessUrl(resultImageUrl);
 
         user.updateProfile(name, district, resultImageUrl, accessImageUrl);
+    }
+
+    @Transactional
+    public void updatePassword(Long userId, UserRequest.UpdatePasswordDto requestDto) {
+        User user = findUserById(userId);
+        if (!passwordEncoder.matches(requestDto.password(), user.getPassword())) {
+            throw new CustomException(ErrorCode.WRONG_PASSWORD);
+        }
+        user.updatePassword(passwordEncoder.encode(requestDto.newPassword()));
+    }
+
+
+    public void sendVerificationMailForPasswordReset(UserRequest.SendVerificationMailForPasswordResetDto requestDto) {
+        User user = userRepository.findByEmail(requestDto.email()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        String token = JwtProvider.createEmailVerificationForPassword(user);
+
+        String subject = "[번개볼링] 비밀번호 초기화 및 임시 비밀번호 발급을 위한 이메일 인증을 완료해주세요.";
+        String text = "<a href='" + domain + "/password/email-verification?token=" + token + "'>링크</a>를 클릭하여 인증을 완료해주세요!";
+
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            helper.setTo(user.getEmail());
+            helper.setSubject(subject);
+            helper.setText(text, true);
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
+        }
+    }
+
+    @Transactional
+    public void confirmEmailAndSendTempPassword(UserRequest.ConfirmEmailAndSendTempPasswordDto requestDto) {
+        DecodedJWT decodedJwt = JwtProvider.verify(requestDto.token(), JwtProvider.TYPE_EMAIL_VERIFICATION_PASSWORD);
+        User user = findUserById(Long.valueOf(decodedJwt.getSubject()));
+        String tempPassword = getRamdomPassword(15);
+        user.updatePassword(passwordEncoder.encode(tempPassword));
+
+        String subject = "[번개볼링] 임시 비밀번호";
+        String text = "임시 비밀번호는  " + tempPassword + "  입니다. <br>*비밀번호를 변경해주세요." + "<br>*기존의 비밀번호는 사용할 수 없습니다.";
+
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            helper.setTo(user.getEmail());
+            helper.setSubject(subject);
+            helper.setText(text, true);
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
+        }
+
     }
 
     public UserResponse.GetRecordDto getRecords(Long userId) {
@@ -255,4 +329,25 @@ public class UserService {
     private Long getLastKey(List<User> users) {
         return users.isEmpty() ? CursorRequest.NONE_KEY : users.get(users.size() - 1).getId();
     }
+
+    public String getRamdomPassword(int length) {
+        char[] charSet = new char[]{
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                '!', '@', '#', '$', '%', '^', '&'};
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        int charSetLength = charSet.length;
+        for (int i = 0; i < length; i++) {
+            stringBuilder.append(charSet[random.nextInt(charSetLength)]);
+        }
+
+        return stringBuilder.toString();
+
+    }
+
+
 }

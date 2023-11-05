@@ -34,7 +34,7 @@ public class GlobalValidationHandler {
 
                     if (errors.hasErrors()) {
                         var error = errors.getFieldErrors().get(0);
-                        throw new CustomException(ErrorCode.INVALID_RUQUEST_DATA,
+                        throw new CustomException(ErrorCode.INVALID_REQUEST_DATA,
                                 error.getDefaultMessage() + ":" + error.getField()
                         );
                     }

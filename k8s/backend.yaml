@@ -1,0 +1,89 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          # 여러분의 backend image 주소를 입력해주세요. -> 빌드 후 빌드 이미지 경로 새로 넣기
+          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_f9940ca26849
+          env:
+            - name: TOKEN_SECRET
+              valueFrom: 
+                secretKeyRef:
+                  name: secrets
+                  key: TOKEN_SECRET
+            - name: DOMAIN
+              valueFrom: 
+                secretKeyRef:
+                  name: secrets
+                  key: DOMAIN
+            - name: GMAIL_USERNAME
+              valueFrom: 
+                secretKeyRef:
+                  name: secrets
+                  key: GMAIL_USERNAME
+            - name: GMAIL_APPLICATION_PASSWORD 
+              valueFrom: 
+                secretKeyRef: 
+                  name: secrets
+                  key: GMAIL_APPLICATION_PASSWORD
+            - name: AWS_ACCESS_KEY
+              valueFrom: 
+                secretKeyRef: 
+                  name: secrets
+                  key: AWS_ACCESS_KEY
+            - name: AWS_SECRET_KEY
+              valueFrom: 
+                secretKeyRef: 
+                  name: secrets
+                  key: AWS_SECRET_KEY
+            - name: MYSQL_USERNAME
+              valueFrom: 
+                secretKeyRef:
+                  name: secrets
+                  key: MYSQL_USERNAME
+            - name: MYSQL_PASSWORD
+              valueFrom: 
+                secretKeyRef: 
+                  name: secrets
+                  key: MYSQL_PASSWORD
+            - name: GOOGLE_MAP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: GOOGLE_MAP_API_KEY
+            - name: API_SERVER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: API_SERVER_URL
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 1Gi
+          #readinessProbe:
+          #  httpGet:
+          #    path: /api
+          #    port: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 8080

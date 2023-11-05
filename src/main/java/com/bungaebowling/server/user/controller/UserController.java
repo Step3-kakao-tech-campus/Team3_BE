@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok()
                 .header(JwtProvider.HEADER, responseDto.access())
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                .body(ApiUtils.success());
+                .body(ApiUtils.success(new UserResponse.CreateDto(responseDto.savedId())));
     }
 
     @PostMapping("/login")
@@ -80,6 +80,7 @@ public class UserController {
                 .body(response);
     }
 
+
     @PostMapping("/email-verification")
     public ResponseEntity<?> sendVerification(@AuthenticationPrincipal CustomUserDetails userDetails) {
         userService.sendVerificationMail(userDetails.getId());
@@ -93,7 +94,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> getUsers(CursorRequest cursorRequest, @RequestParam(value = "name") String name) {
+    public ResponseEntity<?> getUsers(CursorRequest cursorRequest, @RequestParam(value = "name", required = false) String name) {
         UserResponse.GetUsersDto response = userService.getUsers(cursorRequest, name);
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
@@ -111,10 +112,11 @@ public class UserController {
     }
 
     @PutMapping("/users/mine")
-    public ResponseEntity<?> updateMyProfile(@RequestPart(required = false) MultipartFile profileImage,
-                                             @RequestPart @Valid UserRequest.UpdateMyProfileDto request, Errors errors,
+    public ResponseEntity<?> updateMyProfile(@RequestParam(required = false) MultipartFile profileImage,
+                                             @RequestParam(required = false) String name,
+                                             @RequestParam(required = false) Long districtId,
                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
-        userService.updateMyProfile(profileImage, request, userDetails.getId());
+        userService.updateMyProfile(profileImage, name, districtId, userDetails.getId());
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 
@@ -122,6 +124,25 @@ public class UserController {
     public ResponseEntity<?> getUserRecords(@PathVariable Long userId) {
         UserResponse.GetRecordDto response = userService.getRecords(userId);
         return ResponseEntity.ok().body(ApiUtils.success(response));
+    }
+
+    @PatchMapping("/users/password")
+    public ResponseEntity<?> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UserRequest.UpdatePasswordDto requestDto) {
+        userService.updatePassword(userDetails.getId(), requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+    @PostMapping("/password/email-verification")
+    public ResponseEntity<?> sendVerificationMailForPasswordReset(@RequestBody UserRequest.SendVerificationMailForPasswordResetDto requestDto) {
+        userService.sendVerificationMailForPasswordReset(requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+
+    @PostMapping("/password/email-confirm")
+    public ResponseEntity<?> confirmEmailAndSendTempPassword(@RequestBody UserRequest.ConfirmEmailAndSendTempPasswordDto requestDto, Errors errors) {
+        userService.confirmEmailAndSendTempPassword(requestDto);
+        return ResponseEntity.ok().body(ApiUtils.success());
     }
 
     private static ResponseCookie createRefreshTokenCookie(String refreshToken) {
@@ -132,4 +153,6 @@ public class UserController {
                 .maxAge(JwtProvider.getRefreshExpSecond())
                 .build();
     }
+
+
 }

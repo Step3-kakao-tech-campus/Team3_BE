@@ -47,13 +47,7 @@ public class ScoreService {
             throw new CustomException(ErrorCode.POST_NOT_CLOSE, "아직 점수를 등록할 수 없습니다.");
         }
 
-        if (scoreNum == null) {
-            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "점수를 입력해주세요.");
-        }
-
-        if (scoreNum < 0 || scoreNum > 300) {
-            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "0~300 사이의 숫자만 입력해주세요.");
-        }
+        validateScoreNum(scoreNum);
 
         if (image == null) { // null 체크 - null인 경우
             saveScoreWithoutImage(userId, post, scoreNum);
@@ -110,27 +104,26 @@ public class ScoreService {
     public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
         Post post = findPostById(postId);
 
-        if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.SCORE_UPDATE_PERMISSION_DENIED);
+        checkPostPermission(userId, post);
+
+        Score score = findScoreById(scoreId);
+
+        updateScore(scoreNum, image, postId, userId, score);
+    }
+
+    private void updateScore(Integer scoreNum, MultipartFile image, Long postId, Long userId, Score score) {
+        if (scoreNum != null) {
+            validateScoreNum(scoreNum);
+            score.updateScoreNum(scoreNum); // 점수 수정
         }
 
-        Integer scoreNumCheck = Optional.ofNullable(scoreNum)
-                .orElseThrow(() -> new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "점수를 입력해주세요."));
+        if (image != null) {
+            deleteImageIfExist(score);
 
-        User user = findUserById(userId);
-        Score score = findScoreById(scoreId);
-        LocalDateTime updateTime = LocalDateTime.now();
+            String imageUrl = awsS3Service.uploadScoreFile(userId, postId, "score", score.getCreatedAt(), image);
+            String accessImageUrl = awsS3Service.getImageAccessUrl(imageUrl);
 
-        if (image.isEmpty()) { // null 체크 - null인 경우
-            score.updateWithoutFile(scoreNumCheck, updateTime);
-        } else { // null 체크 - null이 아닌 경우
-            if (score.getResultImageUrl() != null) { // 기존에 파일이 있다면
-                awsS3Service.deleteFile(score.getResultImageUrl()); // 기존에 있던 파일 지워주기
-            }
-            String imageurl = awsS3Service.uploadScoreFile(user.getId(), postId, "score", updateTime, image);
-            String accessImageUrl = awsS3Service.getImageAccessUrl(imageurl);
-
-            score.updateWithFile(scoreNumCheck, imageurl, updateTime, accessImageUrl);
+            score.updateWithFile(imageUrl, accessImageUrl);
         }
     }
 
@@ -139,22 +132,67 @@ public class ScoreService {
                 .orElseThrow(() -> new CustomException(ErrorCode.SCORE_NOT_FOUND));
     }
 
+    private void validateScoreNum(Integer scoreNum) {
+        if (scoreNum == null) {
+            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "점수를 입력해주세요.");
+        }
+
+        if (scoreNum < 0 || scoreNum > 300) {
+            throw new CustomException(ErrorCode.SCORE_UPLOAD_FAILED, "0~300 사이의 숫자만 입력해주세요.");
+        }
+    }
+
+    @Transactional
+    public void deleteImage(Long userId, Long postId, Long scoreId) {
+        Post post = findPostById(postId);
+
+        checkPostPermission(userId, post);
+
+        Score score = findScoreById(scoreId);
+
+        checkImageExist(score);
+
+        deleteScoreImage(score);
+    }
+
+    private void deleteScoreImage(Score score) {
+        deleteImageIfExist(score);
+
+        score.updateWithFile(null, null);
+    }
+
     @Transactional
     public void delete(Long userId, Long postId, Long scoreId) {
         Post post = findPostById(postId);
 
-        if (!post.isMine(userId)) {
-            throw new CustomException(ErrorCode.SCORE_DELETE_PERMISSION_DENIED);
-        }
+        checkPostPermission(userId, post);
 
         Score score = findScoreById(scoreId);
 
         deleteScore(score);
     }
 
+    private void checkPostPermission(Long userId, Post post) {
+        if (!post.isMine(userId)) {
+            throw new CustomException(ErrorCode.SCORE_DELETE_PERMISSION_DENIED);
+        }
+    }
+
     private void deleteScore(Score score) {
-        awsS3Service.deleteFile(score.getResultImageUrl());
+        deleteImageIfExist(score);
         scoreRepository.delete(score);
+    }
+
+    private void deleteImageIfExist(Score score) { // 기존에 파일 있으면 지워주기
+        if (score.getResultImageUrl() != null) {
+            awsS3Service.deleteFile(score.getResultImageUrl());
+        }
+    }
+
+    private void checkImageExist(Score score) {
+        if (score.getResultImageUrl() == null) {
+            throw new CustomException(ErrorCode.SCORE_IMAGE_NOT_FOUND);
+        }
     }
 
     public int calculateAverage(List<Score> scores) {
