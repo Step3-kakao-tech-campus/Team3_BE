@@ -69,14 +69,8 @@ cloud:
       access-key: ${AWS_ACCESS_KEY} 
       secret-key: ${AWS_SECRET_KEY}
     s3:
-      endpoint: ${AWS_S3_END_POINT}
-      bucket: bungaebowling-img-s3-private
-<<<<<<< HEAD
-      proxy:
-        host: krmp-proxy.9rum.cc
-        port: 3128
-=======
->>>>>>> 7d1ccfa (fix: Remove s3 proxy info and add proxy info in deploy)
+      endpoint: aws-s3-endpoint
+      bucket: bungaebowling-img-s3
     region:
       static: ap-northeast-2
     stack:
