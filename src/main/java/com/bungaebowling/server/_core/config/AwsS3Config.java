@@ -16,8 +16,8 @@ import org.springframework.context.annotation.Profile;
 @Slf4j
 @Configuration
 public class AwsS3Config {
-    //@Value("${cloud.aws.s3.endpoint}")
-    //private String endpoint;
+    @Value("${cloud.aws.s3.endpoint}")
+    private String endpoint;
 
     @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
@@ -61,7 +61,7 @@ public class AwsS3Config {
         log.info("access key: "+ accessKey);
         log.info("proxyHost: "+ proxyHost);
         log.info("proxyPort: "+ proxyPort);
-        //log.info("endpoint: "+ endpoint);
+        log.info("endpoint: "+ endpoint);
 
         ClientConfiguration clientConfiguration = new ClientConfiguration();
         clientConfiguration.setConnectionTimeout(60000);  // 연결 타임아웃 시간 60000ms = 60s 설정
@@ -70,16 +70,16 @@ public class AwsS3Config {
         clientConfiguration.setProxyPort(proxyPort);
         //clientConfiguration.setSignerOverride("S3SignerType");
 
-        //AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, region);
+        AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, null);
         //System.out.println("endpoint config: "+ endpointConfiguration);
-        //log.info("endpoint config: "+ endpointConfiguration);
+        log.info("endpoint config: "+ endpointConfiguration);
 
         return AmazonS3ClientBuilder
                 .standard()
-                //.withEndpointConfiguration(endpointConfiguration)
+                .withEndpointConfiguration(endpointConfiguration)
                 .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(region)
+                //.withRegion(region)
                 .build();
     }
 }
