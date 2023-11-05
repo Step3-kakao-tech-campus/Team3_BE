@@ -28,6 +28,7 @@ public class MessageResponse {
                 String opponentUserName,
                 String opponentUserProfileImage,
                 String recentMessage,
+                LocalDateTime recentTime,
                 Long countNew
         ) {
             public MessageDto(Message message, Long countNew) {
@@ -36,6 +37,7 @@ public class MessageResponse {
                         message.getOpponentUser().getName(),
                         message.getOpponentUser().getImgUrl(),
                         message.getContent(),
+                        message.getCreatedAt(),
                         countNew
                 );
             }

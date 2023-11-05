@@ -128,10 +128,10 @@ public class AwsS3Service {
     // 파일 확장자 검사
     private String fileWhiteList(String fileName) {
         // 대소문자 구별안하게
-        String caseInSensitiveFileName = fileName.toLowerCase();
-        if (caseInSensitiveFileName == null) {
+        if (fileName == null) {
             throw new CustomException(ErrorCode.INVALID_FILE_UPLOAD_REQUEST);
         }
+        String caseInSensitiveFileName = fileName.toLowerCase();
 
         if (
                 caseInSensitiveFileName.endsWith(".png") ||
@@ -141,7 +141,7 @@ public class AwsS3Service {
         ) {
             return caseInSensitiveFileName;
         } else {
-            throw new CustomException(ErrorCode.INVALID_FILE_EXTENTION);
+            throw new CustomException(ErrorCode.INVALID_FILE_EXTENSION);
         }
     }
 }

@@ -72,9 +72,15 @@ public class User {
         this.resultImageUrl = Objects.nonNull(resultImageUrl) ? resultImageUrl : this.resultImageUrl;
     }
 
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
     public String getDistrictName() {
         return this.district.getCountry().getCity().getName() + " " +
                 this.district.getCountry().getName() + " " +
                 this.district.getName();
     }
+
+
 }

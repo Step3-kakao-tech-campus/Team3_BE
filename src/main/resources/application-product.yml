@@ -4,9 +4,19 @@ server:
       charset: utf-8
       force: true
   port: 8080
+  # https ssl config
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: ${SSL_KEY_PASSWORD}
+    key-store-type: PKCS12
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/bungaebowling_db?rewriteBatchedStatements=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -36,7 +46,37 @@ logging:
   level:
     com.bungaebowling.server: INFO
 
+# jwt token config
 bungaebowling:
   token_exp:
-    access: 600
+    access: 172800
     refresh: 2592000
+  secret: ${TOKEN_SECRET}
+  domain: ${DOMAIN}
+  api_server_url: ${API_SERVER_URL}
+
+# gmail smtp config
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: ${GMAIL_USERNAME}
+  password: ${GMAIL_APPLICATION_PASSWORD}
+
+# aws s3 config
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY} 
+      secret-key: ${AWS_SECRET_KEY}
+    s3:
+      bucket: bungaebowling-img-s3
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+# google map api config
+google:
+  api:
+    places:
+      key: ${GOOGLE_MAP_API_KEY}

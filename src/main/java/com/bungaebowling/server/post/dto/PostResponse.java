@@ -189,6 +189,6 @@ public class PostResponse {
     }
 
     // Post시 postId 반환용
-    public record GetPostPostDto(Long id) {
+    public record CreateDto(Long id) {
     }
 }

@@ -1,7 +1,21 @@
+buildscript {
+	ext {
+		apiServerUrl = System.getenv("API_SERVER_URL")
+		new File('.env').getText('UTF-8').splitEachLine(/=/) {
+			if (it[0] == "API_SERVER_URL") {
+				apiServerUrl = it[1].replaceAll('"', '')
+			}
+		}
+	}
+}
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.3'
 	id 'io.spring.dependency-management' version '1.1.3'
+
+	//restdocs-api-spec → restdocs extension  포함함
+	id 'com.epages.restdocs-api-spec' version '0.19.0'
 }
 
 group = 'com.bungaebowling'
@@ -30,6 +44,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 
 	runtimeOnly 'com.h2database:h2' // local
 	runtimeOnly 'com.mysql:mysql-connector-j' // product
@@ -40,6 +55,8 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc' //spring rest docs
+	testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.19.0'
 
 	// third party
 	implementation group: 'com.auth0', name: 'java-jwt', version: '4.3.0'
@@ -48,10 +65,36 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
+	//기존 파일 삭제 후, build 에 출력한 json 정적 파일 복사 (local 확인용)
+	delete file('src/main/resources/static/docs/open-api-3.0.1.json')
+	copy {
+		from "build/resources/main/static/docs/open-api-3.0.1.json"
+		into "src/main/resources/static/docs/"
+	}
 }
 
 jar {
 	enabled = false
+}
+
+//openAPI 작성 자동화를 위해 패키징 전에 openapi3 테스크 선실행을 유발
+bootJar {
+	dependsOn 'openapi3'
+}
+
+openapi3 {
+	servers = [
+			{ url = apiServerUrl },
+			{ url = "http://localhost:8080" }
+	]
+	title = "번개볼링 API Documents"
+	description = "Spring REST Docs with SwaggerUI."
+	version = "0.0.1"
+	outputFileNamePrefix = 'open-api-3.0.1'
+	format = 'json'
+
+	// /static/docs/open-api-3.0.1.json 생성 → jar 파일만 배포할 예정이기에 build 에 출력
+	outputDirectory = 'build/resources/main/static/docs'
 }
