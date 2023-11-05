@@ -68,7 +68,8 @@ public class AwsS3Config {
         clientConfiguration.setProxyProtocol(Protocol.HTTP);
         //clientConfiguration.setSignerOverride("S3SignerType");
 
-        log.info("clientConfiguration: "+ clientConfiguration);
+        log.info("clientConfiguration header: "+ clientConfiguration.getHeaders());
+        log.info("clientConfiguration proxy domain: "+ clientConfiguration.getProxyDomain());
 
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, null);
         //System.out.println("endpoint config: "+ endpointConfiguration);
