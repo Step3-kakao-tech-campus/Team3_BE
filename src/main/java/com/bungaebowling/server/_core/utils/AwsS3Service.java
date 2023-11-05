@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.bungaebowling.server._core.errors.exception.CustomException;
 import com.bungaebowling.server._core.errors.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,17 +22,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class AwsS3Service {
     private final AmazonS3 amazonS3Client;
-
-    @Value("${cloud.aws.s3.endpoint}")
-    private String endpoint;
-
-    @Autowired
-    public AwsS3Service(AmazonS3 amazonS3Client) {
-        this.amazonS3Client = amazonS3Client;
-    }
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
@@ -117,9 +111,6 @@ public class AwsS3Service {
 
         log.info("bucket: "+bucketName);
         log.info("s3client: "+amazonS3Client);
-        log.info("s3client: "+amazonS3Client.getBucketLocation(bucketName));
-
-        log.info("endpoint: "+ endpoint);
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(

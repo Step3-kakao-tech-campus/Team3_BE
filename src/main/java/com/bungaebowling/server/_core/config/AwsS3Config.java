@@ -39,7 +39,6 @@ public class AwsS3Config {
     public AmazonS3 amazonS3Client() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-        System.out.println("region: "+ region);
         log.info("region: "+region);
 
         return AmazonS3ClientBuilder
@@ -53,9 +52,6 @@ public class AwsS3Config {
     @Profile("deploy")
     public AmazonS3 amazonS3ClientForDeploy() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-
-        System.out.println("deploy region: "+ region);
-        //System.out.println("endpoint: "+ endpoint);
 
         log.info("deploy region: "+ region);
         log.info("access key: "+ accessKey);
@@ -76,10 +72,10 @@ public class AwsS3Config {
 
         return AmazonS3ClientBuilder
                 .standard()
-                .withEndpointConfiguration(endpointConfiguration)
+                //.withEndpointConfiguration(endpointConfiguration)
                 .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                //.withRegion(region)
+                .withRegion(region)
                 .build();
     }
 }

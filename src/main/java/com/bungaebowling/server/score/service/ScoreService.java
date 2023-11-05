@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class ScoreService {
 
@@ -30,14 +30,6 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-
-    @Autowired
-    public ScoreService(AwsS3Service awsS3Service, ScoreRepository scoreRepository, UserRepository userRepository, PostRepository postRepository) {
-        this.awsS3Service = awsS3Service;
-        this.scoreRepository = scoreRepository;
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-    }
 
     public ScoreResponse.GetScoresDto readScores(Long postId) {
         List<Score> scores = findScores(postId);
