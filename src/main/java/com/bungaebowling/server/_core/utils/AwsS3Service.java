@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -133,7 +134,9 @@ public class AwsS3Service {
 
             log.info("fileName: " + fileName);
 
-            File file = convertMultipartFileToFile(multipartFile);
+            File file = convertMultipartFileToFile(multipartFile)
+                    .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File로 전환이 실패했습니다."));
+
             log.info("file: " + file);
 
             try {
@@ -184,12 +187,16 @@ public class AwsS3Service {
     }
 
     // multipartFile을 File로 변환
-    private File convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {
+    private Optional<File> convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {
         File convertFile = new File(System.getProperty("java.io.tmpdir") + "/" + multipartFile.getOriginalFilename());
-        try (FileOutputStream fos = new FileOutputStream(convertFile)) {
-            fos.write(multipartFile.getBytes());
+
+        if(convertFile.createNewFile()) {
+            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+                fos.write(multipartFile.getBytes());
+            }
+            return Optional.of(convertFile);
         }
 
-        return convertFile;
+        return Optional.empty();
     }
 }
