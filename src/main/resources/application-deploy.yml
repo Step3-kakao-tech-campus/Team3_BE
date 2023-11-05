@@ -5,6 +5,11 @@ server:
       force: true
   port: 8080
 
+proxy:
+  target:
+    host: ${PROXY_HOST}
+    port: ${PROXY_PORT}
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -65,9 +70,12 @@ cloud:
     s3:
       endpoint: ${AWS_S3_END_POINT}
       bucket: bungaebowling-img-s3-private
+<<<<<<< HEAD
       proxy:
         host: ${PROXY_HOST}
         port: 3128
+=======
+>>>>>>> 7d1ccfa (fix: Remove s3 proxy info and add proxy info in deploy)
     region:
       static: ap-northeast-2
     stack:
