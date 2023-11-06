@@ -1,8 +1,6 @@
 package com.bungaebowling.server.post.service;
 
 import com.bungaebowling.server.applicant.Applicant;
-import com.bungaebowling.server.city.country.Country;
-import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.user.User;
 import jakarta.persistence.criteria.*;
@@ -19,9 +17,6 @@ public class PostSpecification {
     public static Specification<Post> conditionEqual(String condition, Long userId) {
         return (root, query, criteriaBuilder) -> {
             Join<Post, User> userJoin = root.join("user", JoinType.LEFT);
-            Fetch<Post, District> districtFetch = root.fetch("district", JoinType.LEFT);
-            Fetch<District, Country> countryFetch = districtFetch.fetch("country", JoinType.LEFT);
-            countryFetch.fetch("city", JoinType.LEFT);
 
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<Applicant> applicantRoot = subquery.from(Applicant.class);
