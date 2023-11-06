@@ -28,6 +28,9 @@ COPY --from=builder /home/gradle/project/build/libs/server-0.0.1.jar .
 # DATABASE_URL을 환경 변수로 삽입
 ENV DATABASE_URL=jdbc:mysql://mysql/bungaebowling_db
 
+# API URL 삽입
+ENV API_SERVER_URL=https://ka02fa9a0d9a2a.user-app.krampoline.com
+
 # yml 선택
 ENV PROFILE deploy
 
