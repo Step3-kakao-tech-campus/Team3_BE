@@ -30,12 +30,12 @@ public class ScoreService {
     private final PostRepository postRepository;
 
     public ScoreResponse.GetScoresDto readScores(Long postId, Long userId) {
-        List<Score> scores = userId == null ? scoreRepository.findAllByPostId(postId) : scoreRepository.findAllByPostIdAndUserId(postId, userId);
+        List<Score> scores = findScores(postId, userId);
         return ScoreResponse.GetScoresDto.of(scores);
     }
 
     private List<Score> findScores(Long postId, Long userId) {
-        return scoreRepository.findAllByPostIdAndUserId(postId, userId);
+        return userId == null ? scoreRepository.findAllByPostId(postId) : scoreRepository.findAllByPostIdAndUserId(postId, userId);
     }
 
     @Transactional
