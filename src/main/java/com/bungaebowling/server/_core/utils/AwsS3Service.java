@@ -110,7 +110,7 @@ public class AwsS3Service {
     }
 
     // s3에 파일을 올리는 로직
-    /*private void uploadFileToS3(String fileName, MultipartFile multipartFile) {
+    private void uploadFileToS3(String fileName, MultipartFile multipartFile) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
         objectMetadata.setContentLength(multipartFile.getSize());
@@ -125,9 +125,9 @@ public class AwsS3Service {
         } catch (IOException e) {
             throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
         }
-    }*/
+    }
 
-    private void uploadFileToS3(String fileName, MultipartFile multipartFile) {
+    /*private void uploadFileToS3(String fileName, MultipartFile multipartFile) {
         try {
             log.info("bucket: " + bucketName);
             log.info("s3client: " + amazonS3Client);
@@ -155,7 +155,7 @@ public class AwsS3Service {
         } catch (IOException e) {
             throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED, e.getMessage());
         }
-    }
+    }*/
 
     // s3파일 삭제하기
     public void deleteFile(String fileName) {
