@@ -399,6 +399,32 @@ class PostControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[post] updatePost",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("모집글 수정")
+                                        .description("""
+                                                모집글을 수정합니다.
+                                                """)
+                                        .tag(ApiTag.POST.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .requestSchema(Schema.schema("모집글 수정 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("title").description("모집글 제목 "),
+                                                fieldWithPath("startTime").description("게임 예정 일시"),
+                                                fieldWithPath("dueTime").description("모집 마감기한"),
+                                                fieldWithPath("content").description("모집글 내용")
+                                        )
+                                        .pathParameters(parameterWithName("postId").description("수정할 모집글의 ID"))
+                                        .responseSchema(Schema.schema("모집글 수정 응답 DTO"))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
