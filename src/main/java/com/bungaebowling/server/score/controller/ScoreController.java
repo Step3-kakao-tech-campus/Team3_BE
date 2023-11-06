@@ -18,8 +18,11 @@ public class ScoreController {
     private final ScoreService scoreService;
 
     @GetMapping("/{postId}/scores")
-    public ResponseEntity<?> getScores(@PathVariable Long postId) {
-        ScoreResponse.GetScoresDto response = scoreService.readScores(postId);
+    public ResponseEntity<?> getScores(
+            @PathVariable Long postId,
+            @RequestParam(value = "userId", required = false) Long userId
+    ) {
+        ScoreResponse.GetScoresDto response = scoreService.readScores(postId, userId);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }

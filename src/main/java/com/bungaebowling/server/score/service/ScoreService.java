@@ -29,13 +29,13 @@ public class ScoreService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public ScoreResponse.GetScoresDto readScores(Long postId) {
-        List<Score> scores = findScores(postId);
+    public ScoreResponse.GetScoresDto readScores(Long postId, Long userId) {
+        List<Score> scores = findScores(postId, userId);
         return ScoreResponse.GetScoresDto.of(scores);
     }
 
-    private List<Score> findScores(Long postId) {
-        return scoreRepository.findAllByPostId(postId);
+    private List<Score> findScores(Long postId, Long userId) {
+        return scoreRepository.findAllByPostIdAndUserId(postId, userId);
     }
 
     @Transactional
