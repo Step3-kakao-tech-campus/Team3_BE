@@ -10,6 +10,8 @@ import java.util.List;
 
 @Repository
 public interface ScoreRepository extends JpaRepository<Score, Long> {
+    List<Score> findAllByPostId(Long postId);
+
     @Query("SELECT s FROM Score s WHERE s.post.id = :postId AND s.user.id = :userId")
     List<Score> findAllByPostIdAndUserId(Long postId, Long userId);
 
