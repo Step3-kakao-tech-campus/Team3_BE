@@ -26,8 +26,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
-import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -250,10 +249,60 @@ class PostControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.posts[0].isClose").isBoolean(),
                 jsonPath("$.response.posts[0].scores").exists(),
                 jsonPath("$.response.posts[0].members[0].id").exists()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[post] getUserParticipationRecords",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("참여 기록 조회")
+                                        .description("""
+                                                참여 기록을 조회합니다.
+                                                """)
+                                        .tag(ApiTag.POST.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("userId").description("조회할 유저의 ID")
+                                        )
+                                        .queryParameters(
+                                                GeneralParameters.CURSOR_KEY.getParameterDescriptorWithType(),
+                                                GeneralParameters.SIZE.getParameterDescriptorWithType(),
+                                                parameterWithName("condition").optional().type(SimpleType.STRING).defaultValue("all").description("모집글 유형 (종류 : 전체 보기 - all, 작성한 글 - created, 참여한 글 - participated)"),
+                                                parameterWithName("status").optional().type(SimpleType.STRING).defaultValue("all").description("모집글 상태 (종류 : 전체 보기 - all, 모집중 - open, 모집 완료 - closed)"),
+                                                parameterWithName("cityId").optional().type(SimpleType.NUMBER).description("모집 장소 (시/군/구)"),
+                                                parameterWithName("start").optional().type(SimpleType.STRING).defaultValue(start.toString("yyyy-MM-dd")).description("조회 시작일자, 기본 값: 3개월 전"),
+                                                parameterWithName("end").optional().type(SimpleType.STRING).defaultValue(end.toString("yyyy-MM-dd")).description("조회 종료일자, 기본 값: 현재 날짜")
+                                        )
+                                        .responseSchema(Schema.schema("참여 기록 조회 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.NEXT_CURSOR.getResponseDescriptor().and(
+                                                        fieldWithPath("response.posts[].id").description("모집글 ID"),
+                                                        fieldWithPath("response.posts[].applicantId").description("조회하고자 하는 유저의 ID가 모집글에 신청한 ID"),
+                                                        fieldWithPath("response.posts[].title").description("모집글 제목 "),
+                                                        fieldWithPath("response.posts[].dueTime").description("게임 마감 일시 "),
+                                                        fieldWithPath("response.posts[].districtName").description("지역"),
+                                                        fieldWithPath("response.posts[].startTime").description("게임 예정 일시 "),
+                                                        fieldWithPath("response.posts[].currentNumber").description("현재 모집 확정 인원 수"),
+                                                        fieldWithPath("response.posts[].isClose").description("모집글 마감 여부"),
+                                                        fieldWithPath("response.posts[].scores").description("스코어 정보"),
+                                                        fieldWithPath("response.posts[].scores[].id").optional().type(SimpleType.NUMBER).description("스코어 ID"),
+                                                        fieldWithPath("response.posts[].scores[].score").optional().type(SimpleType.NUMBER).description("등록된 사용자 스코어"),
+                                                        fieldWithPath("response.posts[].scores[].scoreImage").optional().type(SimpleType.STRING).description("등록된 사용자 스코어 사진 경로 | 사진이 없을 경우 null"),
+                                                        fieldWithPath("response.posts[].members").description("모집 멤버 정보"),
+                                                        fieldWithPath("response.posts[].members[].id").optional().type(SimpleType.NUMBER).description("모집 멤버 ID"),
+                                                        fieldWithPath("response.posts[].members[].name").optional().type(SimpleType.STRING).description("모집 멤버 이름"),
+                                                        fieldWithPath("response.posts[].members[].profileImage").optional().type(SimpleType.STRING).description("모집 멤버 프로필 사진 경로 | 사진이 없을 경우 null"),
+                                                        fieldWithPath("response.posts[].members[].isRated").optional().type(SimpleType.BOOLEAN).description("모집 멤버 별점 입력 여부")
+                                                ))
+                                        .build()
+                        )
+                )
         );
     }
 
     @Test
+    @DisplayName("모집글 생성")
     void createPost() {
     }
 
