@@ -59,7 +59,7 @@ public class ScoreController {
             @PathVariable Long postId,
             @PathVariable Long scoreId
     ) {
-        scoreService.deleteImage(userDetails.getId(), postId, scoreId);
+        scoreService.deleteImage(userDetails.getId(), scoreId);
 
         return ResponseEntity.ok(ApiUtils.success());
     }
@@ -70,7 +70,7 @@ public class ScoreController {
             @PathVariable Long postId,
             @PathVariable Long scoreId
     ) {
-        scoreService.delete(userDetails.getId(), postId, scoreId);
+        scoreService.delete(userDetails.getId(), scoreId);
 
         return ResponseEntity.ok(ApiUtils.success());
     }
