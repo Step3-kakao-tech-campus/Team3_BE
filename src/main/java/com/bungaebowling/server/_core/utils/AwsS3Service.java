@@ -13,7 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,13 @@ public class AwsS3Service {
 
     @Value("${spring.servlet.multipart.max-request-size}")
     private Long totalFilesMaxSize;
+
+    private final List<String> allowedExtensions = List.of(
+            ".png",
+            ".gif",
+            ".jpeg",
+            ".jpg"
+    );
 
     // 점수 단일 파일용
     public String uploadScoreFile(Long userId, Long postId, String category, LocalDateTime time, MultipartFile multipartFile) {
@@ -134,15 +142,10 @@ public class AwsS3Service {
         }
         String caseInSensitiveFileName = fileName.toLowerCase();
 
-        if (
-                caseInSensitiveFileName.endsWith(".png") ||
-                        caseInSensitiveFileName.endsWith(".gif") ||
-                        caseInSensitiveFileName.endsWith(".jpeg") ||
-                        caseInSensitiveFileName.endsWith(".jpg")
-        ) {
-            return caseInSensitiveFileName;
-        } else {
+        var isNotAllowedExtension = allowedExtensions.stream().noneMatch(caseInSensitiveFileName::endsWith);
+        if (isNotAllowedExtension)
             throw new CustomException(ErrorCode.INVALID_FILE_EXTENSION);
-        }
+
+        return caseInSensitiveFileName;
     }
 }
