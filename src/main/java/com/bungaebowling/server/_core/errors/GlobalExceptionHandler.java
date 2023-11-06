@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<?> customError(CustomException e) {
+        log.error("에러 디버깅", e);
         return ResponseEntity.status(e.status()).body(e.body());
     }
 
