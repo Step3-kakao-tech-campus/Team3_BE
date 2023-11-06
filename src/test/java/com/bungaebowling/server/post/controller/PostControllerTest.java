@@ -369,7 +369,37 @@ class PostControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    void updatePost() {
+    @DisplayName("모집글 수정")
+    void updatePost() throws Exception {
+        // given
+        Long userId = 1L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        Long postId = 1L;
+        PostRequest.UpdatePostDto requestDto = new PostRequest.UpdatePostDto("테스트", LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(1), "테스트");
+        String requestBody = om.writeValueAsString(requestDto);
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .put("/api/posts/{postId}", postId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
     }
 
     @Test
