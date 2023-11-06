@@ -3,6 +3,7 @@ package com.bungaebowling.server.message.controller;
 import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server._core.commons.ApiTag;
 import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
+import com.bungaebowling.server._core.commons.GeneralParameters;
 import com.bungaebowling.server._core.security.JwtProvider;
 import com.bungaebowling.server.message.dto.MessageRequest;
 import com.bungaebowling.server.user.Role;
@@ -54,11 +55,16 @@ public class MessageControllerTest extends ControllerTestConfig {
                         .role(Role.ROLE_USER)
                         .build()
         ); // 김볼링
+
+        int size = 20;
+        int key = 30;
         // when
         ResultActions resultActions = mvc.perform(
                 RestDocumentationRequestBuilders
                         .get("/api/messages/opponents")
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("key", Integer.toString(key))
+                        .param("size", Integer.toString(size))
         );
         // then
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -82,9 +88,14 @@ public class MessageControllerTest extends ControllerTestConfig {
                                 ResourceSnippetParameters.builder()
                                         .summary("대화방(쪽지) 목록 조회")
                                         .description("""
-                                                대화 목록를 조회합니다.                                     
+                                                대화 목록를 조회합니다.
                                                 """)
                                         .tag(ApiTag.MESSAGE.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .queryParameters(
+                                                GeneralParameters.CURSOR_KEY.getParameterDescriptorWithType(),
+                                                GeneralParameters.SIZE.getParameterDescriptorWithType()
+                                        )
                                         .responseSchema(Schema.schema("대화방 목록 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.NEXT_CURSOR.getResponseDescriptor().and(
@@ -114,11 +125,17 @@ public class MessageControllerTest extends ControllerTestConfig {
                         .role(Role.ROLE_USER)
                         .build()
         ); // 김볼링
+
+        int size = 20;
+        int key = 30;
+
         // when
         ResultActions resultActions = mvc.perform(
                 RestDocumentationRequestBuilders
                         .get("/api/messages/opponents/{opponentUserId}", opponentUserId)
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("key", Integer.toString(key))
+                        .param("size", Integer.toString(size))
         );
         // then
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -143,9 +160,14 @@ public class MessageControllerTest extends ControllerTestConfig {
                                 ResourceSnippetParameters.builder()
                                         .summary("일대일 대화방 쪽지 조회")
                                         .description("""
-                                                상대 유저와의 쪽지 목록을 조회합니다.                       
+                                                상대 유저와의 쪽지 목록을 조회합니다.
                                                 """)
                                         .tag(ApiTag.MESSAGE.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .queryParameters(
+                                                GeneralParameters.CURSOR_KEY.getParameterDescriptorWithType(),
+                                                GeneralParameters.SIZE.getParameterDescriptorWithType()
+                                        )
                                         .responseSchema(Schema.schema("일대일 대화방 쪽지 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.NEXT_CURSOR.getResponseDescriptor().and(
