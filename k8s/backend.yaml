@@ -42,11 +42,6 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: AWS_S3_END_POINT
-            - name: PROXY_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: PROXY_HOST
             - name: AWS_ACCESS_KEY
               valueFrom: 
                 secretKeyRef: 
@@ -63,7 +58,7 @@ spec:
                   name: secrets
                   key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_USERNAME
-              valueFrom: 
+              valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: MYSQL_USERNAME
