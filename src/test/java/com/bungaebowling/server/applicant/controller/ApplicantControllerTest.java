@@ -245,6 +245,57 @@ class ApplicantControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("모집자의 신청 거절 테스트")
     void reject() throws Exception {
+        // given
+        Long postId = 8L;
+
+        Long applicantId = 18L;
+
+        var userId = 3L; // 이볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .delete("/api/posts/{postId}/applicants/{applicantId}", postId, applicantId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[applicant] reject",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("모집자의 신청 거절")
+                                        .description("""
+                                                모집자가 신청을 거절 합니다.
+                                                """)
+                                        .tag(ApiTag.APPLICANT.getTagName())
+                                        .pathParameters(
+                                                parameterWithName("postId").description("모집글 id"),
+                                                parameterWithName("applicantId").description("거절할 신청의 Id")
+                                        )
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 
     @Test
