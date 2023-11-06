@@ -4,9 +4,6 @@ import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server._core.commons.ApiTag;
 import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.commons.GeneralParameters;
-import com.bungaebowling.server._core.security.JwtProvider;
-import com.bungaebowling.server.user.Role;
-import com.bungaebowling.server.user.User;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
@@ -17,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -25,7 +21,8 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.epages.restdocs.apispec.ResourceDocumentation.*;
+import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,15 +42,7 @@ class PostControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("모집글 목록 조회")
     void getPosts() throws Exception {
-        // given
-        Long userId = 1L;
-        String accessToken = JwtProvider.createAccess(
-                User.builder()
-                        .id(userId)
-                        .role(Role.ROLE_USER)
-                        .build()
-        ); // 김볼링
-
+        //given
         int size = 20;
         int key = 30;
         Long cityId = 1L;
@@ -65,7 +54,6 @@ class PostControllerTest extends ControllerTestConfig {
         ResultActions resultActions = mvc.perform(
                 RestDocumentationRequestBuilders
                         .get("/api/posts")
-                        .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .param("key", Integer.toString(key))
                         .param("size", Integer.toString(size))
                         .param("cityId", Long.toString(cityId))
@@ -103,8 +91,7 @@ class PostControllerTest extends ControllerTestConfig {
                                         .description("""
                                                 모집글 목록를 조회합니다.
                                                 """)
-                                        .tag(ApiTag.MESSAGE.getTagName())
-                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .tag(ApiTag.POST.getTagName())
                                         .queryParameters(
                                                 GeneralParameters.CURSOR_KEY.getParameterDescriptorWithType(),
                                                 GeneralParameters.SIZE.getParameterDescriptorWithType(),
@@ -136,7 +123,42 @@ class PostControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    void getPost() {
+    @DisplayName("모집글 상세 조회")
+    void getPost() throws Exception {
+        // given
+        int size = 20;
+        int key = 30;
+        Long postId = 1L;
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .get("/api/posts/{postId}", postId)
+                        .param("key", Integer.toString(key))
+                        .param("size", Integer.toString(size))
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.post.id").isNumber(),
+                jsonPath("$.response.post.title").exists(),
+                jsonPath("$.response.post.userId").isNumber(),
+                jsonPath("$.response.post.userName").exists(),
+                jsonPath("$.response.post.districtName").exists(),
+                jsonPath("$.response.post.currentNumber").isNumber(),
+                jsonPath("$.response.post.content").exists(),
+                jsonPath("$.response.post.startTime").exists(),
+                jsonPath("$.response.post.dueTime").exists(),
+                jsonPath("$.response.post.viewCount").isNumber(),
+                jsonPath("$.response.post.createdAt").exists(),
+                jsonPath("$.response.post.editedAt").exists(),
+                jsonPath("$.response.post.isClose").isBoolean()
+        );
     }
 
     @Test
