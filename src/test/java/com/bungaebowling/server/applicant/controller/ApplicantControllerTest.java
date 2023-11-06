@@ -5,6 +5,7 @@ import com.bungaebowling.server._core.commons.ApiTag;
 import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.commons.GeneralParameters;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.applicant.dto.ApplicantRequest;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -176,6 +178,68 @@ class ApplicantControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("모집자의 신청 수락 테스트")
     void accept() throws Exception {
+        // given
+        Long postId = 8L;
+
+        Long applicantId = 18L;
+
+        var userId = 3L; // 이볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        var requestDto = new ApplicantRequest.UpdateDto(true);
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .put("/api/posts/{postId}/applicants/{applicantId}", postId, applicantId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[applicant] accept",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("모집자의 신청 수락")
+                                        .description("""
+                                                모집자가 신청을 승낙 할 수 있습니다.
+                                                                                                
+                                                status를 수정 가능합니다. true: 승낙 / false: 승낙 대기
+                                                                                                
+                                                거절은 DELETE 요청으로 신청을 완전히 삭제 해주시길 바랍니다.
+                                                """)
+                                        .tag(ApiTag.APPLICANT.getTagName())
+                                        .pathParameters(
+                                                parameterWithName("postId").description("모집글 id"),
+                                                parameterWithName("applicantId").description("수락할 신청의 Id")
+                                        )
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .requestSchema(Schema.schema("모집자의 신청 수락 요청 DTO"))
+                                        .requestFields(fieldWithPath("status").type(SimpleType.BOOLEAN).description("변경하고자 하는 신청의 상태 | true: 승낙, false: 승낙 대기"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 
     @Test
