@@ -23,7 +23,7 @@ public class RestTemplateConfig {
     }
 
     @Bean
-    @Profile({"local", "prod", "test"})
+    @Profile({"local", "product", "test"})
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }

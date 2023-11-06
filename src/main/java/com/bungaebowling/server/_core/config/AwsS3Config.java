@@ -36,7 +36,7 @@ public class AwsS3Config {
     private int proxyPort;
 
     @Bean
-    @Profile({"local", "prod", "test"})
+    @Profile({"local", "product", "test"})
     public AmazonS3 amazonS3Client() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
