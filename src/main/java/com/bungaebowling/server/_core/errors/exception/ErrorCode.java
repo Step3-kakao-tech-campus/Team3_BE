@@ -17,6 +17,7 @@ public enum ErrorCode {
     FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제에 실패하였습니다."),
     INVALID_FILE_UPLOAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 파일 업로드 요청입니다."),
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),
+    FILE_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "잘못된 파일 요청입니다."),
 
     SCORE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "점수 등록에 실패하였습니다."),
     SCORE_UPDATE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "점수 정보에 대한 수정 권한이 없습니다."),
