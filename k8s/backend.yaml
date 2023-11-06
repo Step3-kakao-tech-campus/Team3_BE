@@ -15,7 +15,7 @@ spec:
       containers:
         - name: backend
           # 여러분의 backend image 주소를 입력해주세요. -> 빌드 후 빌드 이미지 경로 새로 넣기
-          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_f9940ca26849
+          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_1414cba4227e
           env:
             - name: TOKEN_SECRET
               valueFrom: 
@@ -37,6 +37,11 @@ spec:
                 secretKeyRef: 
                   name: secrets
                   key: GMAIL_APPLICATION_PASSWORD
+            - name: AWS_S3_END_POINT
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: AWS_S3_END_POINT
             - name: AWS_ACCESS_KEY
               valueFrom: 
                 secretKeyRef: 
@@ -47,6 +52,11 @@ spec:
                 secretKeyRef: 
                   name: secrets
                   key: AWS_SECRET_KEY
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_USERNAME
               valueFrom: 
                 secretKeyRef:
