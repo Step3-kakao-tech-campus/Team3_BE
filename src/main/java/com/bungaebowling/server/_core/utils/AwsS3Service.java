@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -108,8 +107,6 @@ public class AwsS3Service {
         objectMetadata.setContentType(multipartFile.getContentType());
         objectMetadata.setContentLength(multipartFile.getSize());
 
-        log.info("bucket: "+bucketName);
-        log.info("s3client: "+amazonS3Client);
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(

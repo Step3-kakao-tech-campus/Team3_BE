@@ -40,8 +40,6 @@ public class AwsS3Config {
     public AmazonS3 amazonS3Client() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-        log.info("region: "+region);
-
         return AmazonS3ClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
@@ -54,12 +52,6 @@ public class AwsS3Config {
     public AmazonS3 amazonS3ClientForDeploy() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-        log.info("deploy region: "+ region);
-        log.info("access key: "+ accessKey);
-        log.info("proxyHost: "+ proxyHost);
-        log.info("proxyPort: "+ proxyPort);
-        log.info("endpoint: "+ endpoint);
-
         ClientConfiguration clientConfiguration = new ClientConfiguration();
         clientConfiguration.setConnectionTimeout(60000);  // 연결 타임아웃 시간 60000ms = 60s 설정
         clientConfiguration.setSocketTimeout(60000);  // 소켓 타임아웃 시간 60000ms = 60s 설정
@@ -67,12 +59,8 @@ public class AwsS3Config {
         clientConfiguration.setProxyPort(proxyPort);
         clientConfiguration.setProxyProtocol(Protocol.HTTP);
 
-        log.info("clientConfiguration header: "+ clientConfiguration.getHeaders());
-        log.info("clientConfiguration proxy domain: "+ clientConfiguration.getProxyDomain());
 
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, null);
-        //System.out.println("endpoint config: "+ endpointConfiguration);
-        log.info("endpoint config: "+ endpointConfiguration);
 
         return AmazonS3ClientBuilder
                 .standard()
