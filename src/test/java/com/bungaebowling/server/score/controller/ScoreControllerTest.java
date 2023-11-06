@@ -62,10 +62,13 @@ class ScoreControllerTest extends ControllerTestConfig {
         // given
         Long postId = 1L;
 
+        Long userId = 1L;
+
         // when
         ResultActions resultActions = mvc.perform(
                 RestDocumentationRequestBuilders
                         .get("/api/posts/{postId}/scores", postId)
+                        .param("userId", Long.toString(userId))
         );
         // then
         var responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -90,6 +93,7 @@ class ScoreControllerTest extends ControllerTestConfig {
                                         )
                                         .tag(ApiTag.SCORE.getTagName())
                                         .pathParameters(parameterWithName("postId").description("모집글 id"))
+                                        .queryParameters(parameterWithName("userId").optional().type(SimpleType.NUMBER).description("점수를 확인할 사용자 id"))
                                         .responseSchema(Schema.schema("점수 조회 응답 DTO"))
                                         .responseFields(
                                                 GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
