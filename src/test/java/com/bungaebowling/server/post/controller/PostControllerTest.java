@@ -306,7 +306,7 @@ class PostControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    @DisplayName("모집글 생성")
+    @DisplayName("모집글 등록")
     void createPost() throws Exception {
         // given
         Long userId = 1L;
@@ -336,6 +336,35 @@ class PostControllerTest extends ControllerTestConfig {
                 status().isOk(),
                 jsonPath("$.status").value(200),
                 jsonPath("$.response.id").isNumber()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[post] createPost",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("모집글 등록")
+                                        .description("""
+                                                모집글을 등록합니다.
+                                                """)
+                                        .tag(ApiTag.POST.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .requestSchema(Schema.schema("모집글 등록 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("title").description("모집글 제목 "),
+                                                fieldWithPath("districtId").description("모집글 행정구역 ID"),
+                                                fieldWithPath("startTime").description("게임 예정 일시"),
+                                                fieldWithPath("dueTime").description("모집 마감기한"),
+                                                fieldWithPath("content").description("모집글 내용")
+                                        )
+                                        .responseSchema(Schema.schema("모집글 등록 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.id").description("모집글 ID")
+                                                ))
+                                        .build()
+                        )
+                )
         );
     }
 
