@@ -4,16 +4,21 @@ import com.bungaebowling.server.ControllerTestConfig;
 import com.bungaebowling.server._core.commons.ApiTag;
 import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.commons.GeneralParameters;
+import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.user.Role;
+import com.bungaebowling.server.user.User;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.epages.restdocs.apispec.SimpleType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -195,7 +200,57 @@ class PostControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    void getUserParticipationRecords() {
+    @DisplayName("참여 기록 조회")
+    void getUserParticipationRecords() throws Exception {
+        // given
+        Long userId = 1L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        int size = 20;
+        int key = 30;
+        Long cityId = 1L;
+        String condition = "all";
+        String status = "all";
+        DateTime start = DateTime.now().minusMonths(3);
+        DateTime end = DateTime.now();
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .get("/api/posts/users/{userId}/participation-records", userId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("key", Integer.toString(key))
+                        .param("size", Integer.toString(size))
+                        .param("condition", condition)
+                        .param("status", status)
+                        .param("cityId", Long.toString(cityId))
+                        .param("start", start.toString("yyyy-MM-dd"))
+                        .param("end", end.toString("yyyy-MM-dd"))
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.nextCursorRequest.key").isNumber(),
+                jsonPath("$.response.nextCursorRequest.size").isNumber(),
+                jsonPath("$.response.posts[0].id").isNumber(),
+                jsonPath("$.response.posts[0].applicantId").isNumber(),
+                jsonPath("$.response.posts[0].title").exists(),
+                jsonPath("$.response.posts[0].dueTime").exists(),
+                jsonPath("$.response.posts[0].districtName").exists(),
+                jsonPath("$.response.posts[0].startTime").exists(),
+                jsonPath("$.response.posts[0].currentNumber").isNumber(),
+                jsonPath("$.response.posts[0].isClose").isBoolean(),
+                jsonPath("$.response.posts[0].scores").exists(),
+                jsonPath("$.response.posts[0].members[0].id").exists()
+        );
     }
 
     @Test
