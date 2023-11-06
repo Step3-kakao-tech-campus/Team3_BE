@@ -66,7 +66,6 @@ public class AwsS3Config {
         clientConfiguration.setProxyHost(proxyHost);
         clientConfiguration.setProxyPort(proxyPort);
         clientConfiguration.setProxyProtocol(Protocol.HTTP);
-        //clientConfiguration.setSignerOverride("S3SignerType");
 
         log.info("clientConfiguration header: "+ clientConfiguration.getHeaders());
         log.info("clientConfiguration proxy domain: "+ clientConfiguration.getProxyDomain());

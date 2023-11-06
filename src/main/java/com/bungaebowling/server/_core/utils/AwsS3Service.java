@@ -1,6 +1,5 @@
 package com.bungaebowling.server._core.utils;
 
-import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -10,14 +9,8 @@ import com.bungaebowling.server._core.errors.exception.CustomException;
 import com.bungaebowling.server._core.errors.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -127,36 +120,6 @@ public class AwsS3Service {
         }
     }
 
-    /*private void uploadFileToS3(String fileName, MultipartFile multipartFile) {
-        try {
-            log.info("bucket: " + bucketName);
-            log.info("s3client: " + amazonS3Client);
-
-            log.info("fileName: " + fileName);
-
-            File file = convertMultipartFileToFile(multipartFile)
-                    .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File로 전환이 실패했습니다."));
-
-            log.info("file: " + file);
-
-            try {
-                log.info("Start upload: "+ fileName);
-                amazonS3Client.putObject(
-                        new PutObjectRequest(bucketName, fileName, file)
-                                .withCannedAcl(CannedAccessControlList.PublicRead));
-                log.info("End upload: "+ fileName);
-            } catch (SdkClientException e) {
-                throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED, e.getMessage());
-            } finally {
-                if (file.exists() && !file.delete()) {
-                    log.warn("Failed to delete the temporary file: " + file.getName());
-                }
-            }
-        } catch (IOException e) {
-            throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED, e.getMessage());
-        }
-    }*/
-
     // s3파일 삭제하기
     public void deleteFile(String fileName) {
         try {
@@ -184,19 +147,5 @@ public class AwsS3Service {
         } else {
             throw new CustomException(ErrorCode.INVALID_FILE_EXTENSION);
         }
-    }
-
-    // multipartFile을 File로 변환
-    private Optional<File> convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {
-        File convertFile = new File(System.getProperty("java.io.tmpdir") + "/" + multipartFile.getOriginalFilename());
-
-        if(convertFile.createNewFile()) {
-            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
-                fos.write(multipartFile.getBytes());
-            }
-            return Optional.of(convertFile);
-        }
-
-        return Optional.empty();
     }
 }
