@@ -210,15 +210,23 @@ public class UserService {
 
         User user = findUserById(userId);
 
+        if (userRepository.existsByName(name)) {
+            throw new CustomException(ErrorCode.USER_NAME_DUPLICATED);
+        }
+
         District district = districtId == null ? null :
                 districtRepository.findById(districtId).orElseThrow(
                         () -> new CustomException(ErrorCode.REGION_NOT_FOUND)
                 );
 
-        if (profileImage == null) {
-            user.updateProfile(name, district, null, null);
-        } else {
-            updateProfileWithImage(user, name, district, profileImage);
+        try {
+            if (profileImage == null) {
+                user.updateProfile(name, district, null, null);
+            } else {
+                updateProfileWithImage(user, name, district, profileImage);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.USER_UPDATE_FAILED);
         }
     }
 

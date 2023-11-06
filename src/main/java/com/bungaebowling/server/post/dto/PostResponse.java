@@ -113,7 +113,8 @@ public class PostResponse {
                 Map<Long, List<User>> members,
                 Map<Long, List<UserRate>> rates,
                 Map<Long, Long> applicantIdMap,
-                Map<Long, Long> currentNumberMap
+                Map<Long, Long> currentNumberMap,
+                Map<Long, String> districtNameMap
         ) {
             return new GetParticipationRecordsDto(
                     nextCursorRequest,
@@ -124,7 +125,8 @@ public class PostResponse {
                                     members.get(post.getId()),
                                     rates.get(post.getId()),
                                     applicantIdMap.get(post.getId()),
-                                    currentNumberMap.get(post.getId())
+                                    currentNumberMap.get(post.getId()),
+                                    districtNameMap.get(post.getId())
                             )).toList()
             );
         }
@@ -141,13 +143,21 @@ public class PostResponse {
                 List<ScoreDto> scores,
                 List<MemberDto> members
         ) {
-            public PostDto(Post post, List<Score> scores, List<User> users, List<UserRate> rates, Long applicantId, Long currentNumber) {
+            public PostDto(
+                    Post post,
+                    List<Score> scores,
+                    List<User> users,
+                    List<UserRate> rates,
+                    Long applicantId,
+                    Long currentNumber,
+                    String districtName
+            ) {
                 this(
                         post.getId(),
                         applicantId,
                         post.getTitle(),
                         post.getDueTime(),
-                        post.getDistrictName(),
+                        districtName,
                         post.getStartTime(),
                         currentNumber,
                         post.getIsClose(),

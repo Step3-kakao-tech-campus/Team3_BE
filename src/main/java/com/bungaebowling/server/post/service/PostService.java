@@ -190,6 +190,7 @@ public class PostService {
         Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts, applicantMap);
         Map<Long, Long> applicantIdMap = getApplicantIdMap(userId, posts, applicantMap);
         Map<Long, Long> currentNumberMap = getCurrentNumberMap(posts, applicantMap);
+        Map<Long, String> districtNameMap = getDistrictNameMap(posts);
 
         Long lastKey = getLastKey(posts);
         return PostResponse.GetParticipationRecordsDto.of(
@@ -199,7 +200,8 @@ public class PostService {
                 memberMap,
                 rateMap,
                 applicantIdMap,
-                currentNumberMap
+                currentNumberMap,
+                districtNameMap
         );
     }
 
@@ -271,6 +273,19 @@ public class PostService {
         return posts.stream().collect(Collectors.toMap(
                 Post::getId,
                 post -> (long) applicantMap.get(post.getId()).size()
+        ));
+    }
+
+    private Map<Long, String> getDistrictNameMap(List<Post> posts) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> {
+                    District district = districtRepository.findById(post.getDistrict().getId())
+                            .orElseThrow(() -> new CustomException(ErrorCode.REGION_NOT_FOUND));
+                    return district.getCountry().getCity().getName() + " " +
+                            district.getCountry().getName() + " " +
+                            district.getName();
+                }
         ));
     }
 
