@@ -125,6 +125,52 @@ class ApplicantControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("모집글에 대한 신청 테스트")
     void create() throws Exception {
+        // given
+        Long postId = 2L;
+
+        var userId = 4L; // 박볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/posts/{postId}/applicants", postId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[applicant] create",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("모집글에 대한 신청")
+                                        .description("""
+                                                마감되지 않은 모집글에 신청을 합니다.
+                                                """)
+                                        .tag(ApiTag.APPLICANT.getTagName())
+                                        .pathParameters(parameterWithName("postId").description("신청할 모집글 id"))
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 
     @Test
