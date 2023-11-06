@@ -18,8 +18,11 @@ public class ScoreController {
     private final ScoreService scoreService;
 
     @GetMapping("/{postId}/scores")
-    public ResponseEntity<?> getScores(@PathVariable Long postId) {
-        ScoreResponse.GetScoresDto response = scoreService.readScores(postId);
+    public ResponseEntity<?> getScores(
+            @PathVariable Long postId,
+            @RequestParam(value = "userId", required = false) Long userId
+    ) {
+        ScoreResponse.GetScoresDto response = scoreService.readScores(postId, userId);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
@@ -56,7 +59,7 @@ public class ScoreController {
             @PathVariable Long postId,
             @PathVariable Long scoreId
     ) {
-        scoreService.deleteImage(userDetails.getId(), postId, scoreId);
+        scoreService.deleteImage(userDetails.getId(), scoreId);
 
         return ResponseEntity.ok(ApiUtils.success());
     }
@@ -67,7 +70,7 @@ public class ScoreController {
             @PathVariable Long postId,
             @PathVariable Long scoreId
     ) {
-        scoreService.delete(userDetails.getId(), postId, scoreId);
+        scoreService.delete(userDetails.getId(), scoreId);
 
         return ResponseEntity.ok(ApiUtils.success());
     }

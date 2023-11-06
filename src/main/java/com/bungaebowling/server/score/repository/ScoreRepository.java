@@ -12,6 +12,9 @@ import java.util.List;
 public interface ScoreRepository extends JpaRepository<Score, Long> {
     List<Score> findAllByPostId(Long postId);
 
+    @Query("SELECT s FROM Score s WHERE s.post.id = :postId AND s.user.id = :userId")
+    List<Score> findAllByPostIdAndUserId(Long postId, Long userId);
+
     List<Score> findAllByUserId(Long userId);
 
     @Query("SELECT s FROM Score s JOIN FETCH s.user u WHERE u.id = :userId and s.post.id = :postId ORDER BY s.id ASC")
