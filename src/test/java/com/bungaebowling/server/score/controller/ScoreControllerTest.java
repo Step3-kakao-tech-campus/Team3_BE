@@ -190,6 +190,92 @@ class ScoreControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("점수 수정 테스트")
     void updateScore() throws Exception {
+        // given
+        Long postId = 1L;
+
+        Long scoreId = 2L;
+
+        var userId = 1L; // 김볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        int score = 153;
+        MockMultipartFile file = new MockMultipartFile("image", "image.png", MediaType.IMAGE_PNG_VALUE, "mockImageData".getBytes());
+
+        String imageUrl = "https://kakao.com";
+
+        BDDMockito.given(amazonS3Client.putObject(Mockito.any())).willReturn(null);
+        BDDMockito.given(amazonS3Client.getUrl(Mockito.any(), Mockito.any())).willReturn(new URL(imageUrl));
+
+        // when
+        var builder = RestDocumentationRequestBuilders
+                .multipart("/api/posts/{postId}/scores/{scoreId}", postId, scoreId);
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+        ResultActions resultActions = mvc.perform(
+                builder
+                        .file(file)
+                        .part(new MockPart("score", Integer.toString(score).getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[score] updateScore",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("점수 수정")
+                                        .description("""
+                                                자신의 점수에 대한 정보를 수정 가능합니다.
+                                                                                                
+                                                요청에 포함된 image나 score에 대하여 기존 정보를 수정합니다.
+                                                                                                
+                                                - 파일은 png, jpg, gif, jpeg만 업로드 가능합니다.
+                                                - 파일은 10MB의 크기 제한이 존재합니다.
+                                                            
+                                                현재 사용 플러그인이 multipart/form-data의 파라미터에 대한 문서화가 지원되지 않습니다. (try it out 불가능)
+                                                                                                
+                                                아래 파라미터 중 변경 할 요소만 포함하여 보내면 됩니다.
+                                                                                                
+                                                | Part  | Type   | Description                  |
+                                                |-------|--------|------------------------------|
+                                                | score | number | 볼링 점수 (1~300)             |
+                                                | image | Binary | 점수판 사진 등 첨부 이미지 파일 |
+                                                                                                
+                                                 """)
+                                        .tag(ApiTag.SCORE.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("postId").type(SimpleType.NUMBER).description("모집글 id"),
+                                                parameterWithName("scoreId").type(SimpleType.NUMBER).description("점수 id")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 
     @Test

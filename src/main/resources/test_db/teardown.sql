@@ -786,9 +786,9 @@ VALUES (1, null, 1, null, '삭제된 댓글입니다.'),
        (8, 7, 1, 1, '네 있습니다');
 
 -- 해당 post에 신청 수락되어야함 / 모집완료(is_close)되고 start가 지난 post에만 score 등록 /
-INSERT INTO score_tb (user_id, post_id, score_num)
-VALUES (1, 7, 100),
-       (1, 1, 150);
+INSERT INTO score_tb (id, user_id, post_id, score_num)
+VALUES (1, 1, 7, 100),
+       (2, 1, 1, 150);
 
 -- 해당 post에 신청 수락되어야함 / 모집완료(is_close)되고 start가 지난 post에만 score 등록 /
 INSERT INTO user_rate_tb(applicant_id, user_id, star_count)
