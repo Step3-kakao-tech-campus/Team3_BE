@@ -301,10 +301,132 @@ class ApplicantControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("자신의 신청 상태 조회 테스트")
     void checkStatus() throws Exception {
+        // given
+        Long postId = 1L;
+
+        var userId = 4L; // 박볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .get("/api/posts/{postId}/applicants/check-status", postId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.applicantId").isNumber(),
+                jsonPath("$.response.isApplied").isBoolean(),
+                jsonPath("$.response.isAccepted").isBoolean()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[applicant] checkStatus",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("자신의 신청 상태 조회")
+                                        .description("""
+                                                해당 모집글에 대한 자신의 신청 상태를 확인 합니다.
+                                                """)
+                                        .tag(ApiTag.APPLICANT.getTagName())
+                                        .pathParameters(parameterWithName("postId").description("조회할 모집글 id"))
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .responseSchema(Schema.schema("자신의 신청 상태 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.applicantId").optional().type(SimpleType.NUMBER).description("신청의 ID(PK)"),
+                                                        fieldWithPath("response.isApplied").description("신청 상태(true: 신청됨 / false: 신청되지 않음"),
+                                                        fieldWithPath("response.isAccepted").description("승낙 상태(true: 승낙됨 / false: 승낙되지 않음")
+                                                )
+                                        )
+                                        .build()
+                        )
+                )
+        );
     }
 
     @Test
     @DisplayName("참여자에게 별점 등록 테스트")
     void rateUser() throws Exception {
+        // given
+        Long postId = 3L;
+
+        Long applicantId = 28L;
+
+        var userId = 4L; // 박볼링
+
+        var targetId = 1L;
+
+        var rating = 4;
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        var requestDto = new ApplicantRequest.RateDto(targetId, rating);
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/posts/{postId}/applicants/{applicantId}/rating", postId, applicantId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[applicant] rateUser",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("참여자에게 별점 등록")
+                                        .description("""
+                                                같은 모집글에 참여한 사람들에게 별점을 등록할 수 있습니다.
+                                                                                                
+                                                별점은 모집완료(모집글의 is_close가 true) 후 게임 시작 시간(start_time)이 지나야 등록 가능합니다.
+                                                """)
+                                        .tag(ApiTag.APPLICANT.getTagName())
+                                        .pathParameters(
+                                                parameterWithName("postId").description("모집글 id"),
+                                                parameterWithName("applicantId").description("자신의 신청 id")
+                                        )
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .requestSchema(Schema.schema("참여자에게 별점 등록 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("targetId").type(SimpleType.NUMBER).description("평가 대상 사용자의 id(PK)"),
+                                                fieldWithPath("rating").type(SimpleType.NUMBER).description("별점 | 1 ~ 5 범위 가능")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 }

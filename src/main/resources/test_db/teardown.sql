@@ -773,7 +773,8 @@ VALUES (1, 1, 1, true),
        (24, 1, 14, false),
        (25, 1, 15, false),
        (26, 3, 2, true),
-       (27, 4, 1, true);
+       (27, 4, 1, true),
+       (28, 4, 3, true);
 
 INSERT INTO comment_tb (id, parent_id, post_id, user_id, content)
 VALUES (1, null, 1, null, '삭제된 댓글입니다.'),
