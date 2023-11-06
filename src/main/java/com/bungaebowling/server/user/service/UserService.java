@@ -210,6 +210,10 @@ public class UserService {
 
         User user = findUserById(userId);
 
+        if (userRepository.existsByName(name)) {
+            throw new CustomException(ErrorCode.USER_NAME_DUPLICATED);
+        }
+
         District district = districtId == null ? null :
                 districtRepository.findById(districtId).orElseThrow(
                         () -> new CustomException(ErrorCode.REGION_NOT_FOUND)
