@@ -5,6 +5,7 @@ import com.bungaebowling.server._core.commons.ApiTag;
 import com.bungaebowling.server._core.commons.GeneralApiResponseSchema;
 import com.bungaebowling.server._core.commons.GeneralParameters;
 import com.bungaebowling.server._core.security.JwtProvider;
+import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
@@ -19,12 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.time.LocalDateTime;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
@@ -303,7 +307,36 @@ class PostControllerTest extends ControllerTestConfig {
 
     @Test
     @DisplayName("모집글 생성")
-    void createPost() {
+    void createPost() throws Exception {
+        // given
+        Long userId = 1L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        PostRequest.CreatePostDto requestDto = new PostRequest.CreatePostDto("테스트", LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(1), "테스트", 1L);
+        String requestBody = om.writeValueAsString(requestDto);
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/posts")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.response.id").isNumber()
+        );
     }
 
     @Test
