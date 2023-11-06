@@ -118,7 +118,7 @@ public class MessageControllerTest extends ControllerTestConfig {
     void getMessagesAndUpdateToRead() throws Exception {
         // given
         Long userId = 1L;
-        Long opponentUserId = 3L;
+        Long opponentId = 3L;
         String accessToken = JwtProvider.createAccess(
                 User.builder()
                         .id(userId)
@@ -132,7 +132,7 @@ public class MessageControllerTest extends ControllerTestConfig {
         // when
         ResultActions resultActions = mvc.perform(
                 RestDocumentationRequestBuilders
-                        .get("/api/messages/opponents/{opponentUserId}", opponentUserId)
+                        .get("/api/messages/opponents/{opponentId}", opponentId)
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .param("key", Integer.toString(key))
                         .param("size", Integer.toString(size))
@@ -167,6 +167,9 @@ public class MessageControllerTest extends ControllerTestConfig {
                                         .queryParameters(
                                                 GeneralParameters.CURSOR_KEY.getParameterDescriptorWithType(),
                                                 GeneralParameters.SIZE.getParameterDescriptorWithType()
+                                        )
+                                        .pathParameters(
+                                                parameterWithName("opponentId").description("쪽지를 조회할 상대 유저의 Id")
                                         )
                                         .responseSchema(Schema.schema("일대일 대화방 쪽지 조회 응답 DTO"))
                                         .responseFields(
