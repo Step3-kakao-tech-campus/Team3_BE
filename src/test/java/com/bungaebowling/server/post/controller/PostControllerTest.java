@@ -126,16 +126,12 @@ class PostControllerTest extends ControllerTestConfig {
     @DisplayName("모집글 상세 조회")
     void getPost() throws Exception {
         // given
-        int size = 20;
-        int key = 30;
         Long postId = 1L;
 
         // when
         ResultActions resultActions = mvc.perform(
                 RestDocumentationRequestBuilders
                         .get("/api/posts/{postId}", postId)
-                        .param("key", Integer.toString(key))
-                        .param("size", Integer.toString(size))
         );
         // then
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -158,7 +154,44 @@ class PostControllerTest extends ControllerTestConfig {
                 jsonPath("$.response.post.createdAt").exists(),
                 jsonPath("$.response.post.editedAt").exists(),
                 jsonPath("$.response.post.isClose").isBoolean()
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[post] getPost",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("모집글 상세 조회")
+                                        .description("""
+                                                모집글의 상세 정보를 조회합니다.
+                                                """)
+                                        .tag(ApiTag.POST.getTagName())
+                                        .pathParameters(
+                                                parameterWithName("postId").description("조회할 모집글 ID")
+                                        )
+                                        .responseSchema(Schema.schema("모집글 상세 조회 응답 DTO"))
+                                        .responseFields(
+                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
+                                                        fieldWithPath("response.post.id").description("모집글 ID"),
+                                                        fieldWithPath("response.post.title").description("모집글 제목"),
+                                                        fieldWithPath("response.post.userId").description("모집글 작성자 ID"),
+                                                        fieldWithPath("response.post.userName").description("모집글 작성자 이름"),
+                                                        fieldWithPath("response.post.profileImage").description("조회된 모집글 작성자 프로필 사진 경로 | 사진이 없을 경우 null"),
+                                                        fieldWithPath("response.post.districtName").description("모집글 행정 구역"),
+                                                        fieldWithPath("response.post.currentNumber").description("현재 모집 확정 인원 수"),
+                                                        fieldWithPath("response.post.content").description("모집글 내용"),
+                                                        fieldWithPath("response.post.startTime").description("게임 예정 일시"),
+                                                        fieldWithPath("response.post.dueTime").description("모집 마감기한"),
+                                                        fieldWithPath("response.post.viewCount").description("조회 수"),
+                                                        fieldWithPath("response.post.createdAt").description("모집글 생성 시간"),
+                                                        fieldWithPath("response.post.editedAt").description("모집글 수정 시간 "),
+                                                        fieldWithPath("response.post.isClose").description("모집글 마감 여부")
+                                                ))
+                                        .build()
+                        )
+                )
         );
+
     }
 
     @Test
