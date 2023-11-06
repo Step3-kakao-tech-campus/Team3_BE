@@ -22,7 +22,7 @@ public class Configs {
             List.of("http://localhost:3000", // 리액트 개발용 3000포트
                     "http://127.0.0.1:3000",
                     "https://bungae.jagaldol.dev",
-                    "https://k2b218aaad192a.user-app.krampoline.com")
+                    "https://ka02fa9a0d9a2a.user-app.krampoline.com")
     );
 
     public static List<String> getFullCORS() {
