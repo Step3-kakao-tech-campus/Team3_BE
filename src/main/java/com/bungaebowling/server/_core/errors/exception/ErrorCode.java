@@ -51,6 +51,7 @@ public enum ErrorCode {
     USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     USER_NAME_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
+    USER_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 수정에 실패하였습니다."),
     WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "기존 비밀번호가 일치하지 않습니다."),
 
     EMAIL_SEND_LIMIT_EXCEEDED(HttpStatus.INTERNAL_SERVER_ERROR, "서버 이메일 전송 한도가 초과되었습니다. 내일 다시 시도해주세요."),

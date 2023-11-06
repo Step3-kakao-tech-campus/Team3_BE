@@ -219,10 +219,14 @@ public class UserService {
                         () -> new CustomException(ErrorCode.REGION_NOT_FOUND)
                 );
 
-        if (profileImage == null) {
-            user.updateProfile(name, district, null, null);
-        } else {
-            updateProfileWithImage(user, name, district, profileImage);
+        try {
+            if (profileImage == null) {
+                user.updateProfile(name, district, null, null);
+            } else {
+                updateProfileWithImage(user, name, district, profileImage);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.USER_UPDATE_FAILED);
         }
     }
 
