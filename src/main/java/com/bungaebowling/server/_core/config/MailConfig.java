@@ -45,10 +45,7 @@ public class MailConfig {
         javaMailSender.setPassword(password);
         javaMailSender.setPort(port);
 
-        javaMailSender.getJavaMailProperties().setProperty("mail.smtp.socks.host", "krmp-proxy.9rum.cc");
-        javaMailSender.getJavaMailProperties().setProperty("mail.smtp.socks.port", "3128");
-
-        javaMailSender.setJavaMailProperties(getMailProperties());
+        javaMailSender.setJavaMailProperties(getMailPropertiesForDeploy());
 
         return javaMailSender;
     }
@@ -57,6 +54,15 @@ public class MailConfig {
         Properties properties = new Properties();
         properties.setProperty("mail.smtp.auth", "true");
         properties.setProperty("mail.smtp.starttls.enable", "true");
+        return properties;
+    }
+
+    private Properties getMailPropertiesForDeploy() {
+        Properties properties = new Properties();
+        properties.setProperty("mail.smtp.auth", "true");
+        properties.setProperty("mail.smtp.starttls.enable", "true");
+        properties.setProperty("mail.smtp.socks.host", "krmp-proxy.9rum.cc");
+        properties.setProperty("mail.smtp.socks.port", "3128");
         return properties;
     }
 }
