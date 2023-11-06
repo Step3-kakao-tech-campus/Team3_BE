@@ -281,6 +281,62 @@ class ScoreControllerTest extends ControllerTestConfig {
     @Test
     @DisplayName("점수 이미지 삭제 테스트")
     void deleteScoreImage() throws Exception {
+        // given
+        Long postId = 1L;
+
+        Long scoreId = 2L;
+
+        var userId = 1L; // 김볼링
+
+        var accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        );
+
+        BDDMockito.willAnswer(invocation -> {
+            return null;
+        }).given(amazonS3Client).deleteObject(Mockito.any());
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .delete("/api/posts/{postId}/scores/{scoreId}/image", postId, scoreId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+
+        // then
+        var responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[score] deleteScoreImage",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("점수 이미지 삭제")
+                                        .description("""
+                                                점수는 유지한 채 이미지만 삭제합니다.
+                                                 """)
+                                        .tag(ApiTag.SCORE.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(
+                                                parameterWithName("postId").type(SimpleType.NUMBER).description("모집글 id"),
+                                                parameterWithName("scoreId").type(SimpleType.NUMBER).description("점수 id")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 
     @Test
