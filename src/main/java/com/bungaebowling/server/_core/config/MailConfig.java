@@ -3,6 +3,7 @@ package com.bungaebowling.server._core.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -20,6 +21,7 @@ public class MailConfig {
     private String password;
 
     @Bean
+    @Profile({"local", "prod", "test"})
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
@@ -27,6 +29,24 @@ public class MailConfig {
         javaMailSender.setUsername(username);
         javaMailSender.setPassword(password);
         javaMailSender.setPort(port);
+
+        javaMailSender.setJavaMailProperties(getMailProperties());
+
+        return javaMailSender;
+    }
+
+    @Bean
+    @Profile("deploy")
+    public JavaMailSender javaMailServiceForDeploy() {
+        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+
+        javaMailSender.setHost(host);
+        javaMailSender.setUsername(username);
+        javaMailSender.setPassword(password);
+        javaMailSender.setPort(port);
+
+        javaMailSender.getJavaMailProperties().setProperty("mail.smtp.socks.host", "krmp-proxy.9rum.cc");
+        javaMailSender.getJavaMailProperties().setProperty("mail.smtp.socks.port", "3128");
 
         javaMailSender.setJavaMailProperties(getMailProperties());
 
