@@ -19,6 +19,7 @@ import com.bungaebowling.server.user.dto.UserResponse;
 import com.bungaebowling.server.user.rate.UserRate;
 import com.bungaebowling.server.user.rate.repository.UserRateRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -138,7 +139,7 @@ public class UserService {
         return new UserResponse.TokensDto(access, refresh);
     }
 
-    public void sendVerificationMail(Long userId) {
+    public void sendVerificationMail(Long userId) throws MessagingException {
 
         var user = findUserById(userId);
 
@@ -147,16 +148,14 @@ public class UserService {
         String subject = "[번개볼링] 이메일 인증을 완료해주세요.";
         String text = "<a href='" + domain + "/email-verification?token=" + token + "'>링크</a>를 클릭하여 인증을 완료해주세요!";
 
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
-            helper.setTo(user.getEmail());
-            helper.setSubject(subject);
-            helper.setText(text, true);
-            javaMailSender.send(mimeMessage);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
-        }
+
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+        helper.setTo(user.getEmail());
+        helper.setSubject(subject);
+        helper.setText(text, true);
+        javaMailSender.send(mimeMessage);
+
     }
 
     @Transactional

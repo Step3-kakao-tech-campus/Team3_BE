@@ -61,8 +61,8 @@ public class MailConfig {
         Properties properties = new Properties();
         properties.setProperty("mail.smtp.auth", "true");
         properties.setProperty("mail.smtp.starttls.enable", "true");
-        properties.setProperty("mail.smtp.proxy.host", "krmp-proxy.9rum.cc");
-        properties.setProperty("mail.smtp.proxy.port", "3128");
+        properties.setProperty("mail.smtp.socks.host", "krmp-proxy.9rum.cc");
+        properties.setProperty("mail.smtp.socks.port", "3128");
         return properties;
     }
 }

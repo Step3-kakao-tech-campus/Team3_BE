@@ -8,6 +8,7 @@ import com.bungaebowling.server._core.utils.CursorRequest;
 import com.bungaebowling.server.user.dto.UserRequest;
 import com.bungaebowling.server.user.dto.UserResponse;
 import com.bungaebowling.server.user.service.UserService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +83,7 @@ public class UserController {
 
 
     @PostMapping("/email-verification")
-    public ResponseEntity<?> sendVerification(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<?> sendVerification(@AuthenticationPrincipal CustomUserDetails userDetails) throws MessagingException {
         userService.sendVerificationMail(userDetails.getId());
         return ResponseEntity.ok().body(ApiUtils.success());
     }
