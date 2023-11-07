@@ -1,5 +1,6 @@
 package com.bungaebowling.server.score.repository;
 
+import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.score.Score;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     @Query("SELECT s FROM Score s JOIN FETCH s.user u WHERE u.id = :userId and s.post.id = :postId ORDER BY s.id ASC")
     List<Score> findAllByUserIdAndPostIdOrderById(@Param("userId") Long userId, @Param("postId") Long postId);
+
+    void deleteAllByPost(Post post);
 }
