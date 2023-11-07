@@ -174,6 +174,7 @@ class CommentControllerTest extends ControllerTestConfig {
                                                 GeneralParameters.CURSOR_KEY.getParameterDescriptorWithType(),
                                                 GeneralParameters.SIZE.getParameterDescriptorWithType()
                                         )
+                                        .responseSchema(Schema.schema("댓글 조회 응답 DTO"))
                                         .build()
                         )
                 )
