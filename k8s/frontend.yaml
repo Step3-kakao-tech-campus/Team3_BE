@@ -16,6 +16,12 @@ spec:
         - name: frontend
           # 여러분의 image 주소를 입력해주세요.
           image: krmp-d2hub-idock.9rum.cc/dev-test/repo_eb6339562f9c
+          env:
+            - name: NEXT_PUBLIC_KAKAOMAP_APPKEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: NEXT_PUBLIC_KAKAOMAP_APPKEY
 ---
 apiVersion: v1
 kind: Service
