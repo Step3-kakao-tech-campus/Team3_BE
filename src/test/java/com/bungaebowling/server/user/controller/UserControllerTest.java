@@ -1001,4 +1001,174 @@ class UserControllerTest extends ControllerTestConfig {
                 )
         );
     }
+
+    @Test
+    @DisplayName("비밀번호 변경")
+    void updatePassword() throws Exception {
+        // given
+        Long userId = 1L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        UserRequest.UpdatePasswordDto requestDto = new UserRequest.UpdatePasswordDto("test12!@", "qwer1234!");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .patch("/api/users/password")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] updatePassword",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("비밀번호 변경")
+                                        .description("""
+                                                비밀번호를 변경합니다.
+                                                """)
+                                        .tag(ApiTag.USER.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .requestSchema(Schema.schema("비밀번호 변경 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("password").description("기존 비밀번호"),
+                                                fieldWithPath("newPassword").description("새로운 비밀번호")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기 - 본인 인증 메일 발송")
+    void sendVerificationMailForPasswordReset() throws Exception {
+        // given
+        UserRequest.SendVerificationMailForPasswordResetDto requestDto = new UserRequest.SendVerificationMailForPasswordResetDto("test@test.com");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        JavaMailSender javaMailSenderImpl = new JavaMailSenderImpl();
+
+        BDDMockito.given(javaMailSender.createMimeMessage()).willReturn(javaMailSenderImpl.createMimeMessage());
+        BDDMockito.willAnswer(invocation -> {
+            return null;
+        }).given(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/password/email-verification")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] sendVerificationMailForPasswordReset",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("비밀번호 찾기 - 본인 인증 메일 발송")
+                                        .description("""
+                                                계정 정보의 email로 인증 메일을 보냅니다. email에는 url이 삽입되어 보내집니다.
+
+                                                (e.g.) https://bungaebowling.com/password/email-verification?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwicm9sZSI6IlJPTEVfVVNFUiIsInR5cGUiOiJlbWFpbC12ZXJpZmljYXRpb24iLCJleHAiOjE2OTU2MzU5MDh9.3AWusXvtgBiQN0GoegjKJw-fnaYSGVO1Ue0sSrtuWCVOQwzfIwh6KELN2NHOOXIO6MK-D11PndbtwcHetibZVQ
+                                                                                                
+                                                인증을 위해서 이 토큰 값을 그대로 /api/password/email-confirm의 데이터로 요청 보내주시길 바랍니다.
+                                                """)
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestSchema(Schema.schema("비밀번호 찾기 - 본인 인증 메일 발송 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("email").description("가입한 이메일")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기 - 본인 인증 메일 확인 및 임시 비밀번호 메일 발송")
+    void confirmEmailAndSendTempPassword() throws Exception {
+        // given
+        User user = User.builder()
+                .id(1L)
+                .build();
+        String token = JwtProvider.createEmailVerificationForPassword(user);
+        UserRequest.ConfirmEmailAndSendTempPasswordDto requestDto = new UserRequest.ConfirmEmailAndSendTempPasswordDto(token);
+        String requestBody = om.writeValueAsString(requestDto);
+
+        JavaMailSender javaMailSenderImpl = new JavaMailSenderImpl();
+
+        BDDMockito.given(javaMailSender.createMimeMessage()).willReturn(javaMailSenderImpl.createMimeMessage());
+        BDDMockito.willAnswer(invocation -> {
+            return null;
+        }).given(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/password/email-confirm")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] confirmEmailAndSendTempPassword",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("비밀번호 찾기 - 본인 인증 메일 확인 및 임시 비밀번호 메일 발송")
+                                        .description("""
+                                                본인 인증 확인 후 기존 비밀번호를 삭제하고 임시 비밀번호를 생성합니다.
+                                                                                                
+                                                임시 비밀번호를 메일로 발송합니다.
+                                                """)
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestSchema(Schema.schema("비밀번호 찾기 - 본인 인증 메일 발송 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("token").description("메일로 발송된 링크에 첨부된 토큰")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
+    }
 }
