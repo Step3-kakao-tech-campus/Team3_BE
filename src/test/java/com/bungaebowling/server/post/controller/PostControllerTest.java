@@ -507,6 +507,29 @@ class PostControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[post] patchPost",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("모집글 마감")
+                                        .description("""
+                                                모집글을 마감합니다.
+                                                """)
+                                        .tag(ApiTag.POST.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .requestSchema(Schema.schema("모집글 마감 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("isClose").description("마감 여부")
+                                        )
+                                        .pathParameters(parameterWithName("postId").description("마감할 모집글의 ID"))
+                                        .responseSchema(Schema.schema("모집글 마감 응답 DTO"))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 }
