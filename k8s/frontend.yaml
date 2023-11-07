@@ -15,7 +15,7 @@ spec:
       containers:
         - name: frontend
           # 여러분의 image 주소를 입력해주세요.
-          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_eb6339562f9c
+          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_6253968bfef3
           env:
             - name: NEXT_PUBLIC_KAKAOMAP_APPKEY
               valueFrom:
