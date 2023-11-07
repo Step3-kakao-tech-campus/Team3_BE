@@ -1001,4 +1001,37 @@ class UserControllerTest extends ControllerTestConfig {
                 )
         );
     }
+
+    @Test
+    @DisplayName("비밀번호 변경")
+    void updatePassword() throws Exception {
+        // given
+        Long userId = 1L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        UserRequest.UpdatePasswordDto requestDto = new UserRequest.UpdatePasswordDto("test12!@", "qwer1234!");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .patch("/api/users/password")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
+    }
 }
