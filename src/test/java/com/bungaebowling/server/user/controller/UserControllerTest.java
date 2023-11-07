@@ -1087,6 +1087,31 @@ class UserControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] sendVerificationMailForPasswordReset",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("비밀번호 찾기 - 본인 인증 메일 발송")
+                                        .description("""
+                                                계정 정보의 email로 인증 메일을 보냅니다. email에는 url이 삽입되어 보내집니다.
+
+                                                (e.g.) https://bungaebowling.com/password/email-verification?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwicm9sZSI6IlJPTEVfVVNFUiIsInR5cGUiOiJlbWFpbC12ZXJpZmljYXRpb24iLCJleHAiOjE2OTU2MzU5MDh9.3AWusXvtgBiQN0GoegjKJw-fnaYSGVO1Ue0sSrtuWCVOQwzfIwh6KELN2NHOOXIO6MK-D11PndbtwcHetibZVQ
+                                                                                                
+                                                인증을 위해서 이 토큰 값을 그대로 /api/password/email-verification의 데이터로 요청 보내주시길 바랍니다.
+                                                """)
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestSchema(Schema.schema("비밀번호 찾기 - 본인 인증 메일 발송 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("email").description("가입한 이메일")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
