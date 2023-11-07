@@ -409,6 +409,7 @@ class PostControllerTest extends ControllerTestConfig {
                                         .summary("모집글 수정")
                                         .description("""
                                                 모집글을 수정합니다.
+                                                모집마감된 모집글은 수정이 불가능합ㄴ디ㅏ.
                                                 """)
                                         .tag(ApiTag.POST.getTagName())
                                         .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
@@ -429,10 +430,55 @@ class PostControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    void deletePost() {
+    @DisplayName("모집글 삭제")
+    void deletePost() throws Exception {
+        // given
+        Long userId = 1L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        Long postId = 1L;
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .delete("/api/posts/{postId}", postId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[post] deletePost",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("모집글 삭제")
+                                        .description("""
+                                                모집글을 삭제합니다.
+                                                모집마감된 모집글은 삭제가 불가능합니다.
+                                                """)
+                                        .tag(ApiTag.POST.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .pathParameters(parameterWithName("postId").description("삭제할 모집글의 ID"))
+                                        .responseSchema(Schema.schema("모집글 삭제 응답 DTO"))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
+        );
     }
 
     @Test
     void patchPost() {
+        
     }
 }
