@@ -106,7 +106,7 @@ class PostControllerTest extends ControllerTestConfig {
                                                 parameterWithName("cityId").optional().type(SimpleType.NUMBER).description("시/도 ID (넘겨주지 않을 시 설정 시/도 설정 안 한 것)"),
                                                 parameterWithName("countryId").optional().type(SimpleType.NUMBER).description("시/군/구 ID (넘겨주지 않을 시 설정 시/군/구 설정 안 한 것)"),
                                                 parameterWithName("districtId").optional().type(SimpleType.NUMBER).description("읍/면/동 ID (넘겨주지 않을 시 설정 읍/면/동 설정 안 한 것)"),
-                                                parameterWithName("all").type(SimpleType.BOOLEAN).defaultValue(true).description("전체 보기/모집 중 선택")
+                                                parameterWithName("all").type(SimpleType.BOOLEAN).defaultValue(true).optional().description("전체 보기/모집 중 선택")
 
                                         )
                                         .responseSchema(Schema.schema("모집글 목록 조회 응답 DTO"))
@@ -118,7 +118,7 @@ class PostControllerTest extends ControllerTestConfig {
                                                         fieldWithPath("response.posts[].districtName").description("조회된 모집글 행정구역"),
                                                         fieldWithPath("response.posts[].startTime").description("조회된 모집글 게임 예정 일시"),
                                                         fieldWithPath("response.posts[].userName").description("조회된 모집글 작성자 이름 "),
-                                                        fieldWithPath("response.posts[].profileImage").description("조회된 모집글 작성자 프로필 사진 경로 | 사진이 없을 경우 null"),
+                                                        fieldWithPath("response.posts[].profileImage").optional().type(SimpleType.STRING).description("조회된 모집글 작성자 프로필 사진 경로 | 사진이 없을 경우 null"),
                                                         fieldWithPath("response.posts[].currentNumber").description("조회된 모집글 참석 인원"),
                                                         fieldWithPath("response.posts[].isClose").description("모집글 마감 여부")
 
@@ -175,7 +175,7 @@ class PostControllerTest extends ControllerTestConfig {
                                                 """)
                                         .tag(ApiTag.POST.getTagName())
                                         .pathParameters(
-                                                parameterWithName("postId").description("조회할 모집글 ID")
+                                                parameterWithName("postId").type(SimpleType.NUMBER).description("조회할 모집글 ID")
                                         )
                                         .responseSchema(Schema.schema("모집글 상세 조회 응답 DTO"))
                                         .responseFields(
@@ -184,7 +184,7 @@ class PostControllerTest extends ControllerTestConfig {
                                                         fieldWithPath("response.post.title").description("모집글 제목"),
                                                         fieldWithPath("response.post.userId").description("모집글 작성자 ID"),
                                                         fieldWithPath("response.post.userName").description("모집글 작성자 이름"),
-                                                        fieldWithPath("response.post.profileImage").description("조회된 모집글 작성자 프로필 사진 경로 | 사진이 없을 경우 null"),
+                                                        fieldWithPath("response.post.profileImage").optional().type(SimpleType.NUMBER).description("조회된 모집글 작성자 프로필 사진 경로 | 사진이 없을 경우 null"),
                                                         fieldWithPath("response.post.districtName").description("모집글 행정 구역"),
                                                         fieldWithPath("response.post.currentNumber").description("현재 모집 확정 인원 수"),
                                                         fieldWithPath("response.post.content").description("모집글 내용"),
@@ -267,7 +267,7 @@ class PostControllerTest extends ControllerTestConfig {
                                         .tag(ApiTag.POST.getTagName())
                                         .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
                                         .pathParameters(
-                                                parameterWithName("userId").description("조회할 유저의 ID")
+                                                parameterWithName("userId").type(SimpleType.NUMBER).description("조회할 유저의 ID")
                                         )
                                         .queryParameters(
                                                 GeneralParameters.CURSOR_KEY.getParameterDescriptorWithType(),
@@ -351,17 +351,14 @@ class PostControllerTest extends ControllerTestConfig {
                                         .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
                                         .requestSchema(Schema.schema("모집글 등록 요청 DTO"))
                                         .requestFields(
-                                                fieldWithPath("title").description("모집글 제목 "),
+                                                fieldWithPath("title").description("모집글 제목"),
                                                 fieldWithPath("districtId").description("모집글 행정구역 ID"),
                                                 fieldWithPath("startTime").description("게임 예정 일시"),
                                                 fieldWithPath("dueTime").description("모집 마감기한"),
                                                 fieldWithPath("content").description("모집글 내용")
                                         )
-                                        .responseSchema(Schema.schema("모집글 등록 응답 DTO"))
-                                        .responseFields(
-                                                GeneralApiResponseSchema.SUCCESS.getResponseDescriptor().and(
-                                                        fieldWithPath("response.id").description("모집글 ID")
-                                                ))
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.CREATED.getName()))
+                                        .responseFields(GeneralApiResponseSchema.CREATED.getResponseDescriptor())
                                         .build()
                         )
                 )
@@ -379,7 +376,7 @@ class PostControllerTest extends ControllerTestConfig {
                         .role(Role.ROLE_USER)
                         .build()
         ); // 김볼링
-        Long postId = 1L;
+        Long postId = 2L;
         PostRequest.UpdatePostDto requestDto = new PostRequest.UpdatePostDto("테스트", LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(1), "테스트");
         String requestBody = om.writeValueAsString(requestDto);
         // when
@@ -409,18 +406,19 @@ class PostControllerTest extends ControllerTestConfig {
                                         .summary("모집글 수정")
                                         .description("""
                                                 모집글을 수정합니다.
-                                                모집마감된 모집글은 수정이 불가능합ㄴ디ㅏ.
+                                                                                                
+                                                모집마감된 모집글은 수정이 불가능합니다.
                                                 """)
                                         .tag(ApiTag.POST.getTagName())
                                         .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
                                         .requestSchema(Schema.schema("모집글 수정 요청 DTO"))
                                         .requestFields(
-                                                fieldWithPath("title").description("모집글 제목 "),
+                                                fieldWithPath("title").description("모집글 제목"),
                                                 fieldWithPath("startTime").description("게임 예정 일시"),
                                                 fieldWithPath("dueTime").description("모집 마감기한"),
                                                 fieldWithPath("content").description("모집글 내용")
                                         )
-                                        .pathParameters(parameterWithName("postId").description("수정할 모집글의 ID"))
+                                        .pathParameters(parameterWithName("postId").type(SimpleType.NUMBER).description("수정할 모집글의 ID"))
                                         .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
                                         .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
                                         .build()
@@ -464,11 +462,12 @@ class PostControllerTest extends ControllerTestConfig {
                                         .summary("모집글 삭제")
                                         .description("""
                                                 모집글을 삭제합니다.
+                                                                                                
                                                 모집마감된 모집글은 삭제가 불가능합니다.
                                                 """)
                                         .tag(ApiTag.POST.getTagName())
                                         .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
-                                        .pathParameters(parameterWithName("postId").description("삭제할 모집글의 ID"))
+                                        .pathParameters(parameterWithName("postId").type(SimpleType.NUMBER).description("삭제할 모집글의 ID"))
                                         .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
                                         .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
                                         .build()
@@ -478,6 +477,7 @@ class PostControllerTest extends ControllerTestConfig {
     }
 
     @Test
+    @DisplayName("모집글 마감")
     void patchPost() throws Exception {
         // given
         Long userId = 1L;
@@ -488,7 +488,7 @@ class PostControllerTest extends ControllerTestConfig {
                         .build()
         ); // 김볼링
         Long postId = 1L;
-        Boolean isClose = Boolean.FALSE;
+        Boolean isClose = true;
         PostRequest.UpdatePostIsCloseDto requestDto = new PostRequest.UpdatePostIsCloseDto(isClose);
         String requestBody = om.writeValueAsString(requestDto);
         // when
@@ -524,7 +524,7 @@ class PostControllerTest extends ControllerTestConfig {
                                         .requestFields(
                                                 fieldWithPath("isClose").description("마감 여부")
                                         )
-                                        .pathParameters(parameterWithName("postId").description("마감할 모집글의 ID"))
+                                        .pathParameters(parameterWithName("postId").type(SimpleType.NUMBER).description("마감할 모집글의 ID"))
                                         .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
                                         .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
                                         .build()
