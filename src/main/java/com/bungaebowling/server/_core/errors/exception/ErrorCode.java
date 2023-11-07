@@ -29,6 +29,7 @@ public enum ErrorCode {
     POST_NOT_CLOSE(HttpStatus.FORBIDDEN, "모집글이 마감되지 않았습니다."),
     POST_UPDATE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "모집글에 대한 수정 권한이 없습니다."),
     POST_DELETE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "모집글에 대한 삭제 권한이 없습니다."),
+    POST_DELETE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "마감된 모집글은 삭제할 수 없습니다."),
     POST_CLOSE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "모집글에 대한 마감 권한이 없습니다."),
 
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 댓글입니다."),

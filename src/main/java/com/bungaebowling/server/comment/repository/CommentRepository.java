@@ -2,6 +2,7 @@ package com.bungaebowling.server.comment.repository;
 
 
 import com.bungaebowling.server.comment.Comment;
+import com.bungaebowling.server.post.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,4 +35,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query("SELECT c FROM Comment c WHERE c.id = :id AND c.post.id = :postId AND c.parent = null")
     Optional<Comment> findByIdAndPostIdAndParentNull(@Param("id") Long id, @Param("postId") Long postId);
+
+    void deleteAllByPost(Post post);
 }

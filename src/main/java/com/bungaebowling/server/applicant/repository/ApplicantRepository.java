@@ -1,6 +1,7 @@
 package com.bungaebowling.server.applicant.repository;
 
 import com.bungaebowling.server.applicant.Applicant;
+import com.bungaebowling.server.post.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,4 +33,8 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
 
     @Query("SELECT a FROM Applicant a JOIN FETCH a.user u WHERE a.post.id = :postId and a.status = true  ORDER BY u.id DESC")
     List<Applicant> findAllByPostIdAndStatusTrueOrderByUserIdDesc(@Param("postId") Long postId);
+
+    List<Applicant> findAllByPost(Post post);
+
+    void deleteAllByPost(Post post);
 }
