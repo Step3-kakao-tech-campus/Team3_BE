@@ -1062,7 +1062,6 @@ class UserControllerTest extends ControllerTestConfig {
     @DisplayName("비밀번호 찾기 - 본인 인증 메일 발송")
     void sendVerificationMailForPasswordReset() throws Exception {
         // given
-
         UserRequest.SendVerificationMailForPasswordResetDto requestDto = new UserRequest.SendVerificationMailForPasswordResetDto("test@test.com");
         String requestBody = om.writeValueAsString(requestDto);
 
@@ -1112,6 +1111,41 @@ class UserControllerTest extends ControllerTestConfig {
                                         .build()
                         )
                 )
+        );
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기 - 본인 인증 메일 확인 및 임시 비밀번호 메일 발송")
+    void confirmEmailAndSendTempPassword() throws Exception {
+        // given
+        User user = User.builder()
+                .id(2L)
+                .build();
+        String token = JwtProvider.createEmailVerificationForPassword(user);
+        UserRequest.ConfirmEmailAndSendTempPasswordDto requestDto = new UserRequest.ConfirmEmailAndSendTempPasswordDto(token);
+        String requestBody = om.writeValueAsString(requestDto);
+
+        JavaMailSender javaMailSenderImpl = new JavaMailSenderImpl();
+
+        BDDMockito.given(javaMailSender.createMimeMessage()).willReturn(javaMailSenderImpl.createMimeMessage());
+        BDDMockito.willAnswer(invocation -> {
+            return null;
+        }).given(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/password/email-confirm")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
         );
     }
 
