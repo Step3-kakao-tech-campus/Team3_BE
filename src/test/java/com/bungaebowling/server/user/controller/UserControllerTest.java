@@ -1146,6 +1146,29 @@ class UserControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[user] confirmEmailAndSendTempPassword",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("비밀번호 찾기 - 본인 인증 메일 확인 및 임시 비밀번호 메일 발송")
+                                        .description("""
+                                                본인 인증 확인 후 기존 비밀번호를 삭제하고 임시 비밀번호를 생성합니다.
+                                                                                                
+                                                임시 비밀번호를 메일로 발송합니다.
+                                                """)
+                                        .tag(ApiTag.AUTHORIZATION.getTagName())
+                                        .requestSchema(Schema.schema("비밀번호 찾기 - 본인 인증 메일 발송 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("token").description("메일로 발송된 링크에 첨부된 토큰")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 
