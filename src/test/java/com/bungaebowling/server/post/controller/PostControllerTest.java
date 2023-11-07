@@ -440,7 +440,7 @@ class PostControllerTest extends ControllerTestConfig {
                         .role(Role.ROLE_USER)
                         .build()
         ); // 김볼링
-        Long postId = 1L;
+        Long postId = 2L;
         // when
         ResultActions resultActions = mvc.perform(
                 RestDocumentationRequestBuilders
