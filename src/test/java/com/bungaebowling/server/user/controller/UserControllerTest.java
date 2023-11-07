@@ -1057,4 +1057,38 @@ class UserControllerTest extends ControllerTestConfig {
                 )
         );
     }
+
+    @Test
+    @DisplayName("비밀번호 찾기 - 본인 인증 메일 발송")
+    void sendVerificationMailForPasswordReset() throws Exception {
+        // given
+
+        UserRequest.SendVerificationMailForPasswordResetDto requestDto = new UserRequest.SendVerificationMailForPasswordResetDto("test@test.com");
+        String requestBody = om.writeValueAsString(requestDto);
+
+        JavaMailSender javaMailSenderImpl = new JavaMailSenderImpl();
+
+        BDDMockito.given(javaMailSender.createMimeMessage()).willReturn(javaMailSenderImpl.createMimeMessage());
+        BDDMockito.willAnswer(invocation -> {
+            return null;
+        }).given(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .post("/api/password/email-verification")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
+    }
+
+
 }
