@@ -1099,7 +1099,7 @@ class UserControllerTest extends ControllerTestConfig {
 
                                                 (e.g.) https://bungaebowling.com/password/email-verification?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwicm9sZSI6IlJPTEVfVVNFUiIsInR5cGUiOiJlbWFpbC12ZXJpZmljYXRpb24iLCJleHAiOjE2OTU2MzU5MDh9.3AWusXvtgBiQN0GoegjKJw-fnaYSGVO1Ue0sSrtuWCVOQwzfIwh6KELN2NHOOXIO6MK-D11PndbtwcHetibZVQ
                                                                                                 
-                                                인증을 위해서 이 토큰 값을 그대로 /api/password/email-verification의 데이터로 요청 보내주시길 바랍니다.
+                                                인증을 위해서 이 토큰 값을 그대로 /api/password/email-confirm의 데이터로 요청 보내주시길 바랍니다.
                                                 """)
                                         .tag(ApiTag.AUTHORIZATION.getTagName())
                                         .requestSchema(Schema.schema("비밀번호 찾기 - 본인 인증 메일 발송 요청 DTO"))
@@ -1171,6 +1171,4 @@ class UserControllerTest extends ControllerTestConfig {
                 )
         );
     }
-
-
 }
