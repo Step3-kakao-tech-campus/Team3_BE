@@ -478,7 +478,35 @@ class PostControllerTest extends ControllerTestConfig {
     }
 
     @Test
-    void patchPost() {
-        
+    void patchPost() throws Exception {
+        // given
+        Long userId = 1L;
+        String accessToken = JwtProvider.createAccess(
+                User.builder()
+                        .id(userId)
+                        .role(Role.ROLE_USER)
+                        .build()
+        ); // 김볼링
+        Long postId = 1L;
+        Boolean isClose = Boolean.FALSE;
+        PostRequest.UpdatePostIsCloseDto requestDto = new PostRequest.UpdatePostIsCloseDto(isClose);
+        String requestBody = om.writeValueAsString(requestDto);
+        // when
+        ResultActions resultActions = mvc.perform(
+                RestDocumentationRequestBuilders
+                        .patch("/api/posts/{postId}", postId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        Object json = om.readValue(responseBody, Object.class);
+        System.out.println("[response]\n" + om.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200)
+        );
     }
 }
