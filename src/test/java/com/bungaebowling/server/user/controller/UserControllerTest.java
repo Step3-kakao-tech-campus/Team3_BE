@@ -1034,7 +1034,7 @@ class UserControllerTest extends ControllerTestConfig {
                 jsonPath("$.status").value(200)
         ).andDo(
                 MockMvcRestDocumentationWrapper.document(
-                        "[message] updatePassword",
+                        "[user] updatePassword",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(
@@ -1043,7 +1043,7 @@ class UserControllerTest extends ControllerTestConfig {
                                         .description("""
                                                 비밀번호를 변경합니다.
                                                 """)
-                                        .tag(ApiTag.MESSAGE.getTagName())
+                                        .tag(ApiTag.USER.getTagName())
                                         .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
                                         .requestSchema(Schema.schema("비밀번호 변경 요청 DTO"))
                                         .requestFields(
@@ -1119,7 +1119,7 @@ class UserControllerTest extends ControllerTestConfig {
     void confirmEmailAndSendTempPassword() throws Exception {
         // given
         User user = User.builder()
-                .id(2L)
+                .id(1L)
                 .build();
         String token = JwtProvider.createEmailVerificationForPassword(user);
         UserRequest.ConfirmEmailAndSendTempPasswordDto requestDto = new UserRequest.ConfirmEmailAndSendTempPasswordDto(token);
