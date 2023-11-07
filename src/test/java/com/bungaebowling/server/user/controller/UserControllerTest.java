@@ -1032,6 +1032,29 @@ class UserControllerTest extends ControllerTestConfig {
         resultActions.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200)
+        ).andDo(
+                MockMvcRestDocumentationWrapper.document(
+                        "[message] updatePassword",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .summary("비밀번호 변경")
+                                        .description("""
+                                                비밀번호를 변경합니다.
+                                                """)
+                                        .tag(ApiTag.MESSAGE.getTagName())
+                                        .requestHeaders(headerWithName(HttpHeaders.AUTHORIZATION).description("access token"))
+                                        .requestSchema(Schema.schema("비밀번호 변경 요청 DTO"))
+                                        .requestFields(
+                                                fieldWithPath("password").description("기존 비밀번호"),
+                                                fieldWithPath("newPassword").description("새로운 비밀번호")
+                                        )
+                                        .responseSchema(Schema.schema(GeneralApiResponseSchema.SUCCESS.getName()))
+                                        .responseFields(GeneralApiResponseSchema.SUCCESS.getResponseDescriptor())
+                                        .build()
+                        )
+                )
         );
     }
 }
