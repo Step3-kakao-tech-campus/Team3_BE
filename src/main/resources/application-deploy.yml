@@ -55,10 +55,6 @@ mail:
   port: 587
   username: ${GMAIL_USERNAME}
   password: ${GMAIL_APPLICATION_PASSWORD}
-  smtp:
-    socks:
-      host: krmp-proxy.9rum.cc
-      port: 3128
 
 # aws s3 config
 cloud:
