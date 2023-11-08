@@ -10,6 +10,7 @@ configMapGenerator:
   - name: nginx
     files:
       - configs/default.conf
+      - configs/stream.conf
   - name: init-db
     files:
       - configs/create.sql
