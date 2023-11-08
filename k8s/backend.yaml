@@ -77,6 +77,11 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: API_SERVER_URL
+            - name: FLASK_MAIL_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: FLASK_MAIL_SERVER
           ports:
             - containerPort: 8080
           resources:
