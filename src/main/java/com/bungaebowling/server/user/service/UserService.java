@@ -22,19 +22,27 @@ import com.bungaebowling.server.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -58,12 +66,21 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final JavaMailSender javaMailSender;
+    private final RestTemplate restTemplate;
 
     private final AwsS3Service awsS3Service;
     private final ScoreService scoreService;
 
+    private final Environment environment;
+
     @Value("${bungaebowling.domain}")
     private String domain;
+    @Value("${mail.server}")
+    private String mailServer;
+    @Value("${mail.username}")
+    private String username;
+    @Value("${mail.password}")
+    private String password;
 
     @Transactional
     public UserResponse.JoinDto join(UserRequest.JoinDto requestDto) {
@@ -139,7 +156,7 @@ public class UserService {
         return new UserResponse.TokensDto(access, refresh);
     }
 
-    public void sendVerificationMail(Long userId) throws MessagingException {
+    public void sendVerificationMail(Long userId) {
 
         var user = findUserById(userId);
 
@@ -148,14 +165,46 @@ public class UserService {
         String subject = "[번개볼링] 이메일 인증을 완료해주세요.";
         String text = "<a href='" + domain + "/email-verification?token=" + token + "'>링크</a>를 클릭하여 인증을 완료해주세요!";
 
+        if (Arrays.asList(environment.getActiveProfiles()).contains("deploy")) {
+            sendMailToMailServer(user, subject, text);
+        } else {
+            sendMail(user, subject, text);
+        }
 
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
-        helper.setTo(user.getEmail());
-        helper.setSubject(subject);
-        helper.setText(text, true);
-        javaMailSender.send(mimeMessage);
+    }
 
+    private void sendMailToMailServer(User user, String subject, String text) {
+        try {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("subject", subject);
+            jsonObject.put("text", text);
+            jsonObject.put("email", user.getEmail());
+            jsonObject.put("username", username);
+            jsonObject.put("password", password);
+
+            String jsonRequestBody = jsonObject.toString();
+            HttpEntity<String> request = new HttpEntity<>(jsonRequestBody, httpHeaders);
+
+            restTemplate.postForEntity(mailServer, request, String.class);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
+        }
+    }
+
+    private void sendMail(User user, String subject, String text) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            helper.setTo(user.getEmail());
+            helper.setSubject(subject);
+            helper.setText(text, true);
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
+        }
     }
 
     @Transactional
@@ -270,15 +319,10 @@ public class UserService {
         String subject = "[번개볼링] 비밀번호 초기화 및 임시 비밀번호 발급을 위한 이메일 인증을 완료해주세요.";
         String text = "<a href='" + domain + "/password/email-verification?token=" + token + "'>링크</a>를 클릭하여 인증을 완료해주세요!";
 
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
-            helper.setTo(user.getEmail());
-            helper.setSubject(subject);
-            helper.setText(text, true);
-            javaMailSender.send(mimeMessage);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
+        if (Arrays.asList(environment.getActiveProfiles()).contains("deploy")) {
+            sendMailToMailServer(user, subject, text);
+        } else {
+            sendMail(user, subject, text);
         }
     }
 
