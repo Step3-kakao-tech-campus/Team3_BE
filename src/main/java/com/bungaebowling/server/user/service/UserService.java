@@ -21,6 +21,7 @@ import com.bungaebowling.server.user.rate.repository.UserRateRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -46,6 +47,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -182,10 +184,14 @@ public class UserService {
             jsonObject.put("username", username);
             jsonObject.put("password", password);
 
+            log.info("json: "+ jsonObject);
+
             String jsonRequestBody = jsonObject.toString();
             HttpEntity<String> request = new HttpEntity<>(jsonRequestBody, httpHeaders);
 
             String requestURL = "https://" + mailServer + ":5000/email";
+
+            log.info("requestURL: "+ requestURL);
 
             restTemplate.postForEntity(requestURL, request, String.class);
         } catch (Exception e) {
