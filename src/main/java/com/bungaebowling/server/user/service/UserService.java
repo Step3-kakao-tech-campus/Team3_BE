@@ -168,7 +168,6 @@ public class UserService {
         } else {
             sendMail(user, subject, text);
         }
-
     }
 
     private void sendMailToMailServer(User user, String subject, String text) {
@@ -334,17 +333,11 @@ public class UserService {
         String subject = "[번개볼링] 임시 비밀번호";
         String text = "임시 비밀번호는  " + tempPassword + "  입니다. <br>*비밀번호를 변경해주세요." + "<br>*기존의 비밀번호는 사용할 수 없습니다.";
 
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
-            helper.setTo(user.getEmail());
-            helper.setSubject(subject);
-            helper.setText(text, true);
-            javaMailSender.send(mimeMessage);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
+        if (Arrays.asList(environment.getActiveProfiles()).contains("deploy")) {
+            sendMailToMailServer(user, subject, text);
+        } else {
+            sendMail(user, subject, text);
         }
-
     }
 
     public UserResponse.GetRecordDto getRecords(Long userId) {
@@ -397,6 +390,4 @@ public class UserService {
         return stringBuilder.toString();
 
     }
-
-
 }
