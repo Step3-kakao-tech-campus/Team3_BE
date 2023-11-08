@@ -21,7 +21,7 @@ public class MailConfig {
     private String password;
 
     @Bean
-    @Profile({"local", "prod", "test"})
+    @Profile({"local", "product", "test, deploy"})
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
@@ -35,6 +35,14 @@ public class MailConfig {
         return javaMailSender;
     }
 
+    private Properties getMailProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("mail.smtp.auth", "true");
+        properties.setProperty("mail.smtp.starttls.enable", "true");
+        return properties;
+    }
+
+    /*
     @Bean
     @Profile("deploy")
     public JavaMailSender javaMailServiceForDeploy() {
@@ -50,13 +58,6 @@ public class MailConfig {
         return javaMailSender;
     }
 
-    private Properties getMailProperties() {
-        Properties properties = new Properties();
-        properties.setProperty("mail.smtp.auth", "true");
-        properties.setProperty("mail.smtp.starttls.enable", "true");
-        return properties;
-    }
-
     private Properties getMailPropertiesForDeploy() {
         Properties properties = new Properties();
         properties.setProperty("mail.smtp.auth", "true");
@@ -64,5 +65,5 @@ public class MailConfig {
         properties.setProperty("mail.smtp.proxy.host", "krmp-proxy.9rum.cc");
         properties.setProperty("mail.smtp.proxy.port", "3128");
         return properties;
-    }
+    }*/
 }
