@@ -63,6 +63,7 @@ mail:
   port: 587
   username: bungaebowling55@gmail.com
   password: gmailApplicationPassword
+  server: flaskMailServer
 
 # aws s3 config
 cloud:

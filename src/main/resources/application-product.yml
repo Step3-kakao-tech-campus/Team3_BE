@@ -61,6 +61,7 @@ mail:
   port: 587
   username: ${GMAIL_USERNAME}
   password: ${GMAIL_APPLICATION_PASSWORD}
+  server: flaskMailServer
 
 # aws s3 config
 cloud:
