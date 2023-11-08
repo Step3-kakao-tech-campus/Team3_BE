@@ -1,0 +1,26 @@
+name: Java CD on AWS EC2 with SSH Connection
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'develop'
+      - 'weekly/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH Remote Commands
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          script: |
+            cd Team3_BE
+            git pull
+            ./gradlew clean build || exit 1  # 빌드 실패 시 스크립트 종료
+            
+            ./nohup.sh # 기존 서버 종료 후 백그라운드로 서버 실행
