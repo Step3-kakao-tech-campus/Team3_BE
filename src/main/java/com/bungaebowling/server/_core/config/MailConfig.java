@@ -21,7 +21,6 @@ public class MailConfig {
     private String password;
 
     @Bean
-    @Profile({"local", "product", "test", "deploy"})
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
