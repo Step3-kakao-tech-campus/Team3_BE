@@ -185,7 +185,9 @@ public class UserService {
             String jsonRequestBody = jsonObject.toString();
             HttpEntity<String> request = new HttpEntity<>(jsonRequestBody, httpHeaders);
 
-            restTemplate.postForEntity(mailServer, request, String.class);
+            String requestURL = "https://" + mailServer + ":5000/email";
+
+            restTemplate.postForEntity(requestURL, request, String.class);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
         }
