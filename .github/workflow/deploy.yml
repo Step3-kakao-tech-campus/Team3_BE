@@ -23,4 +23,9 @@ jobs:
             git pull
             ./gradlew clean build || exit 1  # 빌드 실패 시 스크립트 종료
             
+            # 환경변수 설정
+            set -a
+            source .env
+            set +a
+            
             ./nohup.sh # 기존 서버 종료 후 백그라운드로 서버 실행
