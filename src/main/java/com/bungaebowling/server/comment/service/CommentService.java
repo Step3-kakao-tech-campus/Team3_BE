@@ -81,6 +81,8 @@ public class CommentService {
         var post = postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         var parent = commentRepository.findByIdAndPostIdAndParentNull(parentId, postId).orElseThrow(() -> new CustomException(ErrorCode.REPLY_TO_COMMENT_NOT_ALLOWED));
 
+        checkIsNotDeleted(parent);
+
         var comment = requestDto.createReply(user, post, parent);
 
         var savedComment = commentRepository.save(comment);
@@ -91,6 +93,8 @@ public class CommentService {
     public void edit(Long commentId, Long userId, CommentRequest.EditDto requestDto) {
         var user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         var comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        checkIsNotDeleted(comment);
 
         if (!Objects.equals(comment.getUser().getId(), user.getId())) {
             throw new CustomException(ErrorCode.COMMENT_UPDATE_PERMISSION_DENIED);
@@ -104,10 +108,16 @@ public class CommentService {
         var user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         var comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
+        checkIsNotDeleted(comment);
+
         if (!Objects.equals(comment.getUser().getId(), user.getId())) {
             throw new CustomException(ErrorCode.COMMENT_DELETE_PERMISSION_DENIED);
         }
 
         comment.delete();
+    }
+
+    private void checkIsNotDeleted(Comment comment) {
+        if (comment.getUser() == null) throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
     }
 }

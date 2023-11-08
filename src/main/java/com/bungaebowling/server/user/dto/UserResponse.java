@@ -103,4 +103,7 @@ public class UserResponse {
             String refresh
     ) {
     }
+
+    public record CreateDto(Long id) {
+    }
 }

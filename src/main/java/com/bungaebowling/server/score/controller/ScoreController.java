@@ -42,12 +42,23 @@ public class ScoreController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
             @PathVariable Long scoreId,
-            @RequestParam(name = "score") Integer scoreNum,
+            @RequestParam(name = "score", required = false) Integer scoreNum,
             @RequestParam(name = "image", required = false) MultipartFile image
     ) {
         scoreService.update(userDetails.getId(), postId, scoreId, scoreNum, image);
 
         return ResponseEntity.ok().body(ApiUtils.success());
+    }
+
+    @DeleteMapping("{postId}/scores/{scoreId}/image")
+    public ResponseEntity<?> deleteScoreImage(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long postId,
+            @PathVariable Long scoreId
+    ) {
+        scoreService.deleteImage(userDetails.getId(), postId, scoreId);
+
+        return ResponseEntity.ok(ApiUtils.success());
     }
 
     @DeleteMapping("{postId}/scores/{scoreId}")

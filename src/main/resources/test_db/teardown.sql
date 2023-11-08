@@ -1,15 +1,15 @@
 -- 테이블 초기화
 SET REFERENTIAL_INTEGRITY FALSE;
-TRUNCATE TABLE district_tb;
-TRUNCATE TABLE country_tb;
-TRUNCATE TABLE city_tb;
-TRUNCATE TABLE message_tb;
-TRUNCATE TABLE comment_tb;
-TRUNCATE TABLE applicant_tb;
-TRUNCATE TABLE user_rate_tb;
-TRUNCATE TABLE score_tb;
-TRUNCATE TABLE post_tb;
-TRUNCATE TABLE user_tb;
+TRUNCATE TABLE district_tb RESTART IDENTITY;
+TRUNCATE TABLE country_tb RESTART IDENTITY;
+TRUNCATE TABLE city_tb RESTART IDENTITY;
+TRUNCATE TABLE message_tb RESTART IDENTITY;
+TRUNCATE TABLE comment_tb RESTART IDENTITY;
+TRUNCATE TABLE applicant_tb RESTART IDENTITY;
+TRUNCATE TABLE user_rate_tb RESTART IDENTITY;
+TRUNCATE TABLE score_tb RESTART IDENTITY;
+TRUNCATE TABLE post_tb RESTART IDENTITY;
+TRUNCATE TABLE user_tb RESTART IDENTITY;
 SET REFERENTIAL_INTEGRITY TRUE;
 
 INSERT INTO city_tb (name)
@@ -725,7 +725,8 @@ INSERT INTO user_tb (name, email, password, district_id, role)
 VALUES ('김볼링', 'test@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
        ('최볼링', 'chlqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_PENDING'),
        ('이볼링', 'dlqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
-       ('박볼링', 'qkrqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER');
+       ('박볼링', 'qkrqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER'),
+       ('신볼링', 'tlsqhffld@test.com', '{bcrypt}$2a$10$yK46P9/7TyA2J4z69uEEhOdInb6a7lgHNWVfqftsQSwvLgwSZv9Mq', 1, 'ROLE_USER');
 
 INSERT INTO post_tb (title, user_id, district_id, start_time, due_time, content, is_close)
 VALUES ('불금 볼링 점수 내기 하실 분~', 1, 1, '2023-12-01', '2023-11-29', '볼링 점수 내기합시다.', true),
@@ -774,9 +775,15 @@ VALUES (1, 1, true),
        (3, 2, true),
        (4, 1, true);
 
-INSERT INTO comment_tb (post_id, user_id, parent_id, content)
-VALUES (1, 2, null, '저 해도 되나요?'),
-       (1, 1, 1, '신청해주세요~');
+INSERT INTO comment_tb (id, parent_id, post_id, user_id, content)
+VALUES (1, null, 1, null, '삭제된 댓글입니다.'),
+       (2, 1, 1, 1, '신청해주세요~'),
+       (3, null, 1, 3, '저 신청했어요!'),
+       (4, null, 1, 3, '확인부탁드립니다!'),
+       (5, 4, 1, 4, '이사람 조심하세요 ㄷㄷㄷ'),
+       (6, 4, 1, 4, '저번에 신청하고 날랐습니다'),
+       (7, null, 1, 5, '아직 자리 있나요?'),
+       (8, 7, 1, 1, '네 있습니다');
 
 -- 해당 post에 신청 수락되어야함 / 모집완료(is_close)되고 start가 지난 post에만 score 등록 /
 INSERT INTO score_tb (user_id, post_id, score_num)
@@ -787,3 +794,37 @@ VALUES (1, 7, 100),
 INSERT INTO user_rate_tb(applicant_id, user_id, star_count)
 VALUES (1, 4, 5),
        (17, 3, 1);
+
+INSERT INTO message_tb(user_id, opponent_user_id, content, is_receive, is_read)
+VALUES (1, 3, '1번이 3번에게 보낸 쪽지1', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지1', true, true),
+       (1, 3, '1번이 3번에게 보낸 쪽지2', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지2', true, true),
+       (1, 3, '1번이 3번에게 보낸 쪽지3', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지3', true, true),
+       (1, 3, '1번이 3번에게 보낸 쪽지4', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지4', true, true),
+       (1, 3, '1번이 3번에게 보낸 쪽지5', false, true),
+       (3, 1, '1번이 3번에게 보낸 쪽지5', true, true),
+
+       (3, 1, '3번이 1번에게 보낸 쪽지1', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지1', true, false),
+       (3, 1, '3번이 1번에게 보낸 쪽지2', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지2', true, false),
+       (3, 1, '3번이 1번에게 보낸 쪽지3', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지3', true, false),
+       (3, 1, '3번이 1번에게 보낸 쪽지4', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지4', true, false),
+       (3, 1, '3번이 1번에게 보낸 쪽지5', false, true),
+       (1, 3, '3번이 1번에게 보낸 쪽지5', true, false),
+
+       (4, 3, '4번이 3번에게 보낸 쪽지1', false, true),
+       (3, 4, '4번이 3번에게 보낸 쪽지1', true, false),
+       (4, 3, '4번이 3번에게 보낸 쪽지2', false, true),
+       (3, 4, '4번이 3번에게 보낸 쪽지2', true, false),
+       (4, 3, '4번이 3번에게 보낸 쪽지3', false, true),
+       (3, 4, '4번이 3번에게 보낸 쪽지3', true, false),
+       (4, 3, '4번이 3번에게 보낸 쪽지4', false, true),
+       (3, 4, '4번이 3번에게 보낸 쪽지4', true, false),
+       (4, 3, '4번이 3번에게 보낸 쪽지5', false, true),
+       (3, 4, '4번이 3번에게 보낸 쪽지5', true, false);
