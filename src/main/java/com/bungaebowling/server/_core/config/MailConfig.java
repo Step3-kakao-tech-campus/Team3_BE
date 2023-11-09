@@ -41,29 +41,4 @@ public class MailConfig {
         properties.setProperty("mail.smtp.starttls.enable", "true");
         return properties;
     }
-
-    /*
-    @Bean
-    @Profile("deploy")
-    public JavaMailSender javaMailServiceForDeploy() {
-        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-
-        javaMailSender.setHost(host);
-        javaMailSender.setUsername(username);
-        javaMailSender.setPassword(password);
-        javaMailSender.setPort(port);
-
-        javaMailSender.setJavaMailProperties(getMailPropertiesForDeploy());
-
-        return javaMailSender;
-    }
-
-    private Properties getMailPropertiesForDeploy() {
-        Properties properties = new Properties();
-        properties.setProperty("mail.smtp.auth", "true");
-        properties.setProperty("mail.smtp.starttls.enable", "true");
-        properties.setProperty("mail.smtp.proxy.host", "krmp-proxy.9rum.cc");
-        properties.setProperty("mail.smtp.proxy.port", "3128");
-        return properties;
-    }*/
 }
