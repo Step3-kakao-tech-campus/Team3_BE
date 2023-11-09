@@ -55,6 +55,7 @@ mail:
   port: 587
   username: ${GMAIL_USERNAME}
   password: ${GMAIL_APPLICATION_PASSWORD}
+  server: ${FLASK_MAIL_SERVER}
 
 # aws s3 config
 cloud:

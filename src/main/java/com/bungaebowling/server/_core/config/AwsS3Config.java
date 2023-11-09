@@ -59,7 +59,6 @@ public class AwsS3Config {
         clientConfiguration.setProxyPort(proxyPort);
         clientConfiguration.setProxyProtocol(Protocol.HTTP);
 
-
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, null);
 
         return AmazonS3ClientBuilder

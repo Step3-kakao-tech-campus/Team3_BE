@@ -21,7 +21,9 @@ kubectl create secret generic $SECRET_NAME \
   --from-literal=MYSQL_PASSWORD="$MYSQL_PASSWORD" \
   --from-literal=DOMAIN="$DOMAIN" \
   --from-literal=GOOGLE_MAP_API_KEY="$GOOGLE_MAP_API_KEY" \
-  --from-literal=API_SERVER_URL="$API_SERVER_URL"
+  --from-literal=API_SERVER_URL="$API_SERVER_URL" \
+  --from-literal=NEXT_PUBLIC_KAKAOMAP_APPKEY="$NEXT_PUBLIC_KAKAOMAP_APPKEY" \
+  --from-literal=FLASK_MAIL_SERVER="$FLASK_MAIL_SERVER"
 
 
 echo "Kubernetes secret $SECRET_NAME has been created or updated with the environment variables."

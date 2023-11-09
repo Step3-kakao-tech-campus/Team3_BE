@@ -27,7 +27,7 @@ import java.net.URISyntaxException;
 @RequestMapping("/api")
 public class UserController {
 
-    final private UserService userService;
+    private final UserService userService;
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody @Valid UserRequest.JoinDto requestDto, Errors errors) throws URISyntaxException {
