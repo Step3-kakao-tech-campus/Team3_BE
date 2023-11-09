@@ -15,7 +15,7 @@ spec:
       containers:
         - name: backend
           # 여러분의 backend image 주소를 입력해주세요. -> 빌드 후 빌드 이미지 경로 새로 넣기
-          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_1414cba4227e
+          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_64cf4065f88f
           env:
             - name: TOKEN_SECRET
               valueFrom: 
