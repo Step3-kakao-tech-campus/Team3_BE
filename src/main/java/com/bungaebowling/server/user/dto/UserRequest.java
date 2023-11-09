@@ -34,7 +34,6 @@ public class UserRequest {
             return User.builder()
                     .name(name)
                     .email(email)
-                    .role(Role.ROLE_USER)
                     .password(encodedPassword)
                     .district(district)
                     .build();
