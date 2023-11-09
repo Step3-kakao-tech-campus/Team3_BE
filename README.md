@@ -100,32 +100,34 @@
    $ git clone https://github.com/Step3-kakao-tech-campus/Team3_BE.git
    ```
 
-2. Temp3_BE/.env.example 파일을 .env로 변경하고 내용을 자신의 환경에 맞게 설정해줍니다.
+2. `Temp3_BE/.env.example` 파일을 `.env`로 복사하고 내용을 자신의 환경에 맞게 설정해줍니다.
 
    ```
-   $ cd Team10_BE //디렉토리 이동
-   $ mv .env.example .env //파일명 변경
-   $ vi .env //.env 파일열기
+   $ cd Team10_BE                       # 디렉토리 이동
+   $ cp .env.example .env               # 파일 복사
+   $ vi .env                            # .env 수정
    파일 수정 및 저장 진행하기
    ```
 
-   - .env 파일은 환경변수를 설정하는 파일입니다.
+   - `.env` 파일은 환경변수를 설정하는 파일입니다.
 
      ```
-     TOKEN_SECRET="example" // 로그인시 사용되는 토큰의 시크릿 키를 설정
-     DOMAIN="http://localhost:3000" // 배포될 도메인을 설정
-     API_SERVER_URL="http://localhost:8080" // 서버URL 설정
-     GMAIL_USERNAME="example@gmail.com" // 메일인증 등 메일발신에 사용될 GMAIL설정
-     GMAIL_APPLICATION_PASSWORD="example" // 메일인증 등 메일발신에 사용될 GMAIL설정
-     AWS_ACCESS_KEY="example" // AWS S3에 접근하기 위한 키 설정
-     AWS_SECRET_KEY="example+9Vkr3fRwA" // AWS S3에 접근하기 위한 키 설정
-     MYSQL_USERNAME="example" // 데이터 베이스 연결 설정
-     MYSQL_PASSWORD="example" // 데이터 베이스 연결 설정
-     GOOGLE_MAP_API_KEY="example" // 구글맵 API 키 설정
-     SSL_KEY_PASSWORD="example" // SSL 키 설정
+     TOKEN_SECRET="example"                 # 로그인시 사용되는 토큰의 시크릿 키를 설정
+     DOMAIN="http://localhost:3000"         # 배포될 도메인을 설정
+     API_SERVER_URL="http://localhost:8080" # 서버URL 설정
+     GMAIL_USERNAME="example@gmail.com"     # 메일인증 등 메일발신에 사용될 GMAIL설정
+     GMAIL_APPLICATION_PASSWORD="example"   # 메일인증 등 메일발신에 사용될 GMAIL설정
+     AWS_ACCESS_KEY="example"               # AWS S3에 접근하기 위한 키 설정
+     AWS_SECRET_KEY="example+9Vkr3fRwA"     # AWS S3에 접근하기 위한 키 설정
+     MYSQL_USERNAME="example"               # 데이터 베이스 연결 설정
+     MYSQL_PASSWORD="example"               # 데이터 베이스 연결 설정
+     GOOGLE_MAP_API_KEY="example"           # 구글맵 API 키 설정
+     SSL_KEY_PASSWORD="example"             # SSL 키 설정
      ```
 
-3. .env 환경변수를 등록합니다. (본 가이드에선 우분투 환경으로 진행합니다.)
+   - local profile을 사용할 시, `SSL`과 `MySQL`의 설정이 불필요합니다.
+
+3. `.env` 환경변수를 등록합니다. (본 가이드에선 우분투 환경으로 진행합니다.)
 
    ```
    $ set -a
@@ -133,18 +135,25 @@
    $ set +a
    ```
 
-4. docker-compose.yml 파일을 이용해 Redis 및 MySQL 도커 컨테이너를 실행합니다.(도커가 설치되어 있다고 가정합니다.)
+4. `docker-compose.yml` 파일을 이용해 `Redis` 및 `MySQL` 도커 컨테이너를 실행합니다.(도커가 설치되어 있다고 가정합니다.)
 
    ```
-   docker-compose up
+   $ docker-compose up
    ```
 
 5. java파일을 빌드, 실행합니다.
 
+   ```sh
+   $ ./gradlew clean build
+   $ java -jar build/libs/server-0.0.1.jar
    ```
-   ./gradlew clean build
-   java -jar -Dspring.profiles.active=product build/libs/server-0.0.1.jar
-   ```
+
+   - 실제 배포를 위한 `product` 환경일 시, `spring.profiles.active` 설정을 추가하여 실행합니다.
+
+     ```sh
+     $ ./gradlew clean build
+     $ java -jar -Dspring.profiles.active=product build/libs/server-0.0.1.jar
+     ```
 
 ## FEATURES
 
