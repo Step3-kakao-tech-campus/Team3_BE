@@ -22,7 +22,6 @@ import com.bungaebowling.server.user.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +35,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -177,18 +178,16 @@ public class UserService {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("subject", subject);
-            jsonObject.put("text", text);
-            jsonObject.put("email", user.getEmail());
-            jsonObject.put("username", username);
-            jsonObject.put("password", password);
+            MultiValueMap<String, String> requests = new LinkedMultiValueMap<>();
+            requests.add("subject", subject);
+            requests.add("text", text);
+            requests.add("email", user.getEmail());
+            requests.add("username", username);
+            requests.add("password", password);
 
-            log.info("json: "+ jsonObject);
+            log.info("json: "+ requests);
 
-            String jsonRequestBody = jsonObject.toString();
-            HttpEntity<String> request = new HttpEntity<>(jsonRequestBody, httpHeaders);
-
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requests, httpHeaders);
             String requestURL = "https://" + mailServer + ":5000/email";
 
             log.info("requestURL: "+ requestURL);
