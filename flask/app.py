@@ -30,15 +30,11 @@ def sendEmailEndpoint():
 
         response = Response("Email sent successfully", status=200)
 
-        app.logger.info(f'[response] {response}')
-
         return response
 
     except Exception as e:
         error_message = str(e)
         response = Response("Failed to send email: " + error_message, status=500)
-
-        app.logger.info(f'[response] {response}')
 
         return response
 
