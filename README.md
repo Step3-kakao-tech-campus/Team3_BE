@@ -20,15 +20,15 @@
 
 ### 둘러보기
 
-### - [실제 배포 링크](https://ka02fa9a0d9a2a.user-app.krampoline.com/)
+- ### [실제 배포 링크](https://ka02fa9a0d9a2a.user-app.krampoline.com/)
 
-### - [api문서](https://bungae.jagaldol.dev:8080/api/docs/swagger)
+- ### [api문서](https://bungae.jagaldol.dev:8080/api/docs/swagger)
 
 ### 깃헙 레포지토리
 
-### - [FrontEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_FE)
+- ### [FrontEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_FE)
 
-### - [BackEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_BE)
+- ### [BackEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_BE)
 
 ### 기획
 
@@ -55,11 +55,10 @@
 
 <img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/2086f92a-42da-4be2-9eb9-1232e2f0bcce" alt="Logo" width="100%"/>
 
-### ERD(ER - Diagram)
+### ERD(ER - Diagram) -  [ERD 협업 링크](https://www.erdcloud.com/d/GHYAMbQS9pzC6k8ZB)
 
 <img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/2086f92a-42da-4be2-9eb9-1232e2f0bcce" alt="Logo" width="100%"/>
 
-> [**<h3>ERD 협업 링크**](https://www.erdcloud.com/d/GHYAMbQS9pzC6k8ZB)
 
 ## Tech Stack
 
@@ -191,6 +190,8 @@
 > - 다른 사용자와 1대1 대화를 할 수 있다.
 > - 카카오톡과 같은 채팅 서비스와 비슷한 사용자경험을 주기 위해 채팅 서비스와 유사하게 구현하였다.
 > - 웹소켓을 이용한 채팅 기능으로의 변경을 염두에 두고 구현하였다.
+
+<br><br>
 
 ## Collaborators
 
