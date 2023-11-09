@@ -20,13 +20,15 @@
 
 ### 둘러보기
 
-- [<h3>실제 배포 링크</h3>](https://ka02fa9a0d9a2a.user-app.krampoline.com/)
-- [<h3>api문서</h3>](https://bungae.jagaldol.dev:8080/api/docs/swagger)
+### - [실제 배포 링크](https://ka02fa9a0d9a2a.user-app.krampoline.com/)
+
+### - [api문서](https://bungae.jagaldol.dev:8080/api/docs/swagger)
 
 ### 깃헙 레포지토리
 
-- [<h3>FrontEnd Repository</h3>](https://github.com/Step3-kakao-tech-campus/Team3_FE)
-- [<h3>BackEnd Repository</h3>](https://github.com/Step3-kakao-tech-campus/Team3_BE)
+### - [FrontEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_FE)
+
+### - [BackEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_BE)
 
 ### 기획
 
