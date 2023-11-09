@@ -21,7 +21,6 @@ import com.bungaebowling.server.user.rate.repository.UserRateRepository;
 import com.bungaebowling.server.user.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +29,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,8 +39,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -51,7 +47,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -188,12 +183,8 @@ public class UserService {
             requests.add("username", username);
             requests.add("password", password);
 
-            log.info("json: "+ requests);
-
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requests, httpHeaders);
             String requestURL = "http://" + mailServer + "/email";
-
-            log.info("requestURL: "+ requestURL);
 
             restTemplate.postForEntity(requestURL, request, String.class);
         } catch (Exception e) {
