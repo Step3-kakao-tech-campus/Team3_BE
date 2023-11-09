@@ -59,6 +59,29 @@
 
 <img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/d5f7380f-6ee2-4b68-b94f-c588f40829ec" alt="Logo" width="100%"/>
 
+> 참여신청 테이블(applicant_tb)
+> ```text
+> 승인 상태가 false 인 경우 프론트에서 수락 / 거절 선택
+> 거절 시 참여 신청 테이블에서 delete
+> 수락 시 status가 true가 되면서 수락 / 거절 UI에서 사라짐
+> 게시글이 모집완료되면 평가하기 활성화됨 status  True인 사람들은
+> 게시글에 달려있는 status True인 사람들을 서로 평가할 수 있다.
+> ```
+
+> 모집글 테이블(comment_tb)
+> ```text
+> 마감 계산
+> 마감 = is_close || (now > due_time)
+> ```
+
+> 댓글 테이블(comment_tb)
+> ```text
+> 일반 댓글의 경우 부모 댓글id가 NULL
+> 대댓글 일 시 부모 댓글id가 존재
+> 게시글에 달린 댓글을 전체 조회해서 부모 id에 맞게 조합하여 계층형으로 전달 가능
+> 댓글 데이터 삭제 시, delete하지 않고 작성자 id와 내용만 null 처리
+> (부모id를 참조해야하므로 row를 삭제해서는 안됨)
+> ```
 
 ## Tech Stack
 
