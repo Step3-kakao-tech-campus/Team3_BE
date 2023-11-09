@@ -57,7 +57,7 @@
 
 ### ERD(ER - Diagram) -  [ERD 협업 링크](https://www.erdcloud.com/d/GHYAMbQS9pzC6k8ZB)
 
-<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/2086f92a-42da-4be2-9eb9-1232e2f0bcce" alt="Logo" width="100%"/>
+<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/d5f7380f-6ee2-4b68-b94f-c588f40829ec" alt="Logo" width="100%"/>
 
 
 ## Tech Stack
