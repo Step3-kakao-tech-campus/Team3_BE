@@ -70,7 +70,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final JavaMailSender javaMailSender;
-    //private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     private final AwsS3Service awsS3Service;
     private final ScoreService scoreService;
@@ -178,12 +178,6 @@ public class UserService {
 
     private void sendMailToMailServer(User user, String subject, String text) {
         try {
-            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("krmp-proxy.9rum.cc", 3128));
-            requestFactory.setProxy(proxy);
-            RestTemplate restTemplate = new RestTemplate(requestFactory);
-
-
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
