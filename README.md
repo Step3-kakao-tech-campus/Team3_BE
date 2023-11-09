@@ -2,8 +2,6 @@
 
 <p align="left">
     <img src="docs/LogoTitle-Orange.png" alt="Logo" width="70%"/>
-    <img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/25753e10-7e43-458b-b761-a5aaad4d3128" width="70%"/>    
-    <img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/57779935-4e13-4e7e-95b2-9f54f851a7c0" alt="Logo" width="70%"/>
 
 </p>
 
@@ -22,13 +20,13 @@
 
 ### 둘러보기
 
-- <h3>[실제 배포 링크](https://ka02fa9a0d9a2a.user-app.krampoline.com/)
-- <h3>[api문서](https://bungae.jagaldol.dev:8080/api/docs/swagger)
+- [<h3>실제 배포 링크](https://ka02fa9a0d9a2a.user-app.krampoline.com/)
+- [<h3>api문서](https://bungae.jagaldol.dev:8080/api/docs/swagger)
 
 ### 깃헙 레포지토리
 
-- <h3>[FrontEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_FE)
-- <h3>[BackEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_BE)
+- [<h3>FrontEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_FE)
+- [<h3>BackEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_BE)
 
 ### 기획
 
