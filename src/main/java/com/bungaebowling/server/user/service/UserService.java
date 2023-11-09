@@ -30,6 +30,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,6 +41,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -67,7 +70,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final JavaMailSender javaMailSender;
-    private final RestTemplate restTemplate;
+    //private final RestTemplate restTemplate;
 
     private final AwsS3Service awsS3Service;
     private final ScoreService scoreService;
@@ -175,6 +178,12 @@ public class UserService {
 
     private void sendMailToMailServer(User user, String subject, String text) {
         try {
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("krmp-proxy.9rum.cc", 3128));
+            requestFactory.setProxy(proxy);
+            RestTemplate restTemplate = new RestTemplate(requestFactory);
+
+
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
@@ -188,7 +197,7 @@ public class UserService {
             log.info("json: "+ requests);
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requests, httpHeaders);
-            String requestURL = "https://" + mailServer + ":5000/email";
+            String requestURL = "https://" + mailServer + "/email";
 
             log.info("requestURL: "+ requestURL);
 
