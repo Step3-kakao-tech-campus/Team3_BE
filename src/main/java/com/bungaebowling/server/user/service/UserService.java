@@ -191,7 +191,7 @@ public class UserService {
             log.info("json: "+ requests);
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requests, httpHeaders);
-            String requestURL = "http://" + mailServer + "/email";
+            String requestURL = "http://" + mailServer + ":5000/email";
 
             log.info("requestURL: "+ requestURL);
 
