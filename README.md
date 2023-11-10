@@ -261,6 +261,30 @@ JWT를 이용하였습니다.
     - 쪽지 관련 모든 기능
     - 별점 등록, 점수 등록 기능
 
+### 메일 전송 
+
+현재 SMTP 서버는 분리되어, Naver Cloud 상에서 배포 중입니다. 
+
+#### Flask 사용 이유 
+
+크램폴린 환경에서는 카카오 정책으로 인해 HTTP 통신만 가능하다는 프로토콜 통신 제한이 있어, 외부에 SMTP 서버를 구축하여 SMTP 이메일 전송을 구현하기로 하였습니다. POST 요청에 의한 이메일 발송만 구현하면 되었기에 간결하면서도 필요한 기능을 구현할 수 있는 도구를 선택하려고 하였고, 이에 간결하게 사용할 수 있는 웹 Framework인 Flask로  메일 전송 요청에 따른 메일 전송 기능을 구현하게 되었습니다. 
+
+#### SMTP 서버 구조 설명 
+
+크램폴린 환경에서만 Naver Cloud 환경에서의 flask 서버를 활용합니다.  
+
+**HTTP POST 요청 생성하기**
+
+- SpringBoot 상에서 Flask로 보내게 될 HTTP 요청에 대한 request를 생성하기 위해 MultiValueMap을 이용하여 request body를 생성합니다. 
+- HTTP Header와 requestURL을 설정하고, Proxy 설정이 된 RestTemplate을 이용하여 HTTP 통신을 통해 Flask 서버로 POST 요청을 전송합니다. 
+
+**SMTP 요청 생성하기**
+
+- HTTP POST 요청이 들어오면, Flask 서버는 SMTP 서버로 보내게 될 SMTP 요청을 생성합니다. 
+- request body에서 필요한 정보를 추출하고, SMTP 요청을 생성합니다. 이때, SMTP의 text 부분에 들어갈 내용이 html이므로, MIME Type을 text/html으로 설정해야 요청이 정상적으로 보내집니다. 
+- SMTP 권한 설정한 후, 발신자와 수신자 그리고 text를 설정하여 SMTP 서버로 요청을 보냅니다. 
+- 요청이 성공적으로 전송되면 200을 반환합니다. 
+
 ### 행정 구역
 
 정부의 행정구역 데이터를 db에 미리 작성해두어 행정구역 데이터를 직접 관리하도록 구현하였습니다.
