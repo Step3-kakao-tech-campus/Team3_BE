@@ -389,6 +389,5 @@ public class UserService {
         }
 
         return stringBuilder.toString();
-
     }
 }
