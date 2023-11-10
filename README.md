@@ -41,15 +41,14 @@
 
 ## System Structure
 
-<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/2086f92a-42da-4be2-9eb9-1232e2f0bcce" alt="Logo" width="100%"/>
 
 ### 전체 구성도
 
-<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/2086f92a-42da-4be2-9eb9-1232e2f0bcce" alt="Logo" width="100%"/>
+<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/8e67c097-3aea-410b-bcbc-abeb03eaf9f9" alt="Logo" width="100%"/>
 
 ### 백엔드 구성도
 
-<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/2086f92a-42da-4be2-9eb9-1232e2f0bcce" alt="Logo" width="100%"/>
+<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/5742bd39-f728-4d9c-94a8-7cd13f9ded09" alt="Logo" width="100%"/>
 
 ### ERD(ER - Diagram) - [ERD 협업 링크](https://www.erdcloud.com/d/GHYAMbQS9pzC6k8ZB)
 
