@@ -73,7 +73,7 @@
 
 ### 전체 구성도
 
-<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/8e67c097-3aea-410b-bcbc-abeb03eaf9f9" alt="Logo" width="100%"/>
+<img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/84557643/fe733f3f-168d-4fd0-a55e-4c5c66561cab" alt="Logo" width="100%"/>
 
 ### 백엔드 구성도
 
