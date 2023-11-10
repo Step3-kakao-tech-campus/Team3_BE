@@ -1,13 +1,37 @@
 # Team3_BE
 
-<p align="left">
+<p align="center">
     <img src="docs/LogoTitle-Orange.png" alt="Logo" width="70%"/>
 
 </p>
 
-번개 지향 볼링 모집 커뮤니티 "번개볼링"의 백엔드 서버입니다.
+<p align="center">번개 지향 볼링 모집 커뮤니티 "번개볼링"의 백엔드 서버입니다.</p>
 
-> [카카오 테크 캠퍼스](https://www.kakaotechcampus.com/) 1기 부산대 3조 프로젝트입니다.
+> <p align="center"><a href="https://www.kakaotechcampus.com/">카카오 테크 캠퍼스</a> 1기 부산대 3조 프로젝트입니다.</p>
+
+## Collaborators
+
+<h3 align="center">Backend</h3>
+
+<div align="center">
+
+|                          조장                          |                        테크 리더                        |                        기획 리더                         |                       리액셔너                        |
+| :----------------------------------------------------: | :-----------------------------------------------------: | :------------------------------------------------------: | :---------------------------------------------------: |
+|          [박소현](https://github.com/sososo0)          |          [안혜준](https://github.com/jagaldol)          |          [김기해](https://github.com/xcelxlorx)          |          [김윤재](https://github.com/yunzae)          |
+| <img src="https://github.com/sososo0.png" width="100"> | <img src="https://github.com/jagaldol.png" width="100"> | <img src="https://github.com/xcelxlorx.png" width="100"> | <img src="https://github.com/yunzae.png" width="100"> |
+
+</div>
+
+<h3 align="center">Frontend</h3>
+
+<div align="center">
+
+|                         리마인더                         |                          타임 키퍼                          |
+| :------------------------------------------------------: | :---------------------------------------------------------: |
+|          [강주호](https://github.com/kjh302903)          |          [허동혁](https://github.com/Heo-Donghyuk)          |
+| <img src="https://github.com/kjh302903.png" width="100"> | <img src="https://github.com/Heo-Donghyuk.png" width="100"> |
+
+</div>
 
 ## Introduction
 
@@ -17,7 +41,8 @@
 
 ---
 
-### 기획
+<details>
+    <summary><h3>기획</h3></summary>
 
 #### 5Whys
 
@@ -27,7 +52,12 @@
 
 <img src="https://github.com/Step3-kakao-tech-campus/Team3_BE/assets/81746373/d7e87208-6fc5-407c-aa7f-5f21442e69b6" width="100%"/>
 
----
+#### Figma
+
+- [FigJam 기획](https://www.figma.com/file/x1qngNGszfTY3an4nDM2xN/3%EC%A1%B0?type=whiteboard&node-id=0%3A1&t=gwhdVZW6eLrRPOrp-1)
+- [Figma Wireframe 서비스 디자인](https://www.figma.com/file/hKOS0wj6goXDFGyBRREknv/3%EC%A1%B0_%EC%99%80%EC%9D%B4%EC%96%B4-%ED%94%84%EB%A0%88%EC%9E%84?type=design&node-id=217%3A196&mode=design&t=CYh2mBqkgmHLu0aI-1)
+
+## </details>
 
 ### 둘러보기
 
@@ -40,7 +70,6 @@
 - **[BackEnd Repository](https://github.com/Step3-kakao-tech-campus/Team3_BE)**
 
 ## System Structure
-
 
 ### 전체 구성도
 
@@ -82,14 +111,25 @@
 
 ## Tech Stack
 
+<div align="center">
+
 ![java 17](https://img.shields.io/badge/-Java%2017-ED8B00?style=for-the-badge&logo=java&logoColor=white)
 ![spring boot 3.1.3](https://img.shields.io/badge/Spring%20boot%203.1.3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![mysql 8.0](https://img.shields.io/badge/MySQL%208.0-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+![Python 3.8.10](https://img.shields.io/badge/python%203.8.10-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask 2.2.2](https://img.shields.io/badge/Flask%202.2.2-000000?style=for-the-badge&logo=flask&logoColor=white)
 
-![docker](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![mysql 8.0](https://img.shields.io/badge/MySQL%208.0-005C84?style=for-the-badge&logo=mysql&logoColor=white)
 ![Redis 6.2](https://img.shields.io/badge/Redis%206.2-DC382D?style=for-the-badge&logo=Redis&logoColor=white)
-![Kubernates 1.28.0](https://img.shields.io/badge/KUBERNETES%201.28.0-326CE5?style=for-the-badge&logo=Kubernetes&logoColor=white)
 ![AWS S3](https://img.shields.io/badge/AWS%20S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white)
+![AWS EC2](https://img.shields.io/badge/AWS%20EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white)
+![Naver cloud](https://img.shields.io/badge/naver%20cloud-03C75A?style=for-the-badge&logo=naver&logoColor=white)
+
+![nginx 1.18.0](https://img.shields.io/badge/nginx%201.18.0-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![docker 24.0.7](https://img.shields.io/badge/docker%2024.0.7-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Kubernates 1.28.0](https://img.shields.io/badge/KUBERNETES%201.28.0-326CE5?style=for-the-badge&logo=Kubernetes&logoColor=white)
+![github action](https://img.shields.io/badge/GITHUB%20ACTIONS-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
+
+</div>
 
 ## How to Start
 
@@ -111,20 +151,21 @@
    - `.env` 파일은 환경변수를 설정하는 파일입니다.
 
      ```
-     TOKEN_SECRET="example"                 # 로그인시 사용되는 토큰의 시크릿 키를 설정
-     DOMAIN="http://localhost:3000"         # 배포될 도메인을 설정
-     API_SERVER_URL="http://localhost:8080" # 서버URL 설정
-     GMAIL_USERNAME="example@gmail.com"     # 메일인증 등 메일발신에 사용될 GMAIL설정
-     GMAIL_APPLICATION_PASSWORD="example"   # 메일인증 등 메일발신에 사용될 GMAIL설정
-     AWS_ACCESS_KEY="example"               # AWS S3에 접근하기 위한 키 설정
-     AWS_SECRET_KEY="example+9Vkr3fRwA"     # AWS S3에 접근하기 위한 키 설정
-     MYSQL_USERNAME="example"               # 데이터 베이스 연결 설정
-     MYSQL_PASSWORD="example"               # 데이터 베이스 연결 설정
-     GOOGLE_MAP_API_KEY="example"           # 구글맵 API 키 설정
-     SSL_KEY_PASSWORD="example"             # SSL 키 설정
+     TOKEN_SECRET="example"                     # 로그인시 사용되는 토큰의 시크릿 키를 설정
+     DOMAIN="http://localhost:3000"             # 배포될 도메인을 설정
+     API_SERVER_URL="http://localhost:8080"     # 서버URL 설정
+     GMAIL_USERNAME="example@gmail.com"         # 메일인증 등 메일발신에 사용될 GMAIL설정
+     GMAIL_APPLICATION_PASSWORD="example"       # 메일인증 등 메일발신에 사용될 GMAIL설정
+     AWS_ACCESS_KEY="example"                   # AWS S3에 접근하기 위한 키 설정
+     AWS_SECRET_KEY="example+9Vkr3fRwA"         # AWS S3에 접근하기 위한 키 설정
+     MYSQL_USERNAME="example"                   # 데이터 베이스 연결 설정
+     MYSQL_PASSWORD="example"                   # 데이터 베이스 연결 설정
+     GOOGLE_MAP_API_KEY="example"               # 구글맵 API 키 설정
+     SSL_KEY_PASSWORD="example"                 # SSL 키 설정
+     FLASK_MAIL_SERVER="http://localhost:5000"  # 구동 시킨 Flask SMTP 서버의 주소
      ```
 
-   - local profile을 사용할 시, `SSL`과 `MySQL`의 설정이 불필요합니다.
+   - local profile을 사용할 시, `SSL`과 `MySQL`, `Flask` 설정이 불필요합니다.
 
 3. `.env` 환경변수를 등록합니다. (본 가이드에선 우분투 환경으로 진행합니다.)
 
@@ -153,6 +194,36 @@
      $ ./gradlew clean build
      $ java -jar -Dspring.profiles.active=product build/libs/server-0.0.1.jar
      ```
+
+---
+
+### Flask SMTP 서버 실행
+
+spring boot의 deploy profile을 사용하는 경우만 Flask SMTP 서버 실행이 필요합니다.
+
+> 카카오 크램폴린 상의 배포에서 SMTP가 지원되지 않습니다. 따라서 별개의 네이버 클라우드 상에서 SMTP 서버를 구축하였습니다.
+>
+> 그 외의 profile은 spring boot 내에서 자체적으로 SMTP를 사용하여 메일을 전송합니다.
+
+1. 프로젝트를 클론합니다.
+
+   ```
+   $ git clone https://github.com/Step3-kakao-tech-campus/Team3_BE.git
+   ```
+
+2. 폴더를 이동합니다.
+
+   ```
+   $ cd Team3_BE/flask
+   ```
+
+3. Flask SMTP 서버를 실행합니다.
+
+   ```
+   $ ./start.sh
+   ```
+
+4. 배포된 주소를 .env의 FLASK_MAIL_SERVER에 넣습니다.
 
 ## FEATURES
 
@@ -293,26 +364,6 @@ JWT를 이용하였습니다.
 
 - 카카오톡과 같은 채팅 서비스와 비슷한 사용자경험을 주기 위해 채팅 서비스와 유사하게 구현하였습니다.
 - 웹소켓을 이용한 채팅 기능으로의 변경을 염두에 두고 구현하였습니다.
-
-## Collaborators
-
-[카카오 테크 캠퍼스](https://www.kakaotechcampus.com/) 1기 부산대 3조
-
-### Backend
-
-|                          조장                          |                        테크 리더                        |                        기획 리더                         |                       리액셔너                        |
-| :----------------------------------------------------: | :-----------------------------------------------------: | :------------------------------------------------------: | :---------------------------------------------------: |
-|          [박소현](https://github.com/sososo0)          |          [안혜준](https://github.com/jagaldol)          |          [김기해](https://github.com/xcelxlorx)          |          [김윤재](https://github.com/yunzae)          |
-| <img src="https://github.com/sososo0.png" width="100"> | <img src="https://github.com/jagaldol.png" width="100"> | <img src="https://github.com/xcelxlorx.png" width="100"> | <img src="https://github.com/yunzae.png" width="100"> |
-
-### Frontend
-
-|                         리마인더                         |                          타임 키퍼                          |
-| :------------------------------------------------------: | :---------------------------------------------------------: |
-|          [강주호](https://github.com/kjh302903)          |          [허동혁](https://github.com/Heo-Donghyuk)          |
-| <img src="https://github.com/kjh302903.png" width="100"> | <img src="https://github.com/Heo-Donghyuk.png" width="100"> |
-
-<br><br><br><br><br>
 
 <details>
     <summary><h2>카카오 테크 캠퍼스 3단계 진행 보드</h2></summary>
