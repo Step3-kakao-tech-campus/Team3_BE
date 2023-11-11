@@ -35,6 +35,13 @@ public class AwsS3Service {
     @Value("${spring.servlet.multipart.max-request-size}")
     private Long totalFilesMaxSize;
 
+    private final List<String> allowedExtensions = List.of(
+            ".png",
+            ".gif",
+            ".jpeg",
+            ".jpg"
+    );
+
     // 점수 단일 파일용
     public String uploadScoreFile(Long userId, Long postId, String category, LocalDateTime time, MultipartFile multipartFile) {
         String fileName = CommonUtils.buildScoreFileName(userId, postId, category, time, Objects.requireNonNull(multipartFile.getOriginalFilename()));
@@ -106,6 +113,8 @@ public class AwsS3Service {
     private void uploadFileToS3(String fileName, MultipartFile multipartFile) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentLength(multipartFile.getSize());
+
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(
@@ -133,15 +142,10 @@ public class AwsS3Service {
         }
         String caseInSensitiveFileName = fileName.toLowerCase();
 
-        if (
-                caseInSensitiveFileName.endsWith(".png") ||
-                        caseInSensitiveFileName.endsWith(".gif") ||
-                        caseInSensitiveFileName.endsWith(".jpeg") ||
-                        caseInSensitiveFileName.endsWith(".jpg")
-        ) {
-            return caseInSensitiveFileName;
-        } else {
+        var isNotAllowedExtension = allowedExtensions.stream().noneMatch(caseInSensitiveFileName::endsWith);
+        if (isNotAllowedExtension)
             throw new CustomException(ErrorCode.INVALID_FILE_EXTENSION);
-        }
+
+        return caseInSensitiveFileName;
     }
 }

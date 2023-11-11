@@ -17,6 +17,7 @@ public enum ErrorCode {
     FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제에 실패하였습니다."),
     INVALID_FILE_UPLOAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 파일 업로드 요청입니다."),
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),
+    FILE_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "잘못된 파일 요청입니다."),
 
     SCORE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "점수 등록에 실패하였습니다."),
     SCORE_UPDATE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "점수 정보에 대한 수정 권한이 없습니다."),
@@ -28,6 +29,7 @@ public enum ErrorCode {
     POST_NOT_CLOSE(HttpStatus.FORBIDDEN, "모집글이 마감되지 않았습니다."),
     POST_UPDATE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "모집글에 대한 수정 권한이 없습니다."),
     POST_DELETE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "모집글에 대한 삭제 권한이 없습니다."),
+    POST_DELETE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "마감된 모집글은 삭제할 수 없습니다."),
     POST_CLOSE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "모집글에 대한 마감 권한이 없습니다."),
 
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 댓글입니다."),
@@ -51,6 +53,7 @@ public enum ErrorCode {
     USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     USER_NAME_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
+    USER_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 수정에 실패하였습니다."),
     WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "기존 비밀번호가 일치하지 않습니다."),
 
     EMAIL_SEND_LIMIT_EXCEEDED(HttpStatus.INTERNAL_SERVER_ERROR, "서버 이메일 전송 한도가 초과되었습니다. 내일 다시 시도해주세요."),

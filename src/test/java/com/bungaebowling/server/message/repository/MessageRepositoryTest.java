@@ -1,6 +1,6 @@
-package com.bungaebowling.server.message;
+package com.bungaebowling.server.message.repository;
 
-import com.bungaebowling.server.message.repository.MessageRepository;
+import com.bungaebowling.server.message.Message;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
