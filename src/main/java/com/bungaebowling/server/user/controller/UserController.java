@@ -58,8 +58,10 @@ public class UserController {
         userService.logout(userDetails.getId());
 
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", "")
-                .maxAge(0)
+                .httpOnly(true) // javascript 접근 방지
+                .secure(true) // https 통신 강제
                 .sameSite("None")
+                .maxAge(0)
                 .build();
 
         var response = ApiUtils.success();
