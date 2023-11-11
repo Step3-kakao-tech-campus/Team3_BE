@@ -18,14 +18,17 @@ public class ScoreController {
     private final ScoreService scoreService;
 
     @GetMapping("/{postId}/scores")
-    public ResponseEntity<?> getScores(@PathVariable Long postId) {
-        ScoreResponse.GetScoresDto response = scoreService.readScores(postId);
+    public ResponseEntity<?> getScores(
+            @PathVariable Long postId,
+            @RequestParam(value = "userId", required = false) Long userId
+    ) {
+        ScoreResponse.GetScoresDto response = scoreService.readScores(postId, userId);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
 
     // multipart/form-data를 처리하고 json을 반환
-    @PostMapping(value = "/{postId}/scores", produces = "application/json", consumes = "multipart/form-data")
+    @PostMapping(value = "/{postId}/scores", produces = "application/json", consumes = {"multipart/form-data"})
     public ResponseEntity<?> createScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
@@ -37,7 +40,7 @@ public class ScoreController {
         return ResponseEntity.ok().body(ApiUtils.success());
     }
 
-    @PutMapping(value = "/{postId}/scores/{scoreId}", produces = "application/json", consumes = "multipart/form-data")
+    @PutMapping(value = "/{postId}/scores/{scoreId}", produces = "application/json", consumes = {"multipart/form-data"})
     public ResponseEntity<?> updateScore(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
@@ -56,7 +59,7 @@ public class ScoreController {
             @PathVariable Long postId,
             @PathVariable Long scoreId
     ) {
-        scoreService.deleteImage(userDetails.getId(), postId, scoreId);
+        scoreService.deleteImage(userDetails.getId(), scoreId);
 
         return ResponseEntity.ok(ApiUtils.success());
     }
@@ -67,7 +70,7 @@ public class ScoreController {
             @PathVariable Long postId,
             @PathVariable Long scoreId
     ) {
-        scoreService.delete(userDetails.getId(), postId, scoreId);
+        scoreService.delete(userDetails.getId(), scoreId);
 
         return ResponseEntity.ok(ApiUtils.success());
     }

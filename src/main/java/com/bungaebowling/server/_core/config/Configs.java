@@ -18,9 +18,11 @@ public class Configs {
     }
 
 
-    public final static List<String> CORS = Collections.unmodifiableList(
+    public static final List<String> CORS = Collections.unmodifiableList(
             List.of("http://localhost:3000", // 리액트 개발용 3000포트
-                    "http://127.0.0.1:3000")
+                    "http://127.0.0.1:3000",
+                    "https://bungae.jagaldol.dev",
+                    "https://ka02fa9a0d9a2a.user-app.krampoline.com")
     );
 
     public static List<String> getFullCORS() {

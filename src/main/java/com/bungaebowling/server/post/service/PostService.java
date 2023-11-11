@@ -7,6 +7,7 @@ import com.bungaebowling.server.applicant.Applicant;
 import com.bungaebowling.server.applicant.repository.ApplicantRepository;
 import com.bungaebowling.server.city.country.district.District;
 import com.bungaebowling.server.city.country.district.repository.DistrictRepository;
+import com.bungaebowling.server.comment.repository.CommentRepository;
 import com.bungaebowling.server.post.Post;
 import com.bungaebowling.server.post.dto.PostRequest;
 import com.bungaebowling.server.post.dto.PostResponse;
@@ -44,6 +45,7 @@ public class PostService {
     private final ScoreRepository scoreRepository;
     private final ApplicantRepository applicantRepository;
     private final UserRateRepository userRateRepository;
+    private final CommentRepository commentRepository;
 
     public static final int DEFAULT_SIZE = 20;
 
@@ -141,7 +143,9 @@ public class PostService {
     public void update(Long userId, Long postId, PostRequest.UpdatePostDto request) {
 
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
-
+        if (post.getIsClose()) {
+            throw new CustomException(ErrorCode.POST_DELETE_NOT_ALLOWED, "마감된 모집글은 수정할 수 없습니다.");
+        }
         if (!post.isMine(userId)) {
             throw new CustomException(ErrorCode.POST_UPDATE_PERMISSION_DENIED);
         }
@@ -161,11 +165,12 @@ public class PostService {
     public void delete(Long userId, Long postId) {
 
         Post post = findById(postId); // post 찾는 코드 빼서 함수화
-
+        if (post.getIsClose()) {
+            throw new CustomException(ErrorCode.POST_DELETE_NOT_ALLOWED);
+        }
         if (!post.isMine(userId)) {
             throw new CustomException(ErrorCode.POST_DELETE_PERMISSION_DENIED);
         }
-
         deletePost(post);
     }
 
@@ -190,6 +195,7 @@ public class PostService {
         Map<Long, List<UserRate>> rateMap = getRateMap(userId, posts, applicantMap);
         Map<Long, Long> applicantIdMap = getApplicantIdMap(userId, posts, applicantMap);
         Map<Long, Long> currentNumberMap = getCurrentNumberMap(posts, applicantMap);
+        Map<Long, String> districtNameMap = getDistrictNameMap(posts);
 
         Long lastKey = getLastKey(posts);
         return PostResponse.GetParticipationRecordsDto.of(
@@ -199,7 +205,8 @@ public class PostService {
                 memberMap,
                 rateMap,
                 applicantIdMap,
-                currentNumberMap
+                currentNumberMap,
+                districtNameMap
         );
     }
 
@@ -274,7 +281,25 @@ public class PostService {
         ));
     }
 
+    private Map<Long, String> getDistrictNameMap(List<Post> posts) {
+        return posts.stream().collect(Collectors.toMap(
+                Post::getId,
+                post -> {
+                    District district = districtRepository.findById(post.getDistrict().getId())
+                            .orElseThrow(() -> new CustomException(ErrorCode.REGION_NOT_FOUND));
+                    return district.getCountry().getCity().getName() + " " +
+                            district.getCountry().getName() + " " +
+                            district.getName();
+                }
+        ));
+    }
+
     private void deletePost(Post post) { // 삭제 로직 따로 분리
+        List<Applicant> applicants = applicantRepository.findAllByPost(post);
+        applicants.stream().forEach(applicant -> userRateRepository.deleteAllByApplicant(applicant));
+        applicantRepository.deleteAllByPost(post);
+        commentRepository.deleteAllByPost(post);
+        scoreRepository.deleteAllByPost(post);
         postRepository.delete(post);
     }
 

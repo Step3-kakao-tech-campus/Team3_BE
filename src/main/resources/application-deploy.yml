@@ -43,7 +43,7 @@ logging:
 # jwt token config
 bungaebowling:
   token_exp:
-    access: 172800
+    access: 600
     refresh: 2592000
   secret: ${TOKEN_SECRET}
   domain: ${DOMAIN}
@@ -55,6 +55,7 @@ mail:
   port: 587
   username: ${GMAIL_USERNAME}
   password: ${GMAIL_APPLICATION_PASSWORD}
+  server: ${FLASK_MAIL_SERVER}
 
 # aws s3 config
 cloud:
@@ -63,6 +64,7 @@ cloud:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
     s3:
+      endpoint: ${AWS_S3_END_POINT}
       bucket: bungaebowling-img-s3
     region:
       static: ap-northeast-2

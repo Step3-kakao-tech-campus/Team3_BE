@@ -1,6 +1,7 @@
 package com.bungaebowling.server.user.dto;
 
 import com.bungaebowling.server.city.country.district.District;
+import com.bungaebowling.server.user.Role;
 import com.bungaebowling.server.user.User;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;

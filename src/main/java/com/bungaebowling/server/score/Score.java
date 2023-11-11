@@ -63,4 +63,8 @@ public class Score {
     public void updateScoreNum(Integer scoreNum) {
         this.scoreNum = scoreNum;
     }
+
+    public Boolean isMine(Long userId) { // 내 점수 인지 아닌지 확인
+        return this.user.getId().equals(userId);
+    }
 }

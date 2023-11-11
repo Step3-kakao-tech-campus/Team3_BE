@@ -27,7 +27,7 @@ import java.net.URISyntaxException;
 @RequestMapping("/api")
 public class UserController {
 
-    final private UserService userService;
+    private final UserService userService;
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody @Valid UserRequest.JoinDto requestDto, Errors errors) throws URISyntaxException {
@@ -58,8 +58,10 @@ public class UserController {
         userService.logout(userDetails.getId());
 
         ResponseCookie responseCookie = ResponseCookie.from("refreshToken", "")
-                .maxAge(0)
+                .httpOnly(true) // javascript 접근 방지
+                .secure(true) // https 통신 강제
                 .sameSite("None")
+                .maxAge(0)
                 .build();
 
         var response = ApiUtils.success();

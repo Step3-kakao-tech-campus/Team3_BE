@@ -4,6 +4,8 @@ resources:
   - mysql.yaml
   - backend.yaml
   - redis.yaml
+  - frontend.yaml
+  #- ingress.yaml
 configMapGenerator:
   - name: nginx
     files:

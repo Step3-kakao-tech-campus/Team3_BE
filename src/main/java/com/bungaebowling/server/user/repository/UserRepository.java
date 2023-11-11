@@ -13,6 +13,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByName(String name);
 
+    Boolean existsByName(String name);
+
     List<User> findAllByNameContainingOrderByIdDesc(@Param("name") String name, Pageable pageable);
 
     List<User> findAllByNameContainingAndIdLessThanOrderByIdDesc(@Param("name") String name, @Param("key") Long key, Pageable pageable);

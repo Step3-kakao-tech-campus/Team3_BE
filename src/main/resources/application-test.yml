@@ -4,6 +4,7 @@ server:
       charset: utf-8
       force: true
   port: 8080
+
 spring:
   datasource:
     url: jdbc:h2:mem:test;MODE=MySQL
@@ -62,6 +63,7 @@ mail:
   port: 587
   username: bungaebowling55@gmail.com
   password: gmailApplicationPassword
+  server: flask-mail-server
 
 # aws s3 config
 cloud:
@@ -70,6 +72,7 @@ cloud:
       access-key: aws-access-key
       secret-key: aws-secret-key
     s3:
+      endpoint: aws-s3-endpoint
       bucket: bungaebowling-img-s3
     region:
       static: ap-northeast-2

@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -30,13 +29,13 @@ public class ScoreService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public ScoreResponse.GetScoresDto readScores(Long postId) {
-        List<Score> scores = findScores(postId);
+    public ScoreResponse.GetScoresDto readScores(Long postId, Long userId) {
+        List<Score> scores = findScores(postId, userId);
         return ScoreResponse.GetScoresDto.of(scores);
     }
 
-    private List<Score> findScores(Long postId) {
-        return scoreRepository.findAllByPostId(postId);
+    private List<Score> findScores(Long postId, Long userId) {
+        return userId == null ? scoreRepository.findAllByPostId(postId) : scoreRepository.findAllByPostIdAndUserId(postId, userId);
     }
 
     @Transactional
@@ -102,11 +101,9 @@ public class ScoreService {
 
     @Transactional
     public void update(Long userId, Long postId, Long scoreId, Integer scoreNum, MultipartFile image) {
-        Post post = findPostById(postId);
-
-        checkPostPermission(userId, post);
-
         Score score = findScoreById(scoreId);
+
+        checkScoreUpdatePermission(userId, score);
 
         updateScore(scoreNum, image, postId, userId, score);
     }
@@ -143,12 +140,10 @@ public class ScoreService {
     }
 
     @Transactional
-    public void deleteImage(Long userId, Long postId, Long scoreId) {
-        Post post = findPostById(postId);
-
-        checkPostPermission(userId, post);
-
+    public void deleteImage(Long userId, Long scoreId) {
         Score score = findScoreById(scoreId);
+
+        checkScoreDeletePermission(userId, score);
 
         checkImageExist(score);
 
@@ -162,19 +157,23 @@ public class ScoreService {
     }
 
     @Transactional
-    public void delete(Long userId, Long postId, Long scoreId) {
-        Post post = findPostById(postId);
-
-        checkPostPermission(userId, post);
-
+    public void delete(Long userId, Long scoreId) {
         Score score = findScoreById(scoreId);
+
+        checkScoreDeletePermission(userId, score);
 
         deleteScore(score);
     }
 
-    private void checkPostPermission(Long userId, Post post) {
-        if (!post.isMine(userId)) {
+    private void checkScoreDeletePermission(Long userId, Score score) {
+        if (!score.isMine(userId)) {
             throw new CustomException(ErrorCode.SCORE_DELETE_PERMISSION_DENIED);
+        }
+    }
+
+    private void checkScoreUpdatePermission(Long userId, Score score) {
+        if (!score.isMine(userId)) {
+            throw new CustomException(ErrorCode.SCORE_UPDATE_PERMISSION_DENIED);
         }
     }
 
