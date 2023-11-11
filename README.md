@@ -179,7 +179,7 @@
 
    ```
    $ cp .mysql_env.example .mysql_env           # 파일 복사
-   $ vi .env                                    # .mysql_env 수정
+   $ vi .mysql_env                              # .mysql_env 수정
    ```
 
 5. `docker-compose.yml` 파일을 이용해 `Redis` 및 `MySQL` 도커 컨테이너를 실행합니다.(도커가 설치되어 있다고 가정합니다.)
