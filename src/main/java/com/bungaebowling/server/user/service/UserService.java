@@ -316,8 +316,8 @@ public class UserService {
 
         String token = JwtProvider.createEmailVerificationForPassword(user);
 
-        String subject = "[번개볼링] 비밀번호 초기화 및 임시 비밀번호 발급을 위한 이메일 인증을 완료해주세요.";
-        String text = "<a href='" + domain + "/password/email-verification?token=" + token + "'>링크</a>를 클릭하여 인증을 완료해주세요!";
+        String subject = "[번개볼링] 비밀번호 초기화를 위해 이메일 인증을 완료해주세요.";
+        String text = userEmailCreator.createEmailVerificationMailForPasswordReset(domain + "/password/email-verification?token=" + token);
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("deploy")) {
             sendMailToMailServer(user, subject, text);
@@ -334,7 +334,7 @@ public class UserService {
         user.updatePassword(passwordEncoder.encode(tempPassword));
 
         String subject = "[번개볼링] 임시 비밀번호";
-        String text = "임시 비밀번호는  " + tempPassword + "  입니다. <br>*비밀번호를 변경해주세요." + "<br>*기존의 비밀번호는 사용할 수 없습니다.";
+        String text = userEmailCreator.createEmailTempPassword(tempPassword, domain);
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("deploy")) {
             sendMailToMailServer(user, subject, text);
