@@ -59,6 +59,7 @@ public class UserService {
     private final UserRateRepository userRateRepository;
     private final ScoreRepository scoreRepository;
     private final ApplicantRepository applicantRepository;
+    private final UserEmailCreator userEmailCreator;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -162,7 +163,8 @@ public class UserService {
         var token = JwtProvider.createEmailVerification(user);
 
         String subject = "[번개볼링] 이메일 인증을 완료해주세요.";
-        String text = "<a href='" + domain + "/email-verification?token=" + token + "'>링크</a>를 클릭하여 인증을 완료해주세요!";
+
+        String text = userEmailCreator.createEmailVerificationMail(domain + "/email-verification?token=" + token);
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("deploy")) {
             sendMailToMailServer(user, subject, text);
