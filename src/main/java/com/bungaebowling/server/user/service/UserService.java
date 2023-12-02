@@ -333,7 +333,7 @@ public class UserService {
         String tempPassword = getRamdomPassword(15);
         user.updatePassword(passwordEncoder.encode(tempPassword));
 
-        String subject = "[번개볼링] 임시 비밀번호";
+        String subject = "[번개볼링] 임시 비밀번호 안내입니다.";
         String text = userEmailCreator.createEmailTempPassword(tempPassword, domain);
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("deploy")) {
