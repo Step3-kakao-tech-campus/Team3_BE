@@ -61,8 +61,7 @@
 
 ### 둘러보기
 
-- **[실제 배포 링크](https://bungae.jagaldol.dev)**
-- **[api문서](https://bungae.jagaldol.dev:8080/api/docs/swagger)**
+- **[api문서](https://server.jagaldol.com/api/docs/swagger)**
 
 ### 깃헙 레포지토리
 
@@ -152,7 +151,7 @@
 2. `Temp3_BE/.env.example` 파일을 `.env`로 복사하고 내용을 자신의 환경에 맞게 설정해줍니다.
 
    ```
-   $ cd Team10_BE                       # 디렉토리 이동
+   $ cd Team3_BE                        # 디렉토리 이동
    $ cp .env.example .env               # 파일 복사
    $ vi .env                            # .env 수정
    파일 수정 및 저장 진행하기
@@ -246,7 +245,7 @@ spring boot의 deploy profile을 사용하는 경우만 Flask SMTP 서버 실행
 
 개발한 API들의 핵심 특성을 서술합니다.
 
-> 각 api들의 상세한 명세는 [Swagger 문서](https://bungae.jagaldol.dev:8080/api/docs/swagger)를 확인 부탁드립니다.
+> 각 api들의 상세한 명세는 [Swagger 문서](https://server.jagaldol.com/api/docs/swagger)를 확인 부탁드립니다.
 
 ### 인증
 
