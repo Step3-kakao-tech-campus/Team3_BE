@@ -61,7 +61,7 @@
 
 ### 둘러보기
 
-- **[api문서](https://server.jagaldol.com/api/docs/swagger)**
+- **[api문서](https://jagaldol.com/files/bungaebowling-api-docs.html)**
 
 ### 깃헙 레포지토리
 
@@ -245,7 +245,7 @@ spring boot의 deploy profile을 사용하는 경우만 Flask SMTP 서버 실행
 
 개발한 API들의 핵심 특성을 서술합니다.
 
-> 각 api들의 상세한 명세는 [Swagger 문서](https://server.jagaldol.com/api/docs/swagger)를 확인 부탁드립니다.
+> 각 api들의 상세한 명세는 [Swagger 문서](https://jagaldol.com/files/bungaebowling-api-docs.html)를 확인 부탁드립니다.
 
 ### 인증
 
